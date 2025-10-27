@@ -1,0 +1,24 @@
+# Bỏ qua các file/folder cấu hình và build ở BẤT KỲ ĐÂU (dùng **/)
+
+# Thư mục cấu hình VS
+**/.vs/
+
+# Các thư mục build
+**/[Rr]elease/
+**/[Dd]ebug/
+**/[Xx]64/
+**/[Aa]rm64/
+**/bin/
+**/obj/
+
+# File do người dùng tạo
+**/*.suo
+**/*.user
+**/*.VC.db
+
+# File build rác
+**/*.ilk
+**/*.pdb
+**/*.idb
+**/*.pch
+**/*.ipch
