@@ -1,6 +1,0 @@
-﻿  stdafx.cpp
-  SVGDemo.cpp
-D:\File of Phuc\CSC_HCMUS\OOP\SVG_RENDER\DemoProject\SVGDemo\SVGDemo\SVGDemo.cpp(96,14): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
-  (compiling source file '/SVGDemo.cpp')
-  
-  SVGDemo.vcxproj -> D:\File of Phuc\CSC_HCMUS\OOP\SVG_RENDER\DemoProject\SVGDemo\x64\Debug\SVGDemo.exe
