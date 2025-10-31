@@ -32,18 +32,21 @@ void PrintRawXML(xml_node<>* node, int indent) {
 
 //Main IS HERE
 int AppLogic() {
-    cout << "SVG Demo Start" << endl;
+    //cout << "SVG Demo Start" << endl;
 
     SVGRoot svgRoot;
     svgRoot.loadFromFile("sample.svg");
     svgRoot.render();
 
-    cout << "SVG Demo End\n\n";
+    //cout << "SVG Demo End\n\n";
+
+    cout << "\n\nNhan Enter de ket thuc..." << endl;
+    cin.get();
 
 
     // Test: Print loaded elements
 
-   /* ifstream file("sample.svg");
+    /*ifstream file("sample.svg");
     if (!file.is_open()) {
         cout << "Error: Khong the mo file sample.svg" << endl;
         return -1;

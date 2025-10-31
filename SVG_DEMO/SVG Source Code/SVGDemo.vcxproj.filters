@@ -113,6 +113,9 @@
     <ClCompile Include="Polyline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextElement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SVGDemo.rc">

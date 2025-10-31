@@ -7,6 +7,7 @@
 #include "Path.h"
 #include "Polygon.h"
 #include "Polyline.h"
+#include "TextElement.h"
 
 SVGElement* SVGRoot::createNode(xml_node<>* node)
 {
@@ -33,6 +34,9 @@ SVGElement* SVGRoot::createNode(xml_node<>* node)
 	else if (nodeName == "polyline") {
 		newElement = new SVGPolyline();
 	}
+	else if (nodeName == "text") {
+		newElement = new TextElement();
+	}
 	else {
 		std::cerr << "The khong duoc ho tro!!!" << endl;
 		return nullptr;
@@ -49,8 +53,9 @@ void SVGRoot::addElement(SVGElement* element)
 
 void SVGRoot::parseNodes(xml_node<>* node)
 {
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
+	for (xml_node<>* child = node->first_node(); child != nullptr; child = child->next_sibling()) {
 
+		cout << child->name() << " " << child->value() << endl;
 		SVGElement* newElement = this->createNode(child);
 		if (newElement) {
 			newElement->parseAttributes(child);
