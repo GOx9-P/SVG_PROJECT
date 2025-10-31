@@ -11,6 +11,21 @@ private:
 	float fontSize;	
 	string textAnchor;
 public:
+	SVGPoint getPosition() const;
+	void setPosition(SVGPoint&);
+
+	string getTextContent() const;
+	void setTextContent(string&);
+
+	string getFontFamily() const;
+	void setFontFamily(string&);
+
+	float getFontSize() const;
+	void setFontSize(float&);
+
+	string getTextAnchor() const;
+	void setTextAnchor(string&);
+	
 	void parseAttributes(xml_node<>*);
 	void draw();
 	~TextElement();
