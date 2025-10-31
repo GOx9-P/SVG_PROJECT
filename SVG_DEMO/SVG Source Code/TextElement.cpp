@@ -49,34 +49,27 @@ void TextElement::parseAttributes(xml_node<>* Node)
     {
         float newX = atof(attribute->value());
         position.setX(newX);
-        cout << "x: " << newX << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("y"))
     {
         float newY = atof(attribute->value());
         position.setY(newY);
-        cout << "y: " << newY << ' ';
     }
     if (Node->value())
     {
         textContent = Node->value();
-        cout << "textContent: " << textContent << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("font-size"))
     {
         fontSize = atof(attribute->value());
-        cout << "fontSize: " << fontSize << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("font-family"))
     {
         fontFamily = attribute->value();
-        cout << "fontFamily: " << fontFamily << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("text-anchor"))
     {
         textAnchor = attribute->value();
-        cout << " textAnchor: " << textAnchor << ' ';
-
     }
 
 }

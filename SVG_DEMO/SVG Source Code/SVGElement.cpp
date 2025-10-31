@@ -74,41 +74,33 @@ void SVGElement::parseAttributes(xml_node<>* Node)
     if (xml_attribute<>* attribute = Node->first_attribute("id"))
     {
         id = attribute->value();
-        cout <<"id: "<< id << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("class"))
     {
         className = attribute->value();
-        cout << "classname: " << className << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("style"))
     {
         style = attribute->value();
-        cout <<"style: " <<style << ' ';
     }
     if (xml_attribute<>* attribute = Node->first_attribute("transform"))
     {
         transform = attribute->value();;
-        cout <<"transform: "<< transform << ' ';
     }
     if (xml_attribute<>* attr = Node->first_attribute("fill"))
     {
         fill = attr->value();
-        cout <<"fill: "<< fill << ' ';
     }
     if (xml_attribute<>* attr = Node->first_attribute("stroke"))
     {
         stroke = attr->value();
-        cout <<"stroke: "<< stroke << ' ';
     }
     if (xml_attribute<>* attr = Node->first_attribute("stroke-width"))
     {
         strokeWidth = stof(attr->value());
-        cout <<"strokeWidth: "<< strokeWidth << ' ';
     }
     if (xml_attribute<>* attr = Node->first_attribute("opacity"))
     {
         opacity = stof(attr->value());
-        cout <<"opacity: "<< opacity << ' ';
     }
 }
