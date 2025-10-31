@@ -2,11 +2,11 @@
 
 #include "GeometricElement.h"
 
-class Path : public GeometricElement {
+class SVGPath : public GeometricElement {
 private:
 	string d;
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Path();
+	~SVGPath();
 };

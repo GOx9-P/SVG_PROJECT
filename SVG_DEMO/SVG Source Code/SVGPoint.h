@@ -7,7 +7,6 @@ private:
 	float y;
 public:
 	SVGPoint();
-	SVGPoint(float x = 0.0f, float y = 0.0f);
 	void translate(float dx, float dy);
 	~SVGPoint();
 };

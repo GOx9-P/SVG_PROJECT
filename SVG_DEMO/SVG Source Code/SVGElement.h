@@ -1,12 +1,11 @@
 #pragma once
 
-
 #include "Library.h"
 
 class SVGElement {
 private:
 	string id;
-	class name;
+	string className;
 	string style;
 	string transform;
 	string fill;

@@ -2,12 +2,12 @@
 
 #include "GeometricElement.h"
 
-class Ellipse : public GeometricElement {
+class SVGEllipse : public GeometricElement {
 private:
 	float rx;
 	float ry;
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Ellipse();
+	~SVGEllipse();
 };

@@ -167,6 +167,14 @@
     <ClInclude Include="TextElement.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="Ellipes.cpp" />
+    <ClCompile Include="GeometricElement.cpp" />
+    <ClCompile Include="Line.cpp" />
+    <ClCompile Include="Path.cpp" />
+    <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="Polyline.cpp" />
+    <ClCompile Include="Rect.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -175,6 +183,7 @@
     </ClCompile>
     <ClCompile Include="SVGDemo.cpp" />
     <ClCompile Include="SVGElement.cpp" />
+    <ClCompile Include="SVGPoint.cpp" />
     <ClCompile Include="SVGRoot.cpp" />
     <ClCompile Include="TestMain.cpp" />
   </ItemGroup>

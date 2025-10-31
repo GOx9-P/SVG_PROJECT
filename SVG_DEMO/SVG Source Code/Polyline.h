@@ -2,11 +2,11 @@
 
 #include "GeometricElement.h"
 
-class Polyline : public GeometricElement {
+class SVGPolyline : public GeometricElement {
 private:
 	vector<SVGPoint> points;
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Polyline();
+	~SVGPolyline();
 };

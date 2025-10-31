@@ -1,1 +1,111 @@
 #include "stdafx.h"
+#include "SVGRoot.h"
+#include "Rect.h"
+#include "Circle.h"
+#include "Ellipes.h"
+#include "Line.h"
+#include "Path.h"
+#include "Polygon.h"
+#include "Polyline.h"
+
+SVGElement* SVGRoot::createNode(xml_node<>* node)
+{
+	string nodeName = node->name();
+	SVGElement* newElement = nullptr;
+	if (nodeName == "rect") {
+		newElement = new SVGRect();
+	}
+	else if (nodeName == "circle") {
+		newElement = new SVGCircle();
+	}
+	else if (nodeName == "ellipse") {
+		newElement = new SVGEllipse();
+	}
+	else if (nodeName == "line") {
+		newElement = new SVGLine();
+	}
+	else if (nodeName == "path") {
+		newElement = new SVGPath();
+	}
+	else if (nodeName == "polygon") {
+		newElement = new SVGPolygon();
+	}
+	else if (nodeName == "polyline") {
+		newElement = new SVGPolyline();
+	}
+	else {
+		std::cerr << "The khong duoc ho tro!!!" << endl;
+		return nullptr;
+	}
+	return newElement;
+}
+
+void SVGRoot::addElement(SVGElement* element)
+{
+	if (element != nullptr) {
+		this->elements.push_back(element);
+	}
+}
+
+void SVGRoot::parseNodes(xml_node<>* node)
+{
+	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
+
+		SVGElement* newElement = this->createNode(child);
+		if (newElement) {
+			newElement->parseAttributes(child);
+			this->addElement(newElement);
+		}
+	}
+}
+
+void SVGRoot::loadFromFile(const string& filename)
+{
+	ifstream file(filename);
+	if (!file) {
+		cerr << "Error: Khong the mo file: " << filename << endl;
+		return;
+	}
+	vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+	buffer.push_back('\0');
+	xml_document<> doc;
+
+	try {
+		doc.parse<0>(buffer.data());
+		xml_node<>* rootNode = doc.first_node("svg");
+		if (!rootNode) {
+			std::cerr << "Error: Khong tim thay <svg> trong file: " << filename << endl;
+			return;
+		}
+		if (xml_attribute<>* widthAttribute = rootNode->first_attribute("width")) {
+			this->width = stof(widthAttribute->value());
+		}
+		if (xml_attribute<>* heightAttribute = rootNode->first_attribute("height")) {
+			this->height = stof(heightAttribute->value());
+		}
+		if (xml_attribute<>* viewBoxAtrribute = rootNode->first_attribute("viewBox")) {
+			this->viewBox = viewBoxAtrribute->value();
+		}
+		this->parseNodes(rootNode);
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error prasing XML: " << e.what() << endl;
+	}
+}
+
+void SVGRoot::render()
+{
+	for (auto element : elements) {
+		if (element) {
+			element->draw();
+		}
+	}
+}
+
+SVGRoot::~SVGRoot()
+{
+	for (auto element : this->elements) {
+		delete element;
+	}
+	this->elements.clear();
+}

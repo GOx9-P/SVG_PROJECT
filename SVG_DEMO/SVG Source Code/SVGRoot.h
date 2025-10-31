@@ -9,7 +9,7 @@ private:
 	string viewBox;
 	vector<SVGElement*> elements;
 public:
-	void createNode(xml_node<>*);
+	SVGElement* createNode(xml_node<>*);
 	void addElement(SVGElement* element);
 	void parseNodes(xml_node<>*);
 	void loadFromFile(const string& filename);

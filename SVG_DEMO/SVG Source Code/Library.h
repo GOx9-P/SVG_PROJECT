@@ -8,6 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+
 using namespace std;
 using namespace rapidxml;
 using namespace Gdiplus;

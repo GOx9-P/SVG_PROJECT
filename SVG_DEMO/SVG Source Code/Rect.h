@@ -1,7 +1,7 @@
 #pragma once
 #include "GeometricElement.h"
 
-class Rect : public GeometricElement {
+class SVGRect : public GeometricElement {
 private:
 	float width;
 	float height;
@@ -9,5 +9,5 @@ private:
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Rect();
+	~SVGRect();
 };

@@ -2,11 +2,11 @@
 
 #include "GeometricElement.h"
 
-class Polygon : public GeometricElement {
+class SVGPolygon : public GeometricElement {
 private:
 	vector<SVGPoint> points;
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Polygon();
+	~SVGPolygon();
 };

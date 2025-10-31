@@ -2,11 +2,11 @@
 
 #include "GeometricElement.h"
 
-class Line : public GeometricElement {
+class SVGLine : public GeometricElement {
 private:
 	SVGPoint p1, p2;
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Line();
+	~SVGLine();
 };

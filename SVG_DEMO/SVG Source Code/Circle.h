@@ -2,11 +2,11 @@
 
 #include "GeometricElement.h"
 
-class Circle : public GeometricElement {
+class SVGCircle : public GeometricElement {
 private:
 	float r;
 public:
 	void parseAttributes(xml_node<>*);
 	void draw();
-	~Circle();
+	~SVGCircle();
 };
