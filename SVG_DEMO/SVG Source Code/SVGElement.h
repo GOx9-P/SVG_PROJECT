@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Library.h"
+#include "Color.h"
+#include "Stroke.h"
 
 class SVGElement {
 private:
@@ -8,12 +10,11 @@ private:
 	string className;
 	string style;
 	string transform;
-	string fill;
-	string stroke;
-	float strokeWidth;
+	SVGColor fill;
+	SVGStroke stroke;
 	float opacity;
 public:
-    string getId() const;
+	string getId() const;
 	void setId(string&);
 
 	string getClassName() const;
@@ -25,7 +26,7 @@ public:
 	string getTransform() const;
 	void setTransform(string&);
 
-	string getFill() const ;
+	string getFill() const;
 	void setFill(string&);
 
 	string getStroke() const;
