@@ -8,10 +8,10 @@ private:
     float width;
 public:
     SVGStroke();
-    SVGStroke(const Color& c, float w);
-    Color& getColor();
+    SVGStroke(const SVGColor& c, float w);
+    SVGColor& getColor();
     float getWidth();
-    void setColor(Color& c);
+    void setColor(SVGColor& c);
     void setWidth(float w);
     bool isVisible();
 };
