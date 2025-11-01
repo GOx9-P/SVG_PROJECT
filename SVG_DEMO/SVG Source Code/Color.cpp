@@ -57,3 +57,36 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
 
     return SVGColor(red, green, blue, alpha);
 }
+
+void SVGColor::setR(BYTE red) {
+    r = red;
+}
+
+void SVGColor::setG(BYTE green) {
+    g = green;
+}
+
+void SVGColor::setB(BYTE blue) {
+    b = blue;
+}
+
+void SVGColor::setA(BYTE alpha) {
+    a = alpha;
+}
+SVGColor::SVGColor() : r(0), g(0), b(0), a(255) {}
+SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha)
+	: r(red), g(green), b(blue), a(alpha) {
+}
+BYTE SVGColor::getR() {
+    return r;
+}
+BYTE SVGColor::getG() {
+    return g;
+}
+BYTE SVGColor::getB() {
+    return b;
+}
+BYTE SVGColor::getA() {
+    return a;
+}
+SVGColor::~SVGColor() {}
