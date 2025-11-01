@@ -85,7 +85,7 @@ void SVGElement::parseAttributes(xml_node<>* Node)
     }
     if (xml_attribute<>* attribute = Node->first_attribute("transform"))
     {
-        transform = attribute->value();
+        transform = attribute->value();;
     }
     if (xml_attribute<>* attr = Node->first_attribute("fill"))
     {

@@ -7,6 +7,14 @@ private:
 	float height;
 	float rx, ry;
 public:
+	float getWidth() const;
+	float getHeight() const;
+	float getRx() const;
+	float getRy() const;
+	void setWidth(const float&);
+	void setHeight(const float&);
+	void setRx(const float&);
+	void setRy(const float&);
 	void parseAttributes(xml_node<>*);
 	void draw();
 	~SVGRect();

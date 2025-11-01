@@ -8,9 +8,6 @@
 #include <vector>
 #include <fstream>
 #include <string>
-#include <sstream>      
-#include <algorithm>    
-#include <stdexcept>    
 
 using namespace std;
 using namespace rapidxml;

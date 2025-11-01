@@ -7,6 +7,10 @@ private:
 	float rx;
 	float ry;
 public:
+	void setRx(const float& other);
+	float getRx() const;
+	void setRy(const float& other);
+	float getRy() const;
 	void parseAttributes(xml_node<>*);
 	void draw();
 	~SVGEllipse();

@@ -6,6 +6,8 @@ class GeometricElement : public SVGElement {
 private:
 	SVGPoint position;
 public:
+	void setPosition(SVGPoint&);
+	SVGPoint getPosition() const;
 	void draw();
 	void parseAttributes(xml_node<>*);
 	~GeometricElement();

@@ -6,6 +6,8 @@ class SVGCircle : public GeometricElement {
 private:
 	float r;
 public:
+	float getR() const;
+	void setR(float);
 	void parseAttributes(xml_node<>*);
 	void draw();
 	~SVGCircle();

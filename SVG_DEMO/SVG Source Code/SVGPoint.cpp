@@ -30,6 +30,8 @@ SVGPoint::SVGPoint()
 
 void SVGPoint::translate(float dx, float dy)
 {
+	x += dx;
+	y += dy;
 }
 
 
