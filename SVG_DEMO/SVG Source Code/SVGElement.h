@@ -14,29 +14,32 @@ private:
 	SVGStroke stroke;
 	float opacity;
 public:
+
+	SVGElement();
+
 	string getId() const;
-	void setId(string&);
+	void setId(const string&);
 
 	string getClassName() const;
-	void setClassName(string&);
+	void setClassName(const string&);
 
 	string getStyle() const;
-	void setStyle(string&);
+	void setStyle(const string&);
 
 	string getTransform() const;
-	void setTransform(string&);
+	void setTransform(const string&);
 
-	string getFill() const;
-	void setFill(string&);
+	SVGColor getFill() const;
+	void setFill(const SVGColor&);
 
-	string getStroke() const;
-	void setStroke(string&);
+	SVGStroke getStroke() const;
+    void setStroke(const SVGStroke&);
 
-	float getStrokeWidth() const;
-	void setStrokeWidth(float&);
 
 	float getOpacity() const;
-	void setOpacity(float&);
+	void setOpacity(const float&);
+	
+	
 
 	virtual void parseAttributes(xml_node<>*) = 0;
 	virtual void draw() = 0;
