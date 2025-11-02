@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "Circle.h"
 
+SVGCircle::SVGCircle() {
+	setR(0);
+}
+
 void SVGCircle::setR(float newR) {
 	r = newR;
 }
@@ -11,7 +15,7 @@ float SVGCircle::getR() const {
 
 void SVGCircle::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("r"))
 	{
 		this->setR((atof(attribute->value())));

@@ -9,7 +9,7 @@ private:
 	BYTE r;
 	BYTE g;
 	BYTE b;
-	BYTE a;
+	BYTE a; // opacity.
 public:
 	SVGColor();
 	SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha);

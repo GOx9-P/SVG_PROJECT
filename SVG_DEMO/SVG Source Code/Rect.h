@@ -7,6 +7,7 @@ private:
 	float height;
 	float rx, ry;
 public:
+	SVGRect();
 	float getWidth() const;
 	float getHeight() const;
 	float getRx() const;

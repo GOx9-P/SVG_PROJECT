@@ -2,6 +2,13 @@
 #include "Rect.h"
 #include "SVGElement.h"
 
+SVGRect::SVGRect() {
+	setWidth(0);
+	setHeight(0);
+	setRx(0);
+	setRy(0);
+}
+
 void SVGRect::setWidth(const float& newWidth)
 {
 	width = newWidth;
@@ -43,7 +50,7 @@ float SVGRect::getRy() const
 
 void SVGRect::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("width"))
 	{
 		this->setWidth(atof(attribute->value()));

@@ -11,7 +11,7 @@ SVGStroke::SVGStroke(const SVGColor& c, float w)
 	this->width = w;
 }
 
-SVGColor& SVGStroke::getColor()
+SVGColor& SVGStroke::getColor() 
 {
 	return this->color;
 }

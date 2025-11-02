@@ -11,6 +11,11 @@ private:
 	float fontSize;	
 	string textAnchor;
 public:
+
+	TextElement();
+	TextElement(const SVGPoint&,const string&,const  string&,const float&,const string&);
+	TextElement(const TextElement&);
+
 	SVGPoint getPosition() const;
 	void setPosition(const SVGPoint&);
 

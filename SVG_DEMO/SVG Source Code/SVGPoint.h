@@ -11,6 +11,10 @@ public:
 	float getY() const;
 	void setY(const float&);
 	SVGPoint();
+<<<<<<< HEAD
 	void translate(const float&,const float&);
+=======
+	void translate(const float,const float);
+>>>>>>> NhatTruongDz
 	~SVGPoint();
 };

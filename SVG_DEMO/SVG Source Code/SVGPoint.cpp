@@ -7,7 +7,7 @@ float SVGPoint::getX() const
 	return x;
 }
 
-void SVGPoint::setX(float& newX)
+void SVGPoint::setX(const float& newX)
 {
 	x = newX;
 }
@@ -17,7 +17,7 @@ float SVGPoint::getY()const
 	return y;
 }
 
-void SVGPoint::setY(float& newY)
+void SVGPoint::setY(const float& newY)
 {
 	y = newY;
 }
@@ -28,7 +28,7 @@ SVGPoint::SVGPoint()
 	y = 0;
 }
 
-void SVGPoint::translate(float dx, float dy)
+void SVGPoint::translate(const float dx,const float dy)
 {
 	x += dx;
 	y += dy;

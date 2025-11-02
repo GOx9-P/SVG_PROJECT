@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "Ellipes.h"
 
+SVGEllipse::SVGEllipse() {
+	setRx(0);
+	setRy(0);
+}
+
 void SVGEllipse::setRx(const float& newRx) {
 	rx = newRx;
 }
@@ -16,7 +21,7 @@ float SVGEllipse::getRy() const {
 
 void SVGEllipse::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("rx"))
 	{
 		setRx(atof(attribute->value()));

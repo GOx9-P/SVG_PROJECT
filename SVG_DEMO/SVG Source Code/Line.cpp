@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "Line.h"
 
+SVGLine::SVGLine() {
+	SVGPoint p1, p2;
+	this->p1 = p1;
+	this->p2 = p2;
+}
+
 void SVGLine::setPosition1(SVGPoint& newP1) {
 	p1 = newP1;
 }
@@ -16,7 +22,7 @@ SVGPoint SVGLine::getPosition2(SVGPoint&) const {
 
 void SVGLine::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("x1"))
 	{
 		float newX1 = atof(attribute->value());
