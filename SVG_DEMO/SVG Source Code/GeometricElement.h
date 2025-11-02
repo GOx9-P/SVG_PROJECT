@@ -6,6 +6,7 @@ class GeometricElement : public SVGElement {
 private:
 	SVGPoint position;
 public:
+	GeometricElement();
 	void setPosition(SVGPoint&);
 	SVGPoint getPosition() const;
 	void draw();
