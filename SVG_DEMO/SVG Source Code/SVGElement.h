@@ -29,28 +29,17 @@ public:
 	string getTransform() const;
 	void setTransform(const string&);
 
-<<<<<<< HEAD
-	string getFill() const;
-	void setFill(const string&);
-=======
+
 	SVGColor getFill() const;
 	void setFill(const SVGColor&);
->>>>>>> NhatTruongDz
 
 	SVGStroke getStroke() const;
     void setStroke(const SVGStroke&);
-
-<<<<<<< HEAD
-	SVGColor getColor() const;
-	void setColor(const SVGColor&);
-=======
->>>>>>> NhatTruongDz
 
 	float getOpacity() const;
 	void setOpacity(const float&);
 	
 	
-
 	virtual void parseAttributes(xml_node<>*) = 0;
 	virtual void draw() = 0;
 
