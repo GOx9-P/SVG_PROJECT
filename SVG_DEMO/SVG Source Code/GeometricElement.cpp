@@ -21,11 +21,13 @@ void GeometricElement::parseAttributes(xml_node<>* Node)
 	{
 		float newX = atof(attribute->value());
 		position.setX(newX);
+		cout << "X: " << newX;
 	}
 	if (xml_attribute<>* attribute = Node->first_attribute("y"))
 	{
 		float newY = atof(attribute->value());
 		position.setY(newY);
+		cout << "Y: " << newY;
 	}
 
 }

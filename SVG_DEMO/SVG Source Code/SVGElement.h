@@ -14,6 +14,9 @@ private:
 	SVGStroke stroke;
 	float opacity;
 public:
+
+	SVGElement();
+
 	string getId() const;
 	void setId(const string&);
 
@@ -26,14 +29,12 @@ public:
 	string getTransform() const;
 	void setTransform(const string&);
 
-	string getFill() const;
-	void setFill(const string&);
+	SVGColor getFill() const;
+	void setFill(const SVGColor&);
 
 	SVGStroke getStroke() const;
     void setStroke(const SVGStroke&);
 
-	SVGColor getColor() const;
-	void setColor(const SVGColor&);
 
 	float getOpacity() const;
 	void setOpacity(const float&);

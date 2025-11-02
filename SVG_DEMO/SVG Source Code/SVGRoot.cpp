@@ -55,12 +55,13 @@ void SVGRoot::parseNodes(xml_node<>* node)
 {
 	for (xml_node<>* child = node->first_node(); child != nullptr; child = child->next_sibling()) {
 
-		cout << child->name() << " " << child->value() << endl;
+		cout << child->name() << ": "; /*<< child->value() << endl;*/
 		SVGElement* newElement = this->createNode(child);
 		if (newElement) {
 			newElement->parseAttributes(child);
 			this->addElement(newElement);
 		}
+		cout << endl;
 	}
 }
 
