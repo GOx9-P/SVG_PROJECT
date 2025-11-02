@@ -43,7 +43,7 @@ float SVGRect::getRy() const
 
 void SVGRect::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("width"))
 	{
 		this->setWidth(atof(attribute->value()));

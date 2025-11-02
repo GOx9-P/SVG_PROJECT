@@ -16,7 +16,7 @@ SVGPoint SVGLine::getPosition2(SVGPoint&) const {
 
 void SVGLine::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("x1"))
 	{
 		float newX1 = atof(attribute->value());
