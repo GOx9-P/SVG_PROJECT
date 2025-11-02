@@ -15,28 +15,30 @@ private:
 	float opacity;
 public:
 	string getId() const;
-	void setId(string&);
+	void setId(const string&);
 
 	string getClassName() const;
-	void setClassName(string&);
+	void setClassName(const string&);
 
 	string getStyle() const;
-	void setStyle(string&);
+	void setStyle(const string&);
 
 	string getTransform() const;
-	void setTransform(string&);
+	void setTransform(const string&);
 
 	string getFill() const;
-	void setFill(string&);
+	void setFill(const string&);
 
-	string getStroke() const;
-	void setStroke(string&);
+	SVGStroke getStroke() const;
+    void setStroke(const SVGStroke&);
 
-	float getStrokeWidth() const;
-	void setStrokeWidth(float&);
+	SVGColor getColor() const;
+	void setColor(const SVGColor&);
 
 	float getOpacity() const;
-	void setOpacity(float&);
+	void setOpacity(const float&);
+	
+	
 
 	virtual void parseAttributes(xml_node<>*) = 0;
 	virtual void draw() = 0;

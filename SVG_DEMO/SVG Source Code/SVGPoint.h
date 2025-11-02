@@ -7,10 +7,10 @@ private:
 	float y;
 public:
 	float getX() const;
-	void setX(float&);
+	void setX(const float&);
 	float getY() const;
-	void setY(float&);
+	void setY(const float&);
 	SVGPoint();
-	void translate(float dx, float dy);
+	void translate(const float&,const float&);
 	~SVGPoint();
 };
