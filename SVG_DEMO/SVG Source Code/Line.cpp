@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "Line.h"
 
+SVGLine::SVGLine() {
+	SVGPoint p1, p2;
+	this->p1 = p1;
+	this->p2 = p2;
+}
+
 void SVGLine::setPosition1(SVGPoint& newP1) {
 	p1 = newP1;
 }

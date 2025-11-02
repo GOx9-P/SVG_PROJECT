@@ -2,6 +2,13 @@
 #include "Rect.h"
 #include "SVGElement.h"
 
+SVGRect::SVGRect() {
+	setWidth(0);
+	setHeight(0);
+	setRx(0);
+	setRy(0);
+}
+
 void SVGRect::setWidth(const float& newWidth)
 {
 	width = newWidth;

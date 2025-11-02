@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "Ellipes.h"
 
+SVGEllipse::SVGEllipse() {
+	setRx(0);
+	setRy(0);
+}
+
 void SVGEllipse::setRx(const float& newRx) {
 	rx = newRx;
 }

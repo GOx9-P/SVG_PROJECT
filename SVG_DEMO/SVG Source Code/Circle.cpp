@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "Circle.h"
 
+SVGCircle::SVGCircle() {
+	setR(0);
+}
+
 void SVGCircle::setR(float newR) {
 	r = newR;
 }

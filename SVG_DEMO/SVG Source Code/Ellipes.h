@@ -7,6 +7,7 @@ private:
 	float rx;
 	float ry;
 public:
+	SVGEllipse();
 	void setRx(const float& other);
 	float getRx() const;
 	void setRy(const float& other);
