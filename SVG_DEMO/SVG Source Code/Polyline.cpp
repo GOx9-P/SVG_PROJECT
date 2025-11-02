@@ -11,7 +11,7 @@ vector<SVGPoint> SVGPolyline::getPoints() const {
 
 void SVGPolyline::parseAttributes(xml_node<>* Node)
 {
-	SVGElement::parseAttributes(Node);
+	GeometricElement::parseAttributes(Node);
 	if (xml_attribute<>* attribute = Node->first_attribute("points"))
 	{
 		string pointsStr = attribute->value();
