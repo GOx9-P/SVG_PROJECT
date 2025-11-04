@@ -73,7 +73,7 @@ void SVGColor::setB(BYTE blue) {
 void SVGColor::setA(BYTE alpha) {
     a = alpha;
 }
-SVGColor::SVGColor() : r(0), g(0), b(0), a(255) {}
+SVGColor::SVGColor() : r(0), g(0), b(0), a(0) {}
 SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha)
 	: r(red), g(green), b(blue), a(alpha) {
 }
