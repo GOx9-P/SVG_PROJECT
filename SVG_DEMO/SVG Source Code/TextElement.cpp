@@ -104,8 +104,66 @@ void TextElement::parseAttributes(xml_node<>* Node)
 
 }
 
-void TextElement::draw()
+void TextElement::draw(Graphics* graphics)
 {
+    //Chuyen doi fontFamily
+    wstring wFontFamily = L"Arial"; //coi Arial la ngon ngu mac dinh
+    if (!this->fontFamily.empty()) {
+        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), NULL, 0); //chuoi fontFamily can bao nhieu cho wstring
+        wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), &wstr[0], sizeNeeded); //dich sang wstring
+        wFontFamily = wstr;
+    }
+
+    //Chuyen doi textContent
+    wstring wTextContent = L"";
+    if (!this->textContent.empty()) {
+        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0); //chuoi fontFamily can bao nhieu cho wstring
+        wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), &wstr[0], sizeNeeded); //dich sang wstring
+        wTextContent = wstr;
+    }
+
+    //Chuyen mau sac
+    SVGColor color = this->getFill();
+    Color GDIColor{
+        color.getA(),
+        color.getR(),
+        color.getG(),
+        color.getB(),
+    };
+    
+    //Ve
+    SolidBrush brush(GDIColor);
+
+    //
+    FontFamily fontFamilyObj(wFontFamily.c_str());
+    Font font(&fontFamilyObj, this->fontSize, FontStyleRegular, UnitPixel);
+
+    //Lay vi tri
+    PointF point(this->getPosition().getX(), this->getPosition().getY());
+
+    //Canh le
+    StringFormat format;
+    if (this->textAnchor == "middle") {
+        format.SetAlignment(StringAlignmentCenter);
+    }
+    else if (this->textAnchor == "end") {
+        format.SetAlignment(StringAlignmentFar);
+    }
+    else {
+        format.SetAlignment(StringAlignmentNear);
+    }
+
+    //Ve len man hinh
+    graphics->DrawString(
+        wTextContent.c_str(), //Chuoi da dich
+        -1, //Tu dong tinh do dai
+        &font, //Font da tao
+        point, //Vi tri da tao
+        &format, //Canh le da tao
+        &brush //Co de ve
+    );
 }
 
 TextElement::~TextElement()

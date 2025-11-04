@@ -32,6 +32,6 @@ public:
 	void setTextAnchor(const string&);
 	
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~TextElement();
 };

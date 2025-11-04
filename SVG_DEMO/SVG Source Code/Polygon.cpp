@@ -49,7 +49,7 @@ void SVGPolygon::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGPolygon::draw()
+void SVGPolygon::draw(Graphics* graphics)
 {
 }
 

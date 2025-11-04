@@ -41,7 +41,7 @@ public:
 	
 	
 	virtual void parseAttributes(xml_node<>*) = 0;
-	virtual void draw() = 0;
+	virtual void draw(Graphics* graphics) = 0;
 
 	virtual ~SVGElement();
 };

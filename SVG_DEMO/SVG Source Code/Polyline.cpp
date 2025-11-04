@@ -49,7 +49,7 @@ void SVGPolyline::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGPolyline::draw()
+void SVGPolyline::draw(Graphics* graphics)
 {
 }
 

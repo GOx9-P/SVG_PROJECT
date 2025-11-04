@@ -12,6 +12,6 @@ public:
 	SVGPoint getPosition2(SVGPoint&) const;
 	void setPosition2(SVGPoint&);
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGLine();
 };

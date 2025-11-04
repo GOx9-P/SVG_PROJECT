@@ -10,6 +10,6 @@ public:
 	void setPoints(const vector<SVGPoint>& other);
 	vector<SVGPoint> getPoints() const;
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGPolyline();
 };

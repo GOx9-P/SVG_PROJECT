@@ -32,7 +32,7 @@ void SVGEllipse::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGEllipse::draw() 
+void SVGEllipse::draw(Graphics* graphics)
 {
 }
 

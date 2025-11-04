@@ -13,7 +13,7 @@ public:
 	void addElement(SVGElement* element);
 	void parseNodes(xml_node<>*);
 	void loadFromFile(const string& filename);
-	void render();
+	void render(Graphics* graphics);
 
 	~SVGRoot();
 };

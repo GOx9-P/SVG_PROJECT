@@ -10,6 +10,6 @@ public:
 	void setPoints(const vector<SVGPoint>& newPoints);
 	vector<SVGPoint> getPoints() const;
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGPolygon();
 };

@@ -23,7 +23,7 @@ void SVGCircle::parseAttributes(xml_node<>* Node)
 }
 
 
-void SVGCircle::draw()
+void SVGCircle::draw(Graphics* graphics)
 {
 
 }
