@@ -1,8 +1,8 @@
 #pragma once
 
-#include "GeometricElement.h"
+#include "Ellipes.h"
 
-class SVGCircle : public GeometricElement {
+class SVGCircle : public SVGEllipse {
 private:
 	float r;
 public:
