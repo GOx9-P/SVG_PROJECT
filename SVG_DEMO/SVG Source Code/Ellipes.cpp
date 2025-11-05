@@ -22,11 +22,11 @@ float SVGEllipse::getRy() const {
 void SVGEllipse::parseAttributes(xml_node<>* Node)
 {
 	GeometricElement::parseAttributes(Node);
-	if (xml_attribute<>* attribute = Node->first_attribute("cx"))
+	if (xml_attribute<>* attribute = Node->first_attribute("rx"))
 	{
 		setRx(atof(attribute->value()));
 	}
-	if (xml_attribute<>* attribute = Node->first_attribute("cy"))
+	if (xml_attribute<>* attribute = Node->first_attribute("ry"))
 	{
 		setRy(atof(attribute->value()));
 	}
@@ -38,8 +38,8 @@ void SVGEllipse::draw(Graphics* graphics)
 	SolidBrush brush(fillColor);
 	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
 	Pen pen = { fillColorWidth,getStroke().getWidth() };
-	graphics->FillEllipse(&brush, rx, ry, 2*rx, 2*ry);
-	graphics->DrawEllipse(&pen, rx, ry, 2 * rx, 2 * ry);
+	graphics->FillEllipse(&brush, getPosition().getX()-rx,getPosition().getY()- ry, 2 * rx, 2 * ry);
+	graphics->DrawEllipse(&pen, getPosition().getX() - rx, getPosition().getY() - ry, 2 * rx, 2 * ry);
 }
 
 SVGEllipse::~SVGEllipse()

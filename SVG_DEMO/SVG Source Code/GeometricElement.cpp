@@ -23,13 +23,23 @@ void GeometricElement::parseAttributes(xml_node<>* Node)
 	{
 		float newX = atof(attribute->value());
 		position.setX(newX);
-		cout << "X: " << newX;
+	}
+	// chi dung de doc toa do tam cua circle va elip vi no se khong doc duoc x va y
+	if (xml_attribute<>* attribute = Node->first_attribute("cx"))
+	{
+		float newX = atof(attribute->value());
+		position.setX(newX);
 	}
 	if (xml_attribute<>* attribute = Node->first_attribute("y"))
 	{
 		float newY = atof(attribute->value());
 		position.setY(newY);
-		cout << "Y: " << newY;
+	}
+	// chi dung de doc toa do tam cua circle va elip vi no se khong doc duoc x va y
+	if (xml_attribute<>* attribute = Node->first_attribute("cy"))
+	{
+		float newY = atof(attribute->value());
+		position.setY(newY);
 	}
 
 }
@@ -38,7 +48,7 @@ GeometricElement::~GeometricElement()
 {
 }
 
-
+	
 
 
 
