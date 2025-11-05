@@ -45,7 +45,7 @@ void SVGLine::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGLine::draw()
+void SVGLine::draw(Graphics* graphics)
 {
 }
 

@@ -12,6 +12,6 @@ public:
 	string getD() const;
 	void  setD(const string&);
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGPath();
 };

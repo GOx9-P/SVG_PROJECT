@@ -1,9 +1,7 @@
-	#include "stdafx.h"
+#include "stdafx.h"
 #include "GeometricElement.h"
 
-GeometricElement::GeometricElement() {
-	SVGPoint::SVGPoint();
-}
+GeometricElement::GeometricElement() {}
 
 void GeometricElement::setPosition(SVGPoint& newPosition) {
 	position = newPosition;

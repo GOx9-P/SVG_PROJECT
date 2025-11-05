@@ -10,6 +10,6 @@ public:
 	float getR() const;
 	void setR(float);
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGCircle();
 };

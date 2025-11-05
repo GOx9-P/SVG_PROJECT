@@ -35,7 +35,7 @@ void SVGPath::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGPath::draw()
+void SVGPath::draw(Graphics* graphics)
 {
 }
 

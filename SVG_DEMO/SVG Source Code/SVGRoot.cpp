@@ -99,11 +99,11 @@ void SVGRoot::loadFromFile(const string& filename)
 	}
 }
 
-void SVGRoot::render()
+void SVGRoot::render(Graphics* graphics)
 {
 	for (auto element : elements) {
 		if (element) {
-			element->draw();
+			element->draw(graphics);
 		}
 	}
 }

@@ -70,7 +70,7 @@ void SVGRect::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGRect::draw()
+void SVGRect::draw(Graphics* graphics)
 {
 }
 

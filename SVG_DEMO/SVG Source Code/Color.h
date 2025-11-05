@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Library.h"
 #include <cstdint> 
 typedef uint8_t BYTE; // 0-255

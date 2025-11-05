@@ -17,6 +17,6 @@ public:
 	void setRx(const float&);
 	void setRy(const float&);
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGRect();
 };

@@ -13,6 +13,6 @@ public:
 	void setRy(const float& other);
 	float getRy() const;
 	void parseAttributes(xml_node<>*);
-	void draw();
+	void draw(Graphics* graphics);
 	~SVGEllipse();
 };

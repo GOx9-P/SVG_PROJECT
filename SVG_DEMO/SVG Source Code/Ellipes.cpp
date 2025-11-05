@@ -32,7 +32,7 @@ void SVGEllipse::parseAttributes(xml_node<>* Node)
 	}
 }
 
-void SVGEllipse::draw() 
+void SVGEllipse::draw(Graphics* graphics)
 {
 	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB() };
 	SolidBrush brush(fillColor);
