@@ -47,6 +47,15 @@ void SVGLine::parseAttributes(xml_node<>* Node)
 
 void SVGLine::draw(Graphics* graphics)
 {
+	SVGStroke stroke = this->getStroke();
+	SVGColor StrokeColor = stroke.getColor();
+	Color lineColor = { StrokeColor.getA(), StrokeColor.getR(), StrokeColor.getG(), StrokeColor.getB() };
+	Pen* pen = new Pen(lineColor, stroke.getWidth());
+
+	SVGPoint p1 = this->getPosition1(p1);
+	SVGPoint p2 = this->getPosition2(p2);
+
+	graphics->DrawLine(pen, p1.getX(), p1.getY(), p2.getX(), p2.getY());
 }
 
 SVGLine::~SVGLine()

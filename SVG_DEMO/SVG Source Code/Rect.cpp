@@ -72,6 +72,20 @@ void SVGRect::parseAttributes(xml_node<>* Node)
 
 void SVGRect::draw(Graphics* graphics)
 {
+	SVGColor fillColor = this->getFill();
+	Color GDIFillColor(fillColor.getA(), fillColor.getR(), fillColor.getG(), fillColor.getB());
+	Brush* brush = new SolidBrush(GDIFillColor); // tao brush cho fill, DUNG CON TRO DE CO THE INHERITENCE TRONG GDI+, chuan GDI+
+
+	SVGStroke stroke = this->getStroke();
+	SVGColor strokeColor = stroke.getColor();
+	Color GDIStrokeColor(strokeColor.getA(), strokeColor.getR(), strokeColor.getG(), strokeColor.getB());
+	Pen* pen = new Pen(GDIStrokeColor, stroke.getWidth()); // tao pen cho stroke
+
+	graphics->FillRectangle(brush, this->getPosition().getX(), this->getPosition().getY(), this->getWidth(), this->getHeight()); // fill
+	graphics->DrawRectangle(pen, this->getPosition().getX(), this->getPosition().getY(), this->getWidth(), this->getHeight()); // stroke
+
+	delete brush;
+	delete pen;
 }
 
 SVGRect::~SVGRect()

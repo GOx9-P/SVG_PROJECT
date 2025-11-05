@@ -142,4 +142,8 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="sample.svg" />
+    <None Include="..\..\..\..\..\..\..\Dowloads\Test.svg" />
+  </ItemGroup>
 </Project>
