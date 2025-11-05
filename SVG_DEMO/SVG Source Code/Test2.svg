@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600">
+
+  <rect x="0" y="0" width="1000" height="600" fill="rgb(10,10,20)" />
+  
+  <circle cx="50" cy="80" r="1" fill="rgb(255,255,255)" />
+  <circle cx="200" cy="150" r="2" fill="rgb(200,200,200)" />
+  <circle cx="800" cy="50" r="1" fill="rgb(255,255,255)" />
+  <circle cx="900" cy="300" r="2" fill="rgb(220,220,255)" />
+  <circle cx="150" cy="500" r="1" fill="rgb(255,255,200)" />
+  <circle cx="600" cy="550" r="2" fill="rgb(200,200,200)" />
+  <circle cx="400" cy="40" r="1" fill="rgb(255,255,255)" />
+  <circle cx="700" cy="450" r="1" fill="rgb(180,180,180)" />
+
+  <ellipse cx="500" cy="300" rx="60" ry="30" fill="none" stroke="rgb(100,100,100)" stroke-width="1" stroke-opacity="0.3" />
+  <ellipse cx="500" cy="300" rx="100" ry="50" fill="none" stroke="rgb(100,100,100)" stroke-width="1" stroke-opacity="0.3" />
+  <ellipse cx="500" cy="300" rx="150" ry="75" fill="none" stroke="rgb(100,100,100)" stroke-width="1" stroke-opacity="0.3" />
+  <ellipse cx="500" cy="300" rx="200" ry="100" fill="none" stroke="rgb(100,100,100)" stroke-width="1" stroke-opacity="0.3" />
+  <ellipse cx="500" cy="300" rx="300" ry="150" fill="none" stroke="rgb(100,100,100)" stroke-width="1" stroke-opacity="0.3" />
+  <ellipse cx="500" cy="300" rx="400" ry="200" fill="none" stroke="rgb(100,100,100)" stroke-width="1" stroke-opacity="0.3" />
+
+  <circle cx="500" cy="300" r="40" fill="rgb(255,204,0)" stroke="rgb(255,140,0)" stroke-width="5" stroke-opacity="0.5" />
+  <text x="485" y="305" font-size="12" fill="rgb(100,50,0)">SUN</text>
+
+  <circle cx="560" cy="300" r="5" fill="rgb(169,169,169)" />
+
+  <circle cx="420" cy="320" r="10" fill="rgb(240,230,140)" />
+
+  <circle cx="500" cy="375" r="11" fill="rgb(30,144,255)" stroke="rgb(0,255,0)" stroke-width="2" stroke-opacity="0.5" />
+  <circle cx="515" cy="385" r="3" fill="rgb(200,200,200)" />
+
+  <circle cx="300" cy="300" r="8" fill="rgb(205,92,92)" />
+
+  <circle cx="750" cy="200" r="35" fill="rgb(210,180,140)" />
+  <ellipse cx="760" cy="210" rx="8" ry="4" fill="rgb(178,34,34)" fill-opacity="0.6" />
+  <line x1="718" y1="190" x2="782" y2="190" stroke="rgb(139,69,19)" stroke-width="2" stroke-opacity="0.3" />
+  <line x1="716" y1="205" x2="784" y2="205" stroke="rgb(139,69,19)" stroke-width="2" stroke-opacity="0.3" />
+
+  <circle cx="180" cy="400" r="30" fill="rgb(240,230,140)" />
+  <ellipse cx="180" cy="400" rx="50" ry="15" fill="none" stroke="rgb(210,180,140)" stroke-width="6" stroke-opacity="0.7" />
+  <polyline points="150,400 180,380 210,400" fill="rgb(240,230,140)" stroke="none" />
+
+
+  <text x="50" y="50" font-size="30" fill="rgb(255,255,255)">SOLAR SYSTEM</text>
+
+</svg>

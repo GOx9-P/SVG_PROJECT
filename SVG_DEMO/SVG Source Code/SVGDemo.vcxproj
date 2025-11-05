@@ -200,8 +200,10 @@
     <Image Include="SVGDemo.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\..\..\Dowloads\Test.svg" />
     <None Include="sample.svg" />
+    <None Include="Test1.svg" />
+    <None Include="Test2.svg" />
+    <None Include="Test3.svg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
