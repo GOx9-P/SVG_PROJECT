@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "TextElement.h"
 
 TextElement::TextElement()
@@ -141,7 +141,18 @@ void TextElement::draw(Graphics* graphics)
     Font font(&fontFamilyObj, this->fontSize, FontStyleRegular, UnitPixel);
 
     //Lay vi tri
-    PointF point(this->getPosition().getX(), this->getPosition().getY());
+    /*PointF point(this->getPosition().getX(), this->getPosition().getY());*/
+    float ascentDesignUnits = (float)fontFamilyObj.GetCellAscent(font.GetStyle());
+    float emHeightDesignUnits = (float)fontFamilyObj.GetEmHeight(font.GetStyle());
+
+    // Tính tỷ lệ và nhân với kích thước font (pixel) để ra Ascent bằng pixel
+    float ascentPixels = (ascentDesignUnits / emHeightDesignUnits) * this->fontSize;
+
+    // 2. Lấy tọa độ gốc và điều chỉnh 'y'
+    PointF originalPoint(this->getPosition().getX(), this->getPosition().getY());
+
+    // Tạo điểm mới đã điều chỉnh: y_mới = y_gốc (baseline) - độ_dâng (ascent)
+    PointF adjustedPoint(originalPoint.X, originalPoint.Y - ascentPixels);
 
     //Canh le
     StringFormat format;
@@ -160,7 +171,7 @@ void TextElement::draw(Graphics* graphics)
         wTextContent.c_str(), //Chuoi da dich
         -1, //Tu dong tinh do dai
         &font, //Font da tao
-        point, //Vi tri da tao
+        adjustedPoint, //Vi tri da tao
         &format, //Canh le da tao
         &brush //Co de ve
     );
