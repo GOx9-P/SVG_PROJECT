@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _ELLIPES_H_
+#define _ELLPIES_H_
 
 #include "GeometricElement.h"
 
@@ -16,3 +17,6 @@ public:
 	void draw(Graphics* graphics);
 	~SVGEllipse();
 };
+
+#endif
+

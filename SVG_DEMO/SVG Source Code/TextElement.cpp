@@ -134,7 +134,7 @@ void TextElement::draw(Graphics* graphics)
     };
     
     //Ve
-    SolidBrush brush(GDIColor);
+    Brush* brush = new SolidBrush(GDIColor);
 
     //
     FontFamily fontFamilyObj(wFontFamily.c_str());
@@ -173,7 +173,7 @@ void TextElement::draw(Graphics* graphics)
         &font, //Font da tao
         adjustedPoint, //Vi tri da tao
         &format, //Canh le da tao
-        &brush //Co de ve
+        brush //Co de ve
     );
 }
 

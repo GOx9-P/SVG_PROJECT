@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _RECT_H_
+#define _RECT_H_
+
 #include "GeometricElement.h"
 
 class SVGRect : public GeometricElement {
@@ -20,3 +22,6 @@ public:
 	void draw(Graphics* graphics);
 	~SVGRect();
 };
+
+#endif // !_RECT_H_
+

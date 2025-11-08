@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _LIBRARY_H_
+#define _LIBRARY_H_
 
 #include <iostream>
 #include "rapidxml.hpp"
@@ -16,3 +17,7 @@ using namespace std;
 using namespace rapidxml;
 using namespace Gdiplus;
 #pragma comment (lib,"Gdiplus.lib")
+
+#endif // !_LIBRARY_H_
+
+

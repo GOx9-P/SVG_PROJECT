@@ -55,19 +55,22 @@ void SVGPolyline::draw(Graphics* graphics)
 	SVGColor fill_color = this->getFill();
 	Color fillColor = { fill_color.getA(), fill_color.getR(), fill_color.getG(), fill_color.getB()};
 	// tao brush cho fill
-	SolidBrush fillBrush = fillColor;
+	Brush* fillBrush = new SolidBrush(fillColor);
 	SVGStroke stroke = this->getStroke();
 	SVGColor stroke_color = stroke.getColor();
 	Color strokeColor = { stroke_color.getA(), stroke_color.getR(), stroke_color.getG(), stroke_color.getB()};
 	// tao pen cho stroke
-	Pen strokePen = { strokeColor, stroke.getWidth() };
+	Pen* strokePen = new Pen(strokeColor, stroke.getWidth());
 	// ep ve point theo gdi
 	vector<PointF> GDIPoints;
 	for (auto p : points) {
 		GDIPoints.push_back({ p.getX(), p.getY() });
 	}
-	graphics->FillPolygon(&fillBrush, GDIPoints.data(), static_cast<INT>(numPoints));
-	graphics->DrawLines(&strokePen, GDIPoints.data(), static_cast<INT>(numPoints));
+	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints));
+	graphics->DrawLines(strokePen, GDIPoints.data(), static_cast<INT>(numPoints));
+
+	delete fillBrush;
+	delete strokePen;
 }
 
 SVGPolyline::~SVGPolyline()

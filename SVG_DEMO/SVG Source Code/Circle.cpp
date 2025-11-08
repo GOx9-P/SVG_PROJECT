@@ -26,11 +26,16 @@ void SVGCircle::parseAttributes(xml_node<>* Node)
 void SVGCircle::draw(Graphics* graphics)
 {
 	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB()};
-	SolidBrush brush(fillColor);
+	Brush* brush = new SolidBrush(fillColor);
+
 	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
-	Pen pen = { fillColorWidth,getStroke().getWidth()};
-	graphics->FillEllipse(&brush, getPosition().getX()-r, getPosition().getY()-r, 2*r, 2*r);
-	graphics->DrawEllipse(&pen, getPosition().getX() - r, getPosition().getY() - r, 2 * r, 2 * r);
+	Pen* pen = new Pen(fillColorWidth, getStroke().getWidth());
+
+	graphics->FillEllipse(brush, getPosition().getX()-r, getPosition().getY()-r, 2*r, 2*r);
+	graphics->DrawEllipse(pen, getPosition().getX() - r, getPosition().getY() - r, 2 * r, 2 * r);
+
+	delete brush;
+	delete pen;
 }
 
 SVGCircle::~SVGCircle()

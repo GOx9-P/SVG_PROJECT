@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _CIRCLE_H_
+#define _CIRCLE_H_
 
 #include "GeometricElement.h"
 
@@ -13,3 +14,5 @@ public:
 	void draw(Graphics* graphics);
 	~SVGCircle();
 };
+
+#endif

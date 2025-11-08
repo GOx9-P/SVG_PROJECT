@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _STROKE_H_
+#define _STROKE_H_
 
 #include "Library.h"
 #include "Color.h"
@@ -15,3 +16,7 @@ public:
     void setWidth(float w);
     bool isVisible();
 };
+
+#endif // !1
+
+

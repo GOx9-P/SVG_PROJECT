@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _SVGROOT_H_
+#define _SVGROOT_H_
 
 #include "SVGElement.h"
 
@@ -17,3 +18,8 @@ public:
 
 	~SVGRoot();
 };
+
+#endif // !_SVGROOT_H_
+
+
+

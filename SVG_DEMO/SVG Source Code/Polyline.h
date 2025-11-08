@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _POLYLINE_H_
+#define _POLYLINE_H_
 
 #include "GeometricElement.h"
 
@@ -13,3 +14,5 @@ public:
 	void draw(Graphics*);
 	~SVGPolyline();
 };
+
+#endif // !_POLYLINE_H_

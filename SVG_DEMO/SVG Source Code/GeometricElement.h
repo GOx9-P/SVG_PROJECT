@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _GEOMETRIC_ELEMENT_H_
+#define _GEOMETRIC_ELEMENT_H_
+
 #include "SVGElement.h"
 #include "SVGPoint.h"
 
@@ -13,3 +15,6 @@ public:
 	void parseAttributes(xml_node<>*);
 	~GeometricElement();
 };
+
+#endif // 
+

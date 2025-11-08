@@ -56,6 +56,8 @@ void SVGLine::draw(Graphics* graphics)
 	SVGPoint p2 = this->getPosition2(p2);
 
 	graphics->DrawLine(pen, p1.getX(), p1.getY(), p2.getX(), p2.getY());
+
+	delete pen;
 }
 
 SVGLine::~SVGLine()

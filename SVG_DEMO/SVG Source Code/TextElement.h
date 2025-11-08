@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _TEXTELEMENT_H_
+#define _TEXTELEMENT_H_
 
 #include "SVGElement.h"
 #include "SVGPoint.h"
@@ -8,12 +9,12 @@ private:
 	SVGPoint position;
 	string textContent;
 	string fontFamily;
-	float fontSize;	
+	float fontSize;
 	string textAnchor;
 public:
 
 	TextElement();
-	TextElement(const SVGPoint&,const string&,const  string&,const float&,const string&);
+	TextElement(const SVGPoint&, const string&, const  string&, const float&, const string&);
 	TextElement(const TextElement&);
 
 	SVGPoint getPosition() const;
@@ -30,8 +31,11 @@ public:
 
 	string getTextAnchor() const;
 	void setTextAnchor(const string&);
-	
+
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics* graphics);
 	~TextElement();
 };
+
+#endif // !_TEXTELEMENT_H_
+

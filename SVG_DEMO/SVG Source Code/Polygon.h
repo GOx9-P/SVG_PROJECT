@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _POLYGON_H_
+#define _POLYGON_H_
 
 #include "GeometricElement.h"
 
@@ -13,3 +14,6 @@ public:
 	void draw(Graphics*);
 	~SVGPolygon();
 };
+
+#endif // !_POLYGON_H_
+

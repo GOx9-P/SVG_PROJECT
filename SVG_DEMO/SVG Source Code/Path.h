@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _PATH_H_
+#define _PATH_H_
 
 #include "GeometricElement.h"
 
@@ -15,3 +16,5 @@ public:
 	void draw(Graphics* graphics);
 	~SVGPath();
 };
+
+#endif // !_PATH_H_

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _SVGPOINT_H_
+#define _SVGPOINT_H_
+
 #include "Library.h"
 
 class SVGPoint {
@@ -11,6 +13,9 @@ public:
 	float getY() const;
 	void setY(const float&);
 	SVGPoint();
-	void translate(const float,const float);
+	void translate(const float, const float);
 	~SVGPoint();
 };
+
+#endif // !_SVGPOINT_H_
+

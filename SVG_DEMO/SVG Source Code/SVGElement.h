@@ -1,8 +1,10 @@
-#pragma once
+#ifndef _SVGELEMENT_H_
+#define _SVGELEMENT_H_
 
 #include "Library.h"
 #include "Color.h"
 #include "Stroke.h"
+#include "SVGPoint.h"
 
 class SVGElement {
 private:
@@ -13,6 +15,7 @@ private:
 	SVGColor fill;
 	SVGStroke stroke;
 	float opacity;
+
 public:
 
 	SVGElement();
@@ -45,3 +48,7 @@ public:
 
 	virtual ~SVGElement();
 };
+
+#endif // !_SVGELEMENT_H_
+
+

@@ -35,11 +35,15 @@ void SVGEllipse::parseAttributes(xml_node<>* Node)
 void SVGEllipse::draw(Graphics* graphics)
 {
 	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB() };
-	SolidBrush brush(fillColor);
+	Brush* brush = new SolidBrush(fillColor);
 	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
-	Pen pen = { fillColorWidth,getStroke().getWidth() };
-	graphics->FillEllipse(&brush, getPosition().getX()-rx,getPosition().getY()- ry, 2 * rx, 2 * ry);
-	graphics->DrawEllipse(&pen, getPosition().getX() - rx, getPosition().getY() - ry, 2 * rx, 2 * ry);
+
+	Pen* pen = new Pen(fillColorWidth,getStroke().getWidth());
+	graphics->FillEllipse(brush, getPosition().getX()-rx,getPosition().getY()- ry, 2 * rx, 2 * ry);
+	graphics->DrawEllipse(pen, getPosition().getX() - rx, getPosition().getY() - ry, 2 * rx, 2 * ry);
+
+	delete brush;
+	delete pen;
 }
 
 SVGEllipse::~SVGEllipse()

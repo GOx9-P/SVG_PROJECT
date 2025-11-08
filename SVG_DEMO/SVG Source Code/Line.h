@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _LINE_H_
+#define _LINE_H_
 
 #include "GeometricElement.h"
 
@@ -15,3 +16,7 @@ public:
 	void draw(Graphics* graphics);
 	~SVGLine();
 };
+
+#endif // !_LINE_H_
+
+

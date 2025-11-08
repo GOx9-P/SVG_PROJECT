@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _COLOR_H_
+#define _COLOR_H_
+
 #include "Library.h"
 #include <cstdint> 
 typedef uint8_t BYTE; // 0-255
@@ -23,3 +25,5 @@ public:
 	static SVGColor fromString(const string& fillStr, float fillOpacity = 1.0f);
 	~SVGColor();
 };
+
+#endif
