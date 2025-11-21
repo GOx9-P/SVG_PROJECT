@@ -62,12 +62,10 @@ void SVGRoot::parseNodes(xml_node<>* node, SVGGroup* parentGroup)
 		if (newElement != nullptr) {
 
 			newElement->parseAttributes(child);
-			// kiem tra co phai la group khong
 			SVGGroup* newGroup = dynamic_cast<SVGGroup*>(newElement);
 			if (newGroup != nullptr) {
 				this->parseNodes(child, newGroup);
 			}
-			// chon cha
 			if (parentGroup != nullptr) {
 				parentGroup->addElement(newElement);
 			}
@@ -114,6 +112,7 @@ void SVGRoot::loadFromFile(const string& filename)
 
 void SVGRoot::render(Graphics* graphics)
 {
+	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
 	for (auto element : elements) {
 		if (element) {
 			element->draw(graphics);
