@@ -10,13 +10,13 @@ SVGLine::SVGLine() {
 void SVGLine::setPosition1(SVGPoint& newP1) {
 	p1 = newP1;
 }
-SVGPoint SVGLine::getPosition1(SVGPoint&) const {
+SVGPoint SVGLine::getPosition1() const {
 	return p1;
 }
 void SVGLine::setPosition2(SVGPoint& newP2) {
 	p2 = newP2;
 }
-SVGPoint SVGLine::getPosition2(SVGPoint&) const {
+SVGPoint SVGLine::getPosition2() const {
 	return p2;
 }
 
@@ -52,8 +52,8 @@ void SVGLine::draw(Graphics* graphics)
 	Color lineColor = { StrokeColor.getA(), StrokeColor.getR(), StrokeColor.getG(), StrokeColor.getB() };
 	Pen* pen = new Pen(lineColor, stroke.getWidth());
 
-	SVGPoint p1 = this->getPosition1(p1);
-	SVGPoint p2 = this->getPosition2(p2);
+	SVGPoint p1 = this->getPosition1();
+	SVGPoint p2 = this->getPosition2();
 
 	graphics->DrawLine(pen, p1.getX(), p1.getY(), p2.getX(), p2.getY());
 

@@ -8,9 +8,9 @@ private:
 	SVGPoint p1, p2;
 public:
 	SVGLine();
-	SVGPoint getPosition1(SVGPoint&) const;
+	SVGPoint getPosition1() const;
 	void setPosition1(SVGPoint&);
-	SVGPoint getPosition2(SVGPoint&) const;
+	SVGPoint getPosition2() const;
 	void setPosition2(SVGPoint&);
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics* graphics);
