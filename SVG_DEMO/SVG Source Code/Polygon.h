@@ -16,4 +16,3 @@ public:
 };
 
 #endif // !_POLYGON_H_
-

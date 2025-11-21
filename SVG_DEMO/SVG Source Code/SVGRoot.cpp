@@ -8,6 +8,7 @@
 #include "Polygon.h"
 #include "Polyline.h"
 #include "TextElement.h"
+#include "SVGGroup.h"
 
 SVGElement* SVGRoot::createNode(xml_node<>* node)
 {
@@ -37,6 +38,9 @@ SVGElement* SVGRoot::createNode(xml_node<>* node)
 	else if (nodeName == "text") {
 		newElement = new TextElement();
 	}
+	else if (nodeName == "g") {
+		newElement = new SVGGroup();
+	}
 	else {
 		std::cerr << "The khong duoc ho tro!!!" << endl;
 		return nullptr;
@@ -54,14 +58,23 @@ void SVGRoot::addElement(SVGElement* element)
 void SVGRoot::parseNodes(xml_node<>* node, SVGGroup* parentGroup)
 {
 	for (xml_node<>* child = node->first_node(); child != nullptr; child = child->next_sibling()) {
-
-		cout << child->name() << ": "; /*<< child->value() << endl;*/
 		SVGElement* newElement = this->createNode(child);
-		if (newElement) {
+		if (newElement != nullptr) {
+
 			newElement->parseAttributes(child);
-			this->addElement(newElement);
+			// kiem tra co phai la group khong
+			SVGGroup* newGroup = dynamic_cast<SVGGroup*>(newElement);
+			if (newGroup != nullptr) {
+				this->parseNodes(child, newGroup);
+			}
+			// chon cha
+			if (parentGroup != nullptr) {
+				parentGroup->addElement(newElement);
+			}
+			else {
+				this->addElement(newElement);
+			}
 		}
-		cout << endl;
 	}
 }
 
