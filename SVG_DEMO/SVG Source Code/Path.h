@@ -13,6 +13,7 @@ public:
 	string getD() const;
 	void  setD(const string&);
 	void parseAttributes(xml_node<>*);
+	void handleData();
 	void draw(Graphics* graphics);
 	~SVGPath();
 };
