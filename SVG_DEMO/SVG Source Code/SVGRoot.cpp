@@ -51,7 +51,7 @@ void SVGRoot::addElement(SVGElement* element)
 	}
 }
 
-void SVGRoot::parseNodes(xml_node<>* node)
+void SVGRoot::parseNodes(xml_node<>* node, SVGGroup* parentGroup)
 {
 	for (xml_node<>* child = node->first_node(); child != nullptr; child = child->next_sibling()) {
 
@@ -92,7 +92,7 @@ void SVGRoot::loadFromFile(const string& filename)
 		if (xml_attribute<>* viewBoxAtrribute = rootNode->first_attribute("viewBox")) {
 			this->viewBox = viewBoxAtrribute->value();
 		}
-		this->parseNodes(rootNode);
+		this->parseNodes(rootNode, nullptr);
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error prasing XML: " << e.what() << endl;
