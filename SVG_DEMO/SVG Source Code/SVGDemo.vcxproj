@@ -156,6 +156,7 @@
     <ClInclude Include="Path.h" />
     <ClInclude Include="Polyline.h" />
     <ClInclude Include="Stroke.h" />
+    <ClInclude Include="SVGGroup.h" />
     <ClInclude Include="SVGPoint.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="rapidxml.hpp" />
