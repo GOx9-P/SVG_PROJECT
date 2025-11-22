@@ -65,41 +65,85 @@ void TextElement::setTextAnchor(const string& newTextAnchor) {
     textAnchor = newTextAnchor;
 }
 
+// tim thuoc tinh o cha.
+string getAttributeCascading(xml_node<>* node, const char* attrName)
+{
+    xml_node<>* current = node;
+    while (current)
+    {
+        if (xml_attribute<>* attr = current->first_attribute(attrName))
+        {
+            return attr->value(); // Tìm thấy thì trả về ngay
+        }
+        current = current->parent(); // Không thấy thì nhảy lên cha tìm tiếp
+    }
+    return ""; // Lên đến đỉnh mà không thấy thì trả về rỗng
+}
 
 void TextElement::parseAttributes(xml_node<>* Node)
 {
     SVGElement::parseAttributes(Node);
-    if (xml_attribute<>* attribute = Node->first_attribute("x"))
+    float currentX = 0;
+    float currentY = 0;
+
+    if (xml_attribute<>* attr = Node->first_attribute("x"))
+        currentX = atof(attr->value());
+
+    if (xml_attribute<>* attr = Node->first_attribute("dx"))
+        currentX += atof(attr->value());
+
+    if (xml_attribute<>* attr = Node->first_attribute("y"))
+        currentY = atof(attr->value());
+    if (xml_attribute<>* attr = Node->first_attribute("dy"))
+        currentY += atof(attr->value());
+
+    position.setX(currentX);
+    position.setY(currentY);
+
+
+    xml_node<>* contentNode = Node->first_node();
+    if (contentNode && contentNode->value())
     {
-        float newX = atof(attribute->value());
-        position.setX(newX);
-        cout << "x: " << newX << ' ';
+        textContent = contentNode->value();
     }
-    if (xml_attribute<>* attribute = Node->first_attribute("y"))
-    {
-        float newY = atof(attribute->value());
-        position.setY(newY);
-        cout << "y: " << newY << ' ';
+
+
+    string sizeStr = getAttributeCascading(Node, "font-size");
+    if (!sizeStr.empty()) {
+        fontSize = atof(sizeStr.c_str());
     }
-    if (Node->value())
-    {
-        textContent = Node->value();
-        cout << "content: " << Node->value() << ' ';
+    else {
+        fontSize = 12; // Mặc định nếu tìm khắp nơi không thấy
     }
-    if (xml_attribute<>* attribute = Node->first_attribute("font-size"))
-    {
-        fontSize = atof(attribute->value());
-        cout << "fontSize: " << fontSize << ' ';
+
+    string familyStr = getAttributeCascading(Node, "font-family");
+    if (!familyStr.empty()) {
+        fontFamily = familyStr;
     }
-    if (xml_attribute<>* attribute = Node->first_attribute("font-family"))
-    {
-        fontFamily = attribute->value();
-        cout << "fontFamily: " << fontFamily << ' ';
+    else {
+        fontFamily = "Arial";
     }
-    if (xml_attribute<>* attribute = Node->first_attribute("text-anchor"))
+
+    // Nếu node hiện tại không có fill, ta phải tìm ở cha.
+    if (Node->first_attribute("fill") == NULL)
     {
-        textAnchor = attribute->value();
-        cout << "textAnchor: " << textAnchor << ' ';
+        string fillStr = getAttributeCascading(Node, "fill");
+        if (!fillStr.empty()) {
+            // Parse lại màu từ chuỗi tìm được ở cha
+            SVGColor parentColor = SVGColor::fromString(fillStr);
+            this->setFill(parentColor);
+        }
+        else {
+            // Mặc định text màu đen nếu không nói gì
+            SVGColor blackColor(255, 0, 0, 0);
+            this->setFill(blackColor);
+        }
+    }
+    
+
+    string anchorStr = getAttributeCascading(Node, "text-anchor");
+    if (!anchorStr.empty()) {
+        textAnchor = anchorStr;
     }
 
 }
@@ -138,7 +182,7 @@ void TextElement::draw(Graphics* graphics)
 
     //
     FontFamily fontFamilyObj(wFontFamily.c_str());
-    Font font(&fontFamilyObj, this->fontSize, FontStyleRegular, UnitPixel);
+    Font font(&fontFamilyObj,fontSize , FontStyleRegular, UnitPixel);
 
     //Lay vi tri
     /*PointF point(this->getPosition().getX(), this->getPosition().getY());*/

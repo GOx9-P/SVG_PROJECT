@@ -182,7 +182,7 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		}
 	}
 
-	// Chot ha do day vien (nhu cu)
+	 /*Chot ha do day vien (nhu cu)*/
 	if (stroke.getColor().getA() > 0 && stroke.getWidth() <= 0.0f)
 	{
 		stroke.setWidth(1.0f);
