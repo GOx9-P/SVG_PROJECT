@@ -21,15 +21,15 @@ void SVGPolygon::parseAttributes(xml_node<>* Node)
 			}
 		}
 		stringstream ss(pointsStr);
-		vector<SVGPoint> parsePoints;
+		vector<SVGPoint> parsedPoints;
 		float x, y;
 		SVGPoint point;
 		while (ss >> x >> y) {
 			point.setX(x);
 			point.setY(y);
-			parsePoints.push_back(point);
+			parsedPoints.push_back(point);
 		}
-		this->setPoints(parsePoints);
+		this->setPoints(parsedPoints);
 	}
 }
 
