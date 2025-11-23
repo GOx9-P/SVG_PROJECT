@@ -155,7 +155,6 @@
     <None Include="Test3.svg" />
     <None Include="Test4.svg" />
     <None Include="TestCases\svg-01.svg" />
-    <None Include="TestCases\svg-02.svg" />
     <None Include="TestCases\svg-03.svg" />
     <None Include="TestCases\svg-04.svg" />
     <None Include="TestCases\svg-05.svg" />
@@ -172,5 +171,6 @@
     <None Include="TestCases\svg-16.svg" />
     <None Include="TestCases\svg-17.svg" />
     <None Include="TestCases\svg-18.svg" />
+    <None Include="svg-02.svg" />
   </ItemGroup>
 </Project>

@@ -203,12 +203,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="sample.svg" />
+    <None Include="svg-02.svg" />
     <None Include="Test1.svg" />
     <None Include="Test2.svg" />
     <None Include="Test3.svg" />
     <None Include="Test4.svg" />
     <None Include="TestCases\svg-01.svg" />
-    <None Include="TestCases\svg-02.svg" />
     <None Include="TestCases\svg-03.svg" />
     <None Include="TestCases\svg-04.svg" />
     <None Include="TestCases\svg-05.svg" />
