@@ -9,6 +9,7 @@
 #include "Polyline.h"
 #include "TextElement.h"
 #include "SVGGroup.h"
+#include <sstream>
 
 SVGElement* SVGRoot::createNode(xml_node<>* node)
 {
@@ -110,14 +111,49 @@ void SVGRoot::loadFromFile(const string& filename)
 	}
 }
 
-void SVGRoot::render(Graphics* graphics)
+void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 {
+	GraphicsState curState = graphics->Save();
 	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
+	if (!viewBox.empty()) {
+		string tempViewBox = viewBox;
+		for (auto& ch : tempViewBox) {
+			if (ch == ',') {
+				ch = ' ';
+			}
+		}
+		stringstream ss(tempViewBox);
+		float vbX, vbY, vbWidth, vbHeight;
+		vbHeight = vbY = vbX = vbWidth = 0.0f;
+		//char trash;
+		ss >> vbX >> vbY >>  vbWidth >> vbHeight;
+		if (vbWidth > 0 && vbHeight > 0) {
+			// tinh ti le scale
+			float scaleX = viewPortWidth / vbWidth;
+			float scaleY = viewPortHeight / vbHeight;
+			// lay min de khong tran 
+			float scale = min(scaleX, scaleY);
+			// Tinh khoang du ra
+			// co 1 phan se fit man hinh
+			float tx = (viewPortWidth - vbWidth * scale) / 2.0f;
+			float ty = (viewPortHeight - vbHeight * scale) / 2.0f;
+
+			// Bien doi nghich
+			// Can giua
+			graphics->TranslateTransform(tx, ty);
+			// Zoom
+			graphics->ScaleTransform(scale, scale);
+			// Dich chuyen ve goc toa do
+			graphics->TranslateTransform(-vbX, -vbY);
+
+		}
+	}
 	for (auto element : elements) {
 		if (element) {
 			element->draw(graphics);
 		}
 	}
+	graphics->Restore(curState);
 }
 
 SVGRoot::~SVGRoot()

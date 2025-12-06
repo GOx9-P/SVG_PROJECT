@@ -15,7 +15,7 @@ public:
 	void addElement(SVGElement* element);
 	void parseNodes(xml_node<>*, SVGGroup* parentGroup); //argument thu 2 la de de quy cho group
 	void loadFromFile(const string& filename);
-	void render(Graphics* graphics);
+	void render(Graphics* graphics, int viewPortWidth, int viewPortHeight); // lay tham so console
 
 	~SVGRoot();
 };
