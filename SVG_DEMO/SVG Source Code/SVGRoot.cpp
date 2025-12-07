@@ -150,7 +150,7 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 	}
 	for (auto element : elements) {
 		if (element) {
-			element->draw(graphics);
+			element->render(graphics);// thay draw thanh render de trung gian qua element::render xu li transform.
 		}
 	}
 	graphics->Restore(curState);

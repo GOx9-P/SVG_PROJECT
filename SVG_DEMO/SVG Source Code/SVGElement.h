@@ -16,6 +16,9 @@ private:
 	SVGStroke stroke;
 	float opacity;
 
+protected:
+	Gdiplus::Matrix* transformMatrix;
+
 public:
 
 	SVGElement();
@@ -42,9 +45,12 @@ public:
 	float getOpacity() const;
 	void setOpacity(const float&);
 	
-	
+	void parseTransform();
+	void render(Gdiplus::Graphics* graphics);
 	virtual void parseAttributes(xml_node<>*) = 0;
 	virtual void draw(Graphics* graphics) = 0;
+
+
 
 	virtual ~SVGElement();
 };

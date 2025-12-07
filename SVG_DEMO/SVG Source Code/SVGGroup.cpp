@@ -244,7 +244,7 @@ void SVGGroup::draw(Graphics* graphics)
 
         // 3. VẼ (RENDER)
         // Gọi đệ quy vẽ con với các thuộc tính đã được tính toán (resolved attributes)
-        element->draw(graphics);
+        element->render(graphics);// thay draw thanh render de trung gian qua element::render xu li transform.
 
         // 4. HOÀN TÁC TRẠNG THÁI (REVERT MUTATION)
         // Trả lại nguyên hiện trạng cho object con để không ảnh hưởng các lần vẽ sau

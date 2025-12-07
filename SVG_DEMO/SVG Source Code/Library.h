@@ -12,6 +12,8 @@
 #include <sstream>      
 #include <algorithm>    
 #include <stdexcept>    
+#include<cmath>
+#include<map>
 
 using namespace std;
 using namespace rapidxml;

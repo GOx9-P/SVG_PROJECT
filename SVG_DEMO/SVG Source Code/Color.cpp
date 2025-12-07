@@ -4,6 +4,7 @@
 #include "Color.h"
 #include <map> 
 
+
 static const std::map<string, SVGColor> namedColors = {
     // Special
     { "none",                 SVGColor(0, 0, 0, 0) },

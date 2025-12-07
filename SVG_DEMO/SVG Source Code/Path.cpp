@@ -453,10 +453,15 @@ void SVGPath::draw(Graphics* graphics)
         }
     }
 
+
+
 	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB() };
 	Brush* brush = new SolidBrush(fillColor);
 	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
 	Pen* pen = new Pen(fillColorWidth, getStroke().getWidth());
+
+
+
 	graphics->FillPath(brush, &path);
 	graphics->DrawPath(pen, &path);
 	delete brush;
