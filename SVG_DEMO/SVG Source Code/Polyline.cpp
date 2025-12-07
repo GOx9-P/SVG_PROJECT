@@ -44,17 +44,19 @@ void SVGPolyline::draw(Graphics* graphics)
 	SVGColor stroke_color = stroke.getColor();
 	Color strokeColor = { stroke_color.getA(), stroke_color.getR(), stroke_color.getG(), stroke_color.getB()};
 	// tao pen cho stroke
-	Pen* strokePen = new Pen(strokeColor, stroke.getWidth());
+	Pen* pen = new Pen(strokeColor, stroke.getWidth());
+	pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
+	pen->SetLineJoin(getStroke().getLineJoin());
 	// ep ve point theo gdi
 	vector<PointF> GDIPoints;
 	for (auto p : points) {
 		GDIPoints.push_back({ p.getX(), p.getY() });
 	}
 	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints));
-	graphics->DrawLines(strokePen, GDIPoints.data(), static_cast<INT>(numPoints));
+	graphics->DrawLines(pen, GDIPoints.data(), static_cast<INT>(numPoints));
 
 	delete fillBrush;
-	delete strokePen;
+	delete pen;
 }
 
 SVGPolyline::~SVGPolyline()

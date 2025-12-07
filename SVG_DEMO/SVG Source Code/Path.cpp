@@ -459,7 +459,8 @@ void SVGPath::draw(Graphics* graphics)
 	Brush* brush = new SolidBrush(fillColor);
 	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
 	Pen* pen = new Pen(fillColorWidth, getStroke().getWidth());
-
+    pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
+    pen->SetLineJoin(getStroke().getLineJoin());
 
 
 	graphics->FillPath(brush, &path);

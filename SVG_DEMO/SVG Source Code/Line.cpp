@@ -51,6 +51,8 @@ void SVGLine::draw(Graphics* graphics)
 	SVGColor StrokeColor = stroke.getColor();
 	Color lineColor = { StrokeColor.getA(), StrokeColor.getR(), StrokeColor.getG(), StrokeColor.getB() };
 	Pen* pen = new Pen(lineColor, stroke.getWidth());
+	pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
+	pen->SetLineJoin(getStroke().getLineJoin());
 
 	SVGPoint p1 = this->getPosition1();
 	SVGPoint p2 = this->getPosition2();

@@ -7,13 +7,20 @@ class SVGStroke {
 private:
     SVGColor color;
     float width;
+    LineCap lineCap;   
+    LineJoin lineJoin;
 public:
     SVGStroke();
     SVGStroke(const SVGColor& c, float w);
     SVGColor& getColor();
     float getWidth();
+    LineCap getLineCap() const;
+    LineJoin getLineJoin() const;
     void setColor(SVGColor& c);
     void setWidth(float w);
+    void setLineCap(const string& type);
+    void setLineJoin(const string& type);
+    
     bool isVisible();
 };
 

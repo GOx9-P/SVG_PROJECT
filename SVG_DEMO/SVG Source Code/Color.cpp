@@ -204,7 +204,9 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
     string colorStr = fillStr;
     transform(colorStr.begin(), colorStr.end(), colorStr.begin(), [](unsigned char c) { return std::tolower(c); });
     if (colorStr.empty() || colorStr == "none") {
-        return SVGColor(0, 0, 0, 0);
+        SVGColor noneColor(0, 0, 0, 0);
+        noneColor.setIsNone(true); 
+        return noneColor;
     }
     BYTE red = 0, green = 0, blue = 0;
 
@@ -278,9 +280,15 @@ void SVGColor::setB(BYTE blue) {
 void SVGColor::setA(BYTE alpha) {
     a = alpha;
 }
-SVGColor::SVGColor() : r(0), g(0), b(0), a(0) {}
-SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha)
-	: r(red), g(green), b(blue), a(alpha) {
+void SVGColor::setIsNone(bool val) {
+    isNoneFlag = val;
+}
+bool SVGColor::isNone() const {
+    return isNoneFlag;
+}
+
+SVGColor::SVGColor() : r(0), g(0), b(0), a(0), isNoneFlag(false) {}
+SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha): r(red), g(green), b(blue), a(alpha), isNoneFlag(false) {
 }
 BYTE SVGColor::getR() {
     return r;

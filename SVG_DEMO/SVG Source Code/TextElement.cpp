@@ -135,7 +135,7 @@ void TextElement::parseAttributes(xml_node<>* Node)
         }
         else {
             // Mặc định text màu đen nếu không nói gì
-            SVGColor blackColor(255, 0, 0, 0);
+            SVGColor blackColor(0, 0, 0, 255);
             this->setFill(blackColor);
         }
     }
