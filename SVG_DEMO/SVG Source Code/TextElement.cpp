@@ -148,6 +148,213 @@ void TextElement::parseAttributes(xml_node<>* Node)
 
 }
 
+std::wstring trim(const std::wstring& str) {
+    size_t first = str.find_first_not_of(L" ");
+    if (std::string::npos == first) return str;
+    size_t last = str.find_last_not_of(L" ");
+    return str.substr(first, (last - first + 1));
+}
+
+
+void TextElement::draw(Graphics* graphics)
+{
+    if (!graphics) return;
+
+    // --- 1. CHUẨN BỊ FONT FAMILY (XỬ LÝ FALLBACK) ---
+    FontFamily* pFontFamily = nullptr;
+
+    // Chuyển chuỗi font-family từ class sang wstring
+    wstring wFontList = L"Arial"; // Mặc định
+    if (!this->fontFamily.empty()) {
+        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), NULL, 0);
+        wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), &wstr[0], sizeNeeded);
+        wFontList = wstr;
+    }
+
+    // Tách chuỗi và tìm font hợp lệ
+    size_t pos = 0;
+    std::wstring token;
+    std::wstring delimiter = L",";
+    std::wstring s = wFontList;
+    bool fontFound = false;
+
+    while ((pos = s.find(delimiter)) != std::string::npos || s.length() > 0) {
+        if (pos != std::string::npos) {
+            token = s.substr(0, pos);
+            s.erase(0, pos + delimiter.length());
+        }
+        else {
+            token = s;
+            s = L"";
+        }
+
+        token = trim(token); // Cắt khoảng trắng thừa
+
+        // Bỏ qua các từ khóa generic của CSS mà GDI+ không hiểu
+        if (token.empty() || token == L"serif" || token == L"sans-serif" || token == L"monospace" || token == L"cursive" || token == L"fantasy")
+            continue;
+
+        // Thử tạo Font
+        pFontFamily = new FontFamily(token.c_str());
+
+        // Kiểm tra xem máy có font này không
+        if (pFontFamily->GetLastStatus() == Ok && pFontFamily->IsStyleAvailable(FontStyleRegular)) {
+            fontFound = true;
+            break; // Đã tìm thấy, thoát vòng lặp
+        }
+
+        // Không dùng được thì xóa đi để thử cái tiếp theo
+        delete pFontFamily;
+        pFontFamily = nullptr;
+
+        if (s.length() == 0) break;
+    }
+
+    // Nếu không tìm thấy font nào trong list, dùng Arial làm đường cùng
+    if (!fontFound || pFontFamily == nullptr) {
+        pFontFamily = new FontFamily(L"Arial");
+    }
+
+    // --- 2. CHUẨN BỊ NỘI DUNG TEXT ---
+    wstring wTextContent = L"";
+    if (!this->textContent.empty()) {
+        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0);
+        wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), &wstr[0], sizeNeeded);
+        wTextContent = wstr;
+    }
+
+    // --- 3. TÍNH TOÁN VỊ TRÍ BASELINE ---
+    // SỬA LỖI: Dùng pFontFamily (con trỏ) thay vì fontFamilyObj (biến stack cũ bị comment)
+    int style = FontStyleRegular;
+
+    // Lưu ý: Dùng dấu -> vì pFontFamily là con trỏ
+    float ascentDesignUnits = (float)pFontFamily->GetCellAscent(style);
+    float emHeightDesignUnits = (float)pFontFamily->GetEmHeight(style);
+
+    float ascentPixels = 0;
+    if (emHeightDesignUnits > 0) {
+        ascentPixels = (ascentDesignUnits / emHeightDesignUnits) * this->fontSize;
+    }
+
+    PointF origin(this->getPosition().getX(), this->getPosition().getY() - ascentPixels);
+
+    // --- 4. XỬ LÝ CĂN LỀ & VẼ ---
+    StringFormat format;
+    if (this->textAnchor == "middle") format.SetAlignment(StringAlignmentCenter);
+    else if (this->textAnchor == "end") format.SetAlignment(StringAlignmentFar);
+    else format.SetAlignment(StringAlignmentNear);
+
+    GraphicsPath path;
+    path.AddString(
+        wTextContent.c_str(),
+        -1,
+        pFontFamily, // Dùng con trỏ font đã tìm được
+        style,
+        this->fontSize,
+        origin,
+        &format
+    );
+
+    // Tô màu (Fill)
+    SVGColor fillColor = this->getFill();
+    if (fillColor.getA() > 0) {
+        Color gdiFillColor(fillColor.getA(), fillColor.getR(), fillColor.getG(), fillColor.getB());
+        SolidBrush brush(gdiFillColor);
+        graphics->FillPath(&brush, &path);
+    }
+
+    // Viền (Stroke)
+    SVGStroke stroke = this->getStroke();
+    if (stroke.getColor().getA() > 0 && stroke.getWidth() > 0) {
+        SVGColor sColor = stroke.getColor();
+        Color gdiStrokeColor(sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB());
+
+        Pen pen(gdiStrokeColor, stroke.getWidth());
+        graphics->DrawPath(&pen, &path);
+    }
+
+    // QUAN TRỌNG: Giải phóng bộ nhớ vì pFontFamily được cấp phát bằng 'new'
+    if (pFontFamily) {
+        delete pFontFamily;
+        pFontFamily = nullptr;
+    }
+}
+
+//void TextElement::draw(Graphics* graphics)
+//{
+//    if (!graphics) return;
+//
+//    // 1. Chuan bi Font Family
+//    wstring wFontFamily = L"Arial";
+//    if (!this->fontFamily.empty()) {
+//        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), NULL, 0);
+//        wstring wstr(sizeNeeded, 0);
+//        MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), &wstr[0], sizeNeeded);
+//        wFontFamily = wstr;
+//    }
+//    FontFamily fontFamilyObj(wFontFamily.c_str());
+//
+//    // 2. Chuan bi Noi dung Text
+//    wstring wTextContent = L"";
+//    if (!this->textContent.empty()) {
+//        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0);
+//        wstring wstr(sizeNeeded, 0);
+//        MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), &wstr[0], sizeNeeded);
+//        wTextContent = wstr;
+//    }
+//
+//    // 3. Tinh toan vi tri co so (Baseline) -> Top-Left
+//    // GDI+ ve Text tinh tu goc tren-trai, trong khi SVG tinh tu duong chan chu (Baseline).
+//    // Can phai dieu chinh Y.
+//    int style = FontStyleRegular;
+//    float ascentDesignUnits = (float)fontFamilyObj.GetCellAscent(style);
+//    float emHeightDesignUnits = (float)fontFamilyObj.GetEmHeight(style);
+//    float ascentPixels = (ascentDesignUnits / emHeightDesignUnits) * this->fontSize;
+//
+//    PointF origin(this->getPosition().getX(), this->getPosition().getY() - ascentPixels);
+//
+//    // 4. Xu ly Canh le (Text Anchor)
+//    StringFormat format;
+//    if (this->textAnchor == "middle") format.SetAlignment(StringAlignmentCenter);
+//    else if (this->textAnchor == "end") format.SetAlignment(StringAlignmentFar);
+//    else format.SetAlignment(StringAlignmentNear);
+//
+//    GraphicsPath path;
+//    path.AddString(
+//        wTextContent.c_str(),
+//        -1,
+//        &fontFamilyObj,
+//        style,
+//        this->fontSize,
+//        origin,
+//        &format
+//    );
+//
+//    SVGColor fillColor = this->getFill();
+//    if (fillColor.getA() > 0) {
+//        Color gdiFillColor(fillColor.getA(), fillColor.getR(), fillColor.getG(), fillColor.getB());
+//        SolidBrush brush(gdiFillColor);
+//        graphics->FillPath(&brush, &path);
+//    }
+//
+//    SVGStroke stroke = this->getStroke();
+//
+//    if (stroke.getColor().getA() > 0 && stroke.getWidth() > 0) {
+//        SVGColor sColor = stroke.getColor();
+//        Color gdiStrokeColor(sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB());
+//
+//        Pen pen(gdiStrokeColor, stroke.getWidth());
+//        graphics->DrawPath(&pen, &path);
+//    }
+//}
+
+TextElement::~TextElement()
+{
+}
+
+
 //void TextElement::draw(Graphics* graphics)
 //{
 //    //Chuyen doi fontFamily
@@ -220,75 +427,3 @@ void TextElement::parseAttributes(xml_node<>* Node)
 //        brush //Co de ve
 //    );
 //}
-
-void TextElement::draw(Graphics* graphics)
-{
-    if (!graphics) return;
-
-    // 1. Chuan bi Font Family
-    wstring wFontFamily = L"Arial";
-    if (!this->fontFamily.empty()) {
-        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), NULL, 0);
-        wstring wstr(sizeNeeded, 0);
-        MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), &wstr[0], sizeNeeded);
-        wFontFamily = wstr;
-    }
-    FontFamily fontFamilyObj(wFontFamily.c_str());
-
-    // 2. Chuan bi Noi dung Text
-    wstring wTextContent = L"";
-    if (!this->textContent.empty()) {
-        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0);
-        wstring wstr(sizeNeeded, 0);
-        MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), &wstr[0], sizeNeeded);
-        wTextContent = wstr;
-    }
-
-    // 3. Tinh toan vi tri co so (Baseline) -> Top-Left
-    // GDI+ ve Text tinh tu goc tren-trai, trong khi SVG tinh tu duong chan chu (Baseline).
-    // Can phai dieu chinh Y.
-    int style = FontStyleRegular;
-    float ascentDesignUnits = (float)fontFamilyObj.GetCellAscent(style);
-    float emHeightDesignUnits = (float)fontFamilyObj.GetEmHeight(style);
-    float ascentPixels = (ascentDesignUnits / emHeightDesignUnits) * this->fontSize;
-
-    PointF origin(this->getPosition().getX(), this->getPosition().getY() - ascentPixels);
-
-    // 4. Xu ly Canh le (Text Anchor)
-    StringFormat format;
-    if (this->textAnchor == "middle") format.SetAlignment(StringAlignmentCenter);
-    else if (this->textAnchor == "end") format.SetAlignment(StringAlignmentFar);
-    else format.SetAlignment(StringAlignmentNear);
-
-    GraphicsPath path;
-    path.AddString(
-        wTextContent.c_str(),
-        -1,
-        &fontFamilyObj,
-        style,
-        this->fontSize,
-        origin,
-        &format
-    );
-
-    SVGColor fillColor = this->getFill();
-    if (fillColor.getA() > 0) {
-        Color gdiFillColor(fillColor.getA(), fillColor.getR(), fillColor.getG(), fillColor.getB());
-        SolidBrush brush(gdiFillColor);
-        graphics->FillPath(&brush, &path);
-    }
-
-    SVGStroke stroke = this->getStroke();
-
-    if (stroke.getColor().getA() > 0 && stroke.getWidth() > 0) {
-        SVGColor sColor = stroke.getColor();
-        Color gdiStrokeColor(sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB());
-
-        Pen pen(gdiStrokeColor, stroke.getWidth());
-        graphics->DrawPath(&pen, &path);
-    }
-}
-
-TextElement::~TextElement()
-{
-}
