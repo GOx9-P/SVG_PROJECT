@@ -262,33 +262,45 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
     float clampedOpacity = max(0.0f, min(1.0f, fillOpacity));
     BYTE alpha = static_cast<BYTE>(clampedOpacity * 255.0f);
 
-    return SVGColor(red, green, blue, alpha);
+    SVGColor color(red, green, blue, alpha);
+    color.isNotSet = false;
+
+    return color;
 }
 
 void SVGColor::setR(BYTE red) {
     r = red;
+    isNotSet = false;
 }
 
 void SVGColor::setG(BYTE green) {
     g = green;
+    isNotSet = false;
 }
 
 void SVGColor::setB(BYTE blue) {
     b = blue;
+    isNotSet = false;
 }
 
 void SVGColor::setA(BYTE alpha) {
     a = alpha;
+    isNotSet = false;
 }
 void SVGColor::setIsNone(bool val) {
     isNoneFlag = val;
+    isNotSet = false;
 }
 bool SVGColor::isNone() const {
     return isNoneFlag;
 }
 
-SVGColor::SVGColor() : r(0), g(0), b(0), a(0), isNoneFlag(false) {}
-SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha): r(red), g(green), b(blue), a(alpha), isNoneFlag(false) {
+bool SVGColor::isSet() const {
+    return !isNotSet;
+}
+
+SVGColor::SVGColor() : r(0), g(0), b(0), a(0), isNoneFlag(false), isNotSet(true) {}
+SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha): r(red), g(green), b(blue), a(alpha), isNoneFlag(false), isNotSet(false) {
 }
 BYTE SVGColor::getR() {
     return r;

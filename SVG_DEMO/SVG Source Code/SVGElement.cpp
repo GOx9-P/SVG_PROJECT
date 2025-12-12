@@ -64,7 +64,6 @@ SVGElement::SVGElement()
     id = className = style = transform =  "";
     opacity = 1.0f;
 	this->transformMatrix = new Gdiplus::Matrix();
-	this->fill = SVGColor(0, 0, 0, 0);
 }
 
 SVGElement::~SVGElement()
@@ -217,109 +216,226 @@ void SVGElement::parseTransform()
 	}
 }
 
+//void SVGElement::parseAttributes(xml_node<>* Node)
+//{
+//	if (xml_attribute<>* attribute = Node->first_attribute("id"))
+//	{
+//		id = attribute->value();
+//		/*if (!this->id.empty()) {*/
+//		/*	SVGElement::idMap[this->id] = this;
+//		}*/
+//	}
+//	if (xml_attribute<>* attribute = Node->first_attribute("class"))
+//		className = attribute->value();
+//	if (xml_attribute<>* attribute = Node->first_attribute("style"))
+//		style = attribute->value();
+//	if (xml_attribute<>* attribute = Node->first_attribute("transform"))
+//	{
+//		transform = attribute->value();
+//		parseTransform();
+//	}
+//
+//	if (xml_attribute<>* attr = Node->first_attribute("opacity"))
+//	{
+//		this->opacity = atof(attr->value());
+//	}
+//	 //--- FIX 1: LOGIC FILL ---
+//	bool isFillNone = false;
+//	if (xml_attribute<>* attribute = Node->first_attribute("fill"))
+//	{
+//		string Tempcolor = attribute->value();
+//		if (Tempcolor == "none") isFillNone = true;
+//		fill = SVGColor::fromString(Tempcolor);
+//	}
+//
+//	// 1. Đọc fill-opacity (Mặc định là 1.0f nếu không có)
+//	float fillOp = 1.0f;
+//	if (xml_attribute<>* attribute = Node->first_attribute("fill-opacity")) {
+//		fillOp = atof(attribute->value());
+//	}
+//
+//	// 2. Tính toán Alpha cuối cùng
+//	if (!isFillNone) {
+//		// QUAN TRỌNG: Chỉ nhân Opacity nếu hình ĐÃ CÓ MÀU (Alpha > 0).
+//		// Nếu Alpha == 0 (tức là chưa có màu, ví dụ <circle>), ta GIỮ NGUYÊN là 0
+//		// để SVGGroup có thể truyền màu của cha xuống (Inheritance).
+//
+//		if (fill.getA() > 0) {
+//			float currentAlpha = (float)fill.getA();
+//			// Công thức chuẩn: Alpha Gốc * Fill-Opacity * Global-Opacity
+//			fill.setA((BYTE)(currentAlpha * fillOp * this->opacity));
+//		}
+//	}
+//
+//	 // --- FIX 2: LOGIC STROKE ---
+//	bool isStrokeNone = false;
+//	if (xml_attribute<>* attribute = Node->first_attribute("stroke"))
+//	{
+//		string TempColorStroke = attribute->value();
+//		if (TempColorStroke == "none") isStrokeNone = true;
+//		SVGColor temp = SVGColor::fromString(TempColorStroke);
+//		stroke.setColor(temp);
+//	}
+//
+//	if (xml_attribute<>* attribute = Node->first_attribute("stroke-width"))
+//	{
+//		stroke.setWidth(atof(attribute->value()));
+//	}
+//
+//	// 1. Đọc stroke-opacity
+//	float strokeOp = 1.0f;
+//	if (xml_attribute<>* attribute = Node->first_attribute("stroke-opacity")) {
+//		strokeOp = atof(attribute->value());
+//	}
+//
+//	// 2. Tính toán Alpha cuối cùng
+//	if (!isStrokeNone) {
+//		SVGColor c = stroke.getColor();
+//
+//		// Tương tự Fill: Chỉ nhân nếu nét vẽ ĐÃ CÓ MÀU
+//		if (c.getA() > 0) {
+//			float currentAlpha = (float)c.getA();
+//			c.setA((BYTE)(currentAlpha * strokeOp * this->opacity));
+//			stroke.setColor(c);
+//		}
+//	}
+//
+//
+//	if (xml_attribute<>* attr = Node->first_attribute("stroke-linecap"))
+//	{
+//		this->stroke.setLineCap(attr->value());
+//	}
+//	if (xml_attribute<>* attr = Node->first_attribute("stroke-linejoin"))
+//	{
+//		this->stroke.setLineJoin(attr->value());
+//	}
+//
+//	if (stroke.getColor().getA() > 0 && stroke.getWidth() <= 0.0f)
+//	{
+//		stroke.setWidth(1.0f);
+//	}
+//	if (xml_attribute<>* attribute = Node->first_attribute("style"))
+//	{
+//		string styleStr = attribute->value();
+//		parseStyleString(styleStr, this->fill, this->stroke);
+//	}
+//}
+
 void SVGElement::parseAttributes(xml_node<>* Node)
 {
-	if (xml_attribute<>* attribute = Node->first_attribute("id"))
-	{
+	// 1. Lấy ID, Class, Transform (Giữ nguyên)
+	if (xml_attribute<>* attribute = Node->first_attribute("id")) {
 		id = attribute->value();
-		/*if (!this->id.empty()) {*/
-		/*	SVGElement::idMap[this->id] = this;
-		}*/
 	}
 	if (xml_attribute<>* attribute = Node->first_attribute("class"))
 		className = attribute->value();
 	if (xml_attribute<>* attribute = Node->first_attribute("style"))
 		style = attribute->value();
-	if (xml_attribute<>* attribute = Node->first_attribute("transform"))
-	{
+	if (xml_attribute<>* attribute = Node->first_attribute("transform")) {
 		transform = attribute->value();
 		parseTransform();
 	}
 
-	if (xml_attribute<>* attr = Node->first_attribute("opacity"))
-	{
+	// 2. Lấy Global Opacity
+	if (xml_attribute<>* attr = Node->first_attribute("opacity")) {
 		this->opacity = atof(attr->value());
 	}
-	// --- FIX 1: LOGIC FILL ---
+
+	// ================= XỬ LÝ FILL =================
 	bool isFillNone = false;
-	if (xml_attribute<>* attribute = Node->first_attribute("fill"))
-	{
+
+	// Bước A: Đọc màu fill
+	if (xml_attribute<>* attribute = Node->first_attribute("fill")) {
 		string Tempcolor = attribute->value();
 		if (Tempcolor == "none") isFillNone = true;
-		fill = SVGColor::fromString(Tempcolor);
+		fill = SVGColor::fromString(Tempcolor); // Hàm này sẽ set isSet() = true
 	}
 
-	// 1. Đọc fill-opacity (Mặc định là 1.0f nếu không có)
-	float fillOp = 1.0f;
+	// Bước B: Đọc fill-opacity và xử lý logic đặc biệt
 	if (xml_attribute<>* attribute = Node->first_attribute("fill-opacity")) {
-		fillOp = atof(attribute->value());
-	}
+		float fillOp = atof(attribute->value());
 
-	// 2. Tính toán Alpha cuối cùng
-	if (!isFillNone) {
-		// QUAN TRỌNG: Chỉ nhân Opacity nếu hình ĐÃ CÓ MÀU (Alpha > 0).
-		// Nếu Alpha == 0 (tức là chưa có màu, ví dụ <circle>), ta GIỮ NGUYÊN là 0
-		// để SVGGroup có thể truyền màu của cha xuống (Inheritance).
+		// FIX YIN YANG: 
+		// Nếu fill chưa được set (ví dụ <circle fill-opacity="0">) 
+		// nhưng lại có fill-opacity -> Chuẩn SVG quy định mặc định là màu ĐEN.
+		if (!fill.isSet() && !isFillNone) {
+			fill = SVGColor(0, 0, 0, 255); // Gán màu đen đặc, lúc này isSet() = true
+		}
 
-		if (fill.getA() > 0) {
+		// Tính toán Alpha: Alpha hiện tại * Fill Opacity * Global Opacity
+		if (!isFillNone && fill.isSet()) { // Chỉ nhân nếu đã có màu
 			float currentAlpha = (float)fill.getA();
-			// Công thức chuẩn: Alpha Gốc * Fill-Opacity * Global-Opacity
 			fill.setA((BYTE)(currentAlpha * fillOp * this->opacity));
+		}
+	}
+	else {
+		// Trường hợp không có fill-opacity nhưng có Global opacity
+		if (!isFillNone && fill.isSet()) {
+			float currentAlpha = (float)fill.getA();
+			fill.setA((BYTE)(currentAlpha * this->opacity));
 		}
 	}
 
 
-	 // --- FIX 2: LOGIC STROKE ---
+	// ================= XỬ LÝ STROKE =================
 	bool isStrokeNone = false;
-	if (xml_attribute<>* attribute = Node->first_attribute("stroke"))
-	{
+
+	// Bước A: Đọc màu stroke
+	if (xml_attribute<>* attribute = Node->first_attribute("stroke")) {
 		string TempColorStroke = attribute->value();
 		if (TempColorStroke == "none") isStrokeNone = true;
 		SVGColor temp = SVGColor::fromString(TempColorStroke);
-		stroke.setColor(temp);
+		stroke.setColor(temp); // Hàm này sẽ set isSet() = true
 	}
 
-	if (xml_attribute<>* attribute = Node->first_attribute("stroke-width"))
-	{
+	if (xml_attribute<>* attribute = Node->first_attribute("stroke-width")) {
 		stroke.setWidth(atof(attribute->value()));
 	}
 
-	// 1. Đọc stroke-opacity
-	float strokeOp = 1.0f;
+	// Bước B: Đọc stroke-opacity
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke-opacity")) {
-		strokeOp = atof(attribute->value());
-	}
+		float strokeOp = atof(attribute->value());
 
-	// 2. Tính toán Alpha cuối cùng
-	if (!isStrokeNone) {
-		SVGColor c = stroke.getColor();
-
-		// Tương tự Fill: Chỉ nhân nếu nét vẽ ĐÃ CÓ MÀU
-		if (c.getA() > 0) {
+		// Với Stroke, nếu chưa set màu thì opacity không có tác dụng (mặc định stroke là none)
+		// Nên ta chỉ xử lý khi stroke đã được set
+		if (!isStrokeNone && stroke.getColor().isSet()) {
+			SVGColor c = stroke.getColor();
 			float currentAlpha = (float)c.getA();
 			c.setA((BYTE)(currentAlpha * strokeOp * this->opacity));
 			stroke.setColor(c);
 		}
 	}
+	else {
+		// Trường hợp không có stroke-opacity nhưng có Global opacity
+		if (!isStrokeNone && stroke.getColor().isSet()) {
+			SVGColor c = stroke.getColor();
+			float currentAlpha = (float)c.getA();
+			c.setA((BYTE)(currentAlpha * this->opacity));
+			stroke.setColor(c);
+		}
+	}
 
-
-	if (xml_attribute<>* attr = Node->first_attribute("stroke-linecap"))
-	{
+	// ================= CÁC THUỘC TÍNH KHÁC =================
+	if (xml_attribute<>* attr = Node->first_attribute("stroke-linecap")) {
 		this->stroke.setLineCap(attr->value());
 	}
-	if (xml_attribute<>* attr = Node->first_attribute("stroke-linejoin"))
-	{
+	if (xml_attribute<>* attr = Node->first_attribute("stroke-linejoin")) {
 		this->stroke.setLineJoin(attr->value());
 	}
 
-	if (stroke.getColor().getA() > 0 && stroke.getWidth() <= 0.0f)
-	{
+	// Fix độ dày nét vẽ nếu có màu mà chưa có độ dày
+	if (stroke.getColor().isSet() && stroke.getColor().getA() > 0 && stroke.getWidth() <= 0.0f) {
 		stroke.setWidth(1.0f);
 	}
-	if (xml_attribute<>* attribute = Node->first_attribute("style"))
-	{
+
+	// Parse Style (Inline CSS) - Lưu ý: Phần này nên đặt cẩn thận vì nó có thể override các thuộc tính trên
+	if (xml_attribute<>* attribute = Node->first_attribute("style")) {
 		string styleStr = attribute->value();
 		parseStyleString(styleStr, this->fill, this->stroke);
+
+		// Lưu ý bổ sung: Nếu trong style có opacity, bạn cần áp dụng logic nhân this->opacity tương tự ở trên
+		// Tuy nhiên với cấu trúc hiện tại hàm parseStyleString của bạn đang parse trực tiếp vào fill/stroke
+		// Nên nếu muốn chính xác tuyệt đối, bạn nên chuyển việc nhân Global Opacity xuống cuối cùng hàm này.
 	}
 }
 

@@ -12,6 +12,7 @@ private:
 	BYTE b;
 	BYTE a; // opacity.
 	bool isNoneFlag;
+	bool isNotSet;
 public:
 	SVGColor();
 	SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha);
@@ -20,6 +21,7 @@ public:
 	BYTE getB();
 	BYTE getA();
 	bool isNone() const;
+	bool isSet() const;
 	void setR(BYTE red);
 	void setG(BYTE green);
 	void setB(BYTE blue);
