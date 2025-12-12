@@ -52,7 +52,7 @@ void SVGPolyline::draw(Graphics* graphics)
 	for (auto p : points) {
 		GDIPoints.push_back({ p.getX(), p.getY() });
 	}
-	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints));
+	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints), FillModeWinding);// them mode  FillModeWinding
 	graphics->DrawLines(pen, GDIPoints.data(), static_cast<INT>(numPoints));
 
 	delete fillBrush;

@@ -42,9 +42,9 @@ void SVGGroup::draw(Graphics* graphics)
     float groupAlpha = 1.0f;
     if (parentFill.getA() > 0) {
         // Lưu ý: Đây là logic tạm thời nếu chưa có thuộc tính opacity riêng biệt
-        groupAlpha = (float)parentFill.getA() / 255.0f;
+       groupAlpha = (float)parentFill.getA() / 255.0f;
     }
-
+    
     // Duyệt qua từng phần tử con để vẽ
     for (SVGElement* element : group)
     {

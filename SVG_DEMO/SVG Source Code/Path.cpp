@@ -164,6 +164,10 @@ void SVGPath::parseAttributes(xml_node<>* Node)
 	{
 		this->d = attribute->value();
 	}
+    if (xml_attribute<>* attribute = Node->first_attribute("fill-rule"))
+    {
+        this->fillRule = attribute->value(); 
+    }
 }
 
 void SVGPath::handleData()
@@ -179,6 +183,11 @@ void SVGPath::draw(Graphics* graphics)
     GraphicsPath path;
     handleData(); // xu li ',' thanh ' '
     stringstream ss(d);
+
+    if (fillRule == "evenodd")
+        path.SetFillMode(FillModeAlternate);  
+    else
+        path.SetFillMode(FillModeWinding);
 
     char current = 0;
     float x = 0, y = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;

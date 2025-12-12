@@ -52,7 +52,7 @@ void SVGPolygon::draw(Graphics* graphics)
 	for (auto p : points) {
 		GDIPoints.push_back({ p.getX(), p.getY() });
 	}
-	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints));
+	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints), FillModeWinding);// them mode  FillModeWinding
 	graphics->DrawPolygon(pen, GDIPoints.data(), static_cast<INT>(numPoints));
 
 	delete fillBrush;

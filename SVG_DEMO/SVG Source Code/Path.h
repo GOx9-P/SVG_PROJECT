@@ -6,6 +6,7 @@
 class SVGPath : public GeometricElement {
 private:
 	string d;
+	string fillRule;
 public:
 	SVGPath();
 	SVGPath(const string&);
