@@ -2,12 +2,14 @@
 #include "Path.h"
 #include <cmath>
 #include <algorithm>
+#include <sstream> // Cần thiết cho stringstream
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
+// --- PHẦN HÀM HỖ TRỢ (GIỮ NGUYÊN) ---
 
-//////// Phan code ho tro doc lenh A///////// phan xu ly so hoc kham thao AI
 // Hàm tính góc giữa 2 vector
 double angleBetween(PointF u, PointF v) {
     double dot = u.X * v.X + u.Y * v.Y;
@@ -20,31 +22,26 @@ double angleBetween(PointF u, PointF v) {
 // Hàm xử lý toán học để thêm Arc vào Path
 void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float rotation, bool largeArc, bool sweep, float endX, float endY)
 {
+    // ... (Giữ nguyên toàn bộ logic AddArcToPath cũ của bạn ở đây) ...
+    // Copy lại y nguyên nội dung hàm AddArcToPath từ file cũ của bạn vào đây
     // 1. Xử lý dữ liệu đầu vào
     float x0 = start.X;
     float y0 = start.Y;
 
-    // Bán kính không được âm
     rx = abs(rx);
     ry = abs(ry);
 
-    // Nếu bán kính = 0, coi như vẽ đường thẳng (theo chuẩn SVG)
     if (rx == 0 || ry == 0) {
         path.AddLine(start, PointF(endX, endY));
         return;
     }
 
-    // Chuyển độ sang radian
     double phi = rotation * M_PI / 180.0;
-
-    // 2. Chuyển đổi từ Endpoint sang Center Parameterization (Công thức F.6.5 của W3C)
     double dx2 = (x0 - endX) / 2.0;
     double dy2 = (y0 - endY) / 2.0;
-
     double x1p = cos(phi) * dx2 + sin(phi) * dy2;
     double y1p = -sin(phi) * dx2 + cos(phi) * dy2;
 
-    // Check tỉ lệ bán kính (Công thức F.6.6)
     double rx_sq = rx * rx;
     double ry_sq = ry * ry;
     double x1p_sq = x1p * x1p;
@@ -59,7 +56,6 @@ void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float ro
         ry_sq = ry * ry;
     }
 
-    // Tính tâm (cx', cy') (Công thức F.6.5.2)
     double sign = (largeArc == sweep) ? -1 : 1;
     double num = max(0.0, rx_sq * ry_sq - rx_sq * y1p_sq - ry_sq * x1p_sq);
     double den = rx_sq * y1p_sq + ry_sq * x1p_sq;
@@ -68,11 +64,9 @@ void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float ro
     double cxp = coef * ((rx * y1p) / ry);
     double cyp = coef * (-(ry * x1p) / rx);
 
-    // Chuyển về toạ độ gốc (cx, cy) (Công thức F.6.5.3)
     double cx = cos(phi) * cxp - sin(phi) * cyp + (x0 + endX) / 2.0;
     double cy = sin(phi) * cxp + cos(phi) * cyp + (y0 + endY) / 2.0;
 
-    // 3. Tính góc bắt đầu và góc quét (Công thức F.6.5.4 -> F.6.5.6)
     PointF v1((x1p - cxp) / rx, (y1p - cyp) / ry);
     PointF v2((-x1p - cxp) / rx, (-y1p - cyp) / ry);
 
@@ -82,8 +76,6 @@ void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float ro
     if (!sweep && dtheta > 0) dtheta -= 2 * M_PI;
     else if (sweep && dtheta < 0) dtheta += 2 * M_PI;
 
-    // 4. Vẽ xấp xỉ bằng Bezier (Arc to Bezier)
-    // Chia nhỏ cung tròn thành các đoạn nhỏ (mỗi đoạn không quá 90 độ để đảm bảo chính xác)
     int segments = (int)ceil(abs(dtheta) / (M_PI / 2.0));
     double delta = dtheta / segments;
     double t = 8.0 / 3.0 * sin(delta / 4.0) * sin(delta / 4.0) / sin(delta / 2.0);
@@ -99,13 +91,11 @@ void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float ro
         double cos2 = cos(theta2);
         double sin2 = sin(theta2);
 
-        // Tính điểm điều khiển (trên đường tròn đơn vị chưa xoay)
         double e1x = cos1 - t * sin1;
         double e1y = sin1 + t * cos1;
         double e2x = cos2 + t * sin2;
         double e2y = sin2 - t * cos2;
 
-        // Xoay và tịnh tiến về vị trí thực
         auto transform = [&](double u, double v) {
             double tx = rx * u;
             double ty = ry * v;
@@ -119,345 +109,265 @@ void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float ro
         PointF cp2 = transform(e2x, e2y);
         PointF dest = transform(cos2, sin2);
 
-        // Add vào Path
         path.AddBezier(PointF(currentX, currentY), cp1, cp2, dest);
 
-        // Cập nhật cho vòng lặp sau
         theta1 = theta2;
         currentX = dest.X;
         currentY = dest.Y;
     }
 }
 
-/////////////////// het code phuc vu lenh A ////////////////
+// --- IMPLEMENTATION SVGPath ---
 
+SVGPath::SVGPath() { d = ""; }
+SVGPath::SVGPath(const string& D) { d = D; }
+SVGPath::SVGPath(const SVGPath& other) { this->d = other.getD(); }
 
-SVGPath::SVGPath()
-{
-	d = "";
-}
-
-SVGPath::SVGPath(const string& D)
-{
-	d = D;
-}
-
-SVGPath::SVGPath(const SVGPath& other)
-{
-	this->d = other.getD();
-}
-
-string SVGPath::getD() const
-{
-	return d;
-}
-
-void SVGPath::setD(const string& newD)
-{
-	d = newD;
-}
+string SVGPath::getD() const { return d; }
+void SVGPath::setD(const string& newD) { d = newD; }
 
 void SVGPath::parseAttributes(xml_node<>* Node)
 {
-	GeometricElement::parseAttributes(Node);
-	if (xml_attribute<>* attribute = Node->first_attribute("d"))
-	{
-		this->d = attribute->value();
-	}
+    GeometricElement::parseAttributes(Node);
+    if (xml_attribute<>* attribute = Node->first_attribute("d"))
+    {
+        this->d = attribute->value();
+    }
     if (xml_attribute<>* attribute = Node->first_attribute("fill-rule"))
     {
-        this->fillRule = attribute->value(); 
+        this->fillRule = attribute->value();
     }
 }
 
-void SVGPath::handleData()
+// HÀM MỚI: Tách logic parse ra khỏi draw
+void SVGPath::parsePathData(GraphicsPath& path)
 {
-	for (int i = 0; i < d.size(); i++)
-	{
-		if (d[i] == ',') d[i] = ' ';
-	}
-}
+    // 1. Xử lý chuỗi d (Thay vì dùng handleData sửa trực tiếp member, ta sửa trên bản sao local)
+    string processedD = d;
+    for (size_t i = 0; i < processedD.size(); i++) {
+        if (processedD[i] == ',') processedD[i] = ' ';
+    }
+    stringstream ss(processedD);
 
-void SVGPath::draw(Graphics* graphics)
-{
-    GraphicsPath path;
-    handleData(); // xu li ',' thanh ' '
-    stringstream ss(d);
-
+    // 2. Set Fill Mode
     if (fillRule == "evenodd")
-        path.SetFillMode(FillModeAlternate);  
+        path.SetFillMode(FillModeAlternate);
     else
         path.SetFillMode(FillModeWinding);
 
+    // 3. Khởi tạo biến cục bộ
     char current = 0;
     float x = 0, y = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-    PointF lastPoint(0, 0);// Diem ve cuoi cung
-
-    // Diem dieu khien cuoi cung (dung cho duong cong muot S/s)
+    PointF lastPoint(0, 0);
     PointF lastControlPoint(0, 0);
 
+    // 4. Vòng lặp parse (Logic cũ của bạn)
     while (!ss.eof())
     {
         while (isspace(ss.peek())) ss.get();
-
         if (ss.eof()) break;
 
         char next = ss.peek();
-        if (isalpha(next))
-        {
-            ss >> current;
-        }
+        if (isalpha(next)) ss >> current;
 
-        if (current == 'M') // Di chuyen tuyet doi
+        // --- BẮT ĐẦU CÁC LỆNH VẼ ---
+        if (current == 'M') // MoveTo Absolute
         {
-            if (ss >> x >> y)
-            {
+            if (ss >> x >> y) {
                 path.StartFigure();
                 lastPoint = PointF(x, y);
-                lastControlPoint = lastPoint; 
-                current = 'L'; 
+                lastControlPoint = lastPoint;
+                current = 'L';
             }
         }
-        else if (current == 'm')// Di chuyen tuong doi
+        else if (current == 'm') // MoveTo Relative
         {
-            if (ss >> x >> y)
-            {
+            if (ss >> x >> y) {
                 path.StartFigure();
                 lastPoint = PointF(lastPoint.X + x, lastPoint.Y + y);
                 lastControlPoint = lastPoint;
                 current = 'l';
             }
         }
-        // Ve duong thang tuyet doi
-        else if (current == 'L') 
+        else if (current == 'L') // LineTo Absolute
         {
-            if (ss >> x >> y)
-            {
+            if (ss >> x >> y) {
                 path.AddLine(lastPoint, PointF(x, y));
                 lastPoint = PointF(x, y);
                 lastControlPoint = lastPoint;
             }
         }
-        else if (current == 'l') // Ve duong thang tuong doi
+        else if (current == 'l') // LineTo Relative
         {
-            if (ss >> x >> y)
-            {
+            if (ss >> x >> y) {
                 PointF nextP(lastPoint.X + x, lastPoint.Y + y);
                 path.AddLine(lastPoint, nextP);
                 lastPoint = nextP;
                 lastControlPoint = lastPoint;
             }
         }
-        else if (current == 'H') // Ve duong ngang tuyet doi
+        else if (current == 'H') // Horizontal Absolute
         {
-            if (ss >> x)
-            {
+            if (ss >> x) {
                 path.AddLine(lastPoint, PointF(x, lastPoint.Y));
                 lastPoint = PointF(x, lastPoint.Y);
                 lastControlPoint = lastPoint;
             }
         }
-        else if (current == 'h')  // Ve duong ngang tuong doi
+        else if (current == 'h') // Horizontal Relative
         {
-            if (ss >> x)
-            {
+            if (ss >> x) {
                 PointF nextP(lastPoint.X + x, lastPoint.Y);
                 path.AddLine(lastPoint, nextP);
                 lastPoint = nextP;
                 lastControlPoint = lastPoint;
             }
         }
-        else if (current == 'V') // Ve duong doc tuyet doi
+        else if (current == 'V') // Vertical Absolute
         {
-            if (ss >> y)
-            {
+            if (ss >> y) {
                 path.AddLine(lastPoint, PointF(lastPoint.X, y));
                 lastPoint = PointF(lastPoint.X, y);
                 lastControlPoint = lastPoint;
             }
         }
-        else if (current == 'v') // Ve duong doc tuong doi
+        else if (current == 'v') // Vertical Relative
         {
-            if (ss >> y)
-            {
+            if (ss >> y) {
                 PointF nextP(lastPoint.X, lastPoint.Y + y);
                 path.AddLine(lastPoint, nextP);
                 lastPoint = nextP;
                 lastControlPoint = lastPoint;
             }
         }
-
-        else if (current == 'C')// Ve duong cong Bezier tuyet doi   
+        else if (current == 'C') // Cubic Bezier Absolute
         {
-            if (ss >> x1 >> y1 >> x2 >> y2 >> x >> y)
-            {
+            if (ss >> x1 >> y1 >> x2 >> y2 >> x >> y) {
                 path.AddBezier(lastPoint, PointF(x1, y1), PointF(x2, y2), PointF(x, y));
                 lastPoint = PointF(x, y);
                 lastControlPoint = PointF(x2, y2);
             }
         }
-        else if (current == 'c') // Ve duong cong Bezier tuong doi
+        else if (current == 'c') // Cubic Bezier Relative
         {
-            if (ss >> x1 >> y1 >> x2 >> y2 >> x >> y)
-            {
+            if (ss >> x1 >> y1 >> x2 >> y2 >> x >> y) {
                 PointF p1(lastPoint.X + x1, lastPoint.Y + y1);
                 PointF p2(lastPoint.X + x2, lastPoint.Y + y2);
                 PointF pEnd(lastPoint.X + x, lastPoint.Y + y);
-
                 path.AddBezier(lastPoint, p1, p2, pEnd);
                 lastPoint = pEnd;
                 lastControlPoint = p2;
             }
         }
-        else if (current == 'S') // Ve duong cong muot tuyet doi (Absolute Smooth Cubic Bezier)
+        else if (current == 'S') // Smooth Cubic Absolute
         {
-            if (ss >> x2 >> y2 >> x >> y)
-            {
-                // Tinh diem dieu khien thu nhat: doi xung voi diem dieu khien cu qua lastPoint
-                // Cong thuc: P1 = 2 * Current - LastControl
+            if (ss >> x2 >> y2 >> x >> y) {
                 float ctrl1X = 2 * lastPoint.X - lastControlPoint.X;
                 float ctrl1Y = 2 * lastPoint.Y - lastControlPoint.Y;
-
                 PointF p1(ctrl1X, ctrl1Y);
-                PointF p2(x2, y2);     // Toa do tuyet doi, khong can cong them lastPoint
-                PointF pEnd(x, y);     // Toa do tuyet doi, khong can cong them lastPoint
-
+                PointF p2(x2, y2);
+                PointF pEnd(x, y);
                 path.AddBezier(lastPoint, p1, p2, pEnd);
-
-                // Cap nhat vi tri
                 lastPoint = pEnd;
                 lastControlPoint = p2;
             }
         }
-        else if (current == 's') // Ve duong cong muot tuong doi
+        else if (current == 's') // Smooth Cubic Relative
         {
-            if (ss >> x2 >> y2 >> x >> y)
-            {
+            if (ss >> x2 >> y2 >> x >> y) {
                 float ctrl1X = 2 * lastPoint.X - lastControlPoint.X;
                 float ctrl1Y = 2 * lastPoint.Y - lastControlPoint.Y;
-
                 PointF p1(ctrl1X, ctrl1Y);
                 PointF p2(lastPoint.X + x2, lastPoint.Y + y2);
                 PointF pEnd(lastPoint.X + x, lastPoint.Y + y);
-
                 path.AddBezier(lastPoint, p1, p2, pEnd);
                 lastPoint = pEnd;
                 lastControlPoint = p2;
             }
         }
-        else if (current == 'Q') // ve quadratuc bezier tuyet doi
+        else if (current == 'Q') // Quadratic Absolute
         {
-            if (ss >> x1 >> y1 >> x >> y)
-            {
-            
+            if (ss >> x1 >> y1 >> x >> y) {
                 PointF p0 = lastPoint;
-                PointF p1(x1, y1); 
-                PointF p2(x, y);  
-
-              
-                PointF c1(p0.X + (2.0f / 3.0f) * (p1.X - p0.X), p0.Y + (2.0f / 3.0f) * (p1.Y - p0.Y));
-                PointF c2(p2.X + (2.0f / 3.0f) * (p1.X - p2.X), p2.Y + (2.0f / 3.0f) * (p1.Y - p2.Y));
-
-                path.AddBezier(p0, c1, c2, p2);
-
-                lastPoint = p2;
-                lastControlPoint = p1;
-            }
-        }
-           
-        else if (current == 'q') // ve quadratuc bezier tuong doi
-        {
-            if (ss >> x1 >> y1 >> x >> y)
-            {
-                PointF p0 = lastPoint;
-                PointF p1(p0.X + x1, p0.Y + y1); 
-                PointF p2(p0.X + x, p0.Y + y);  
-
-                PointF c1(p0.X + (2.0f / 3.0f) * (p1.X - p0.X), p0.Y + (2.0f / 3.0f) * (p1.Y - p0.Y));
-                PointF c2(p2.X + (2.0f / 3.0f) * (p1.X - p2.X), p2.Y + (2.0f / 3.0f) * (p1.Y - p2.Y));
-
-                path.AddBezier(p0, c1, c2, p2);
-
-                lastPoint = p2;
-                lastControlPoint = p1;
-            }
-        }
-
-        else if (current == 'T') // Smooth Quadratic Tuyet doi (noi tiep Q)
-        {
-            if (ss >> x >> y)
-            {
-                float ctrlX = 2 * lastPoint.X - lastControlPoint.X;
-                float ctrlY = 2 * lastPoint.Y - lastControlPoint.Y;
-
-                PointF p0 = lastPoint;
-                PointF p1(ctrlX, ctrlY); 
+                PointF p1(x1, y1);
                 PointF p2(x, y);
-
                 PointF c1(p0.X + (2.0f / 3.0f) * (p1.X - p0.X), p0.Y + (2.0f / 3.0f) * (p1.Y - p0.Y));
                 PointF c2(p2.X + (2.0f / 3.0f) * (p1.X - p2.X), p2.Y + (2.0f / 3.0f) * (p1.Y - p2.Y));
-
                 path.AddBezier(p0, c1, c2, p2);
-
                 lastPoint = p2;
                 lastControlPoint = p1;
             }
         }
-        else if (current == 't')  //Smooth Quadratic tuong doi
+        else if (current == 'q') // Quadratic Relative
         {
-            if (ss >> x >> y)
-            {
+            if (ss >> x1 >> y1 >> x >> y) {
+                PointF p0 = lastPoint;
+                PointF p1(p0.X + x1, p0.Y + y1);
+                PointF p2(p0.X + x, p0.Y + y);
+                PointF c1(p0.X + (2.0f / 3.0f) * (p1.X - p0.X), p0.Y + (2.0f / 3.0f) * (p1.Y - p0.Y));
+                PointF c2(p2.X + (2.0f / 3.0f) * (p1.X - p2.X), p2.Y + (2.0f / 3.0f) * (p1.Y - p2.Y));
+                path.AddBezier(p0, c1, c2, p2);
+                lastPoint = p2;
+                lastControlPoint = p1;
+            }
+        }
+        else if (current == 'T') // Smooth Quadratic Absolute
+        {
+            if (ss >> x >> y) {
                 float ctrlX = 2 * lastPoint.X - lastControlPoint.X;
                 float ctrlY = 2 * lastPoint.Y - lastControlPoint.Y;
-
+                PointF p0 = lastPoint;
+                PointF p1(ctrlX, ctrlY);
+                PointF p2(x, y);
+                PointF c1(p0.X + (2.0f / 3.0f) * (p1.X - p0.X), p0.Y + (2.0f / 3.0f) * (p1.Y - p0.Y));
+                PointF c2(p2.X + (2.0f / 3.0f) * (p1.X - p2.X), p2.Y + (2.0f / 3.0f) * (p1.Y - p2.Y));
+                path.AddBezier(p0, c1, c2, p2);
+                lastPoint = p2;
+                lastControlPoint = p1;
+            }
+        }
+        else if (current == 't') // Smooth Quadratic Relative
+        {
+            if (ss >> x >> y) {
+                float ctrlX = 2 * lastPoint.X - lastControlPoint.X;
+                float ctrlY = 2 * lastPoint.Y - lastControlPoint.Y;
                 PointF p0 = lastPoint;
                 PointF p1(ctrlX, ctrlY);
                 PointF p2(p0.X + x, p0.Y + y);
-
                 PointF c1(p0.X + (2.0f / 3.0f) * (p1.X - p0.X), p0.Y + (2.0f / 3.0f) * (p1.Y - p0.Y));
                 PointF c2(p2.X + (2.0f / 3.0f) * (p1.X - p2.X), p2.Y + (2.0f / 3.0f) * (p1.Y - p2.Y));
-
                 path.AddBezier(p0, c1, c2, p2);
-
                 lastPoint = p2;
                 lastControlPoint = p1;
             }
         }
-        else if (current == 'A')
+        else if (current == 'A') // Arc Absolute
         {
-            float rx, ry, rotation, x, y;
+            float rx, ry, rotation;
             ss >> rx >> ry >> rotation;
-
             while (isspace(ss.peek())) ss.get();
             char fA = ss.get();
             while (isspace(ss.peek())) ss.get();
             char fS = ss.get();
-
             bool bFlagA = (fA == '1');
             bool bFlagS = (fS == '1');
-
-            if (ss >> x >> y)
-            {
+            if (ss >> x >> y) {
                 AddArcToPath(path, lastPoint, rx, ry, rotation, bFlagA, bFlagS, x, y);
                 lastPoint = PointF(x, y);
                 lastControlPoint = lastPoint;
             }
-            }
-        else if (current == 'a')
+        }
+        else if (current == 'a') // Arc Relative
         {
-            float rx, ry, rotation, x, y;
+            float rx, ry, rotation;
             ss >> rx >> ry >> rotation;
-
             while (isspace(ss.peek())) ss.get();
             char fA = ss.get();
             while (isspace(ss.peek())) ss.get();
             char fS = ss.get();
-
             bool bFlagA = (fA == '1');
             bool bFlagS = (fS == '1');
-
-            if (ss >> x >> y)
-            {
+            if (ss >> x >> y) {
                 float endX = lastPoint.X + x;
                 float endY = lastPoint.Y + y;
                 AddArcToPath(path, lastPoint, rx, ry, rotation, bFlagA, bFlagS, endX, endY);
@@ -465,34 +375,55 @@ void SVGPath::draw(Graphics* graphics)
                 lastControlPoint = lastPoint;
             }
         }
-
-        else if (current == 'Z' || current == 'z')  // Dong hinh
+        else if (current == 'Z' || current == 'z') // Close
         {
             path.CloseFigure();
             lastControlPoint = lastPoint;
         }
         else
         {
-            ss.get(); // Bo qua ky tu rac
+            ss.get();
         }
     }
+}
 
+// HÀM MỚI: Dùng để tính Gradient
+Gdiplus::RectF SVGPath::getBoundingBox()
+{
+    GraphicsPath path;
+    parsePathData(path); // Tái sử dụng logic parse
+    RectF bounds;
+    path.GetBounds(&bounds);
+    return bounds;
+}
 
+// CẬP NHẬT: Dùng createBrush cho Gradient
+void SVGPath::draw(Graphics* graphics)
+{
+    GraphicsPath path;
+    parsePathData(path); // Tạo hình
 
-	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB() };
-	Brush* brush = new SolidBrush(fillColor);
-	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
-	Pen* pen = new Pen(fillColorWidth, getStroke().getWidth());
+    // 1. Tính toán Bounding Box để lấy Gradient (nếu có)
+    RectF bounds;
+    path.GetBounds(&bounds);
+
+    // 2. Tạo Brush thông minh (Solid hoặc Gradient từ class cha)
+    Brush* brush = this->createBrush(bounds);
+
+    // 3. Tạo Pen
+    SVGColor sColor = getStroke().getColor();
+    Color strokeColor = { sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB() };
+    Pen* pen = new Pen(strokeColor, getStroke().getWidth());
     pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
     pen->SetLineJoin(getStroke().getLineJoin());
 
-    
-	graphics->FillPath(brush, &path);
-	graphics->DrawPath(pen, &path);
-	delete brush;
-	delete pen;
-}
+    // 4. Vẽ
+    if (brush) graphics->FillPath(brush, &path); // Chỉ fill nếu có brush hợp lệ
+    if (getStroke().getWidth() > 0 && sColor.getA() > 0) graphics->DrawPath(pen, &path);
 
+    if (brush) delete brush;
+    delete pen;
+}
 
 SVGPath::~SVGPath()
 {

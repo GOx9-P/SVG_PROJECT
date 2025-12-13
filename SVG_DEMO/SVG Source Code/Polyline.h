@@ -12,6 +12,8 @@ public:
 	vector<SVGPoint> getPoints() const;
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics*);
+	// Thêm vào public:
+	Gdiplus::RectF getBoundingBox() override;
 	~SVGPolyline();
 };
 

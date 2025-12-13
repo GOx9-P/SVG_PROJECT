@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Polygon.h"
 
 void SVGPolygon::setPoints(const vector<SVGPoint>& newPoints) {
@@ -7,6 +7,21 @@ void SVGPolygon::setPoints(const vector<SVGPoint>& newPoints) {
 
 vector<SVGPoint> SVGPolygon::getPoints() const {
 	return points;
+}
+
+Gdiplus::RectF SVGPolygon::getBoundingBox() {
+	if (points.empty()) return Gdiplus::RectF(0, 0, 0, 0);
+
+	float minX = points[0].getX(), maxX = points[0].getX();
+	float minY = points[0].getY(), maxY = points[0].getY();
+
+	for (const auto& p : points) {
+		if (p.getX() < minX) minX = p.getX();
+		if (p.getX() > maxX) maxX = p.getX();
+		if (p.getY() < minY) minY = p.getY();
+		if (p.getY() > maxY) maxY = p.getY();
+	}
+	return Gdiplus::RectF(minX, minY, maxX - minX, maxY - minY);
 }
 
 void SVGPolygon::parseAttributes(xml_node<>* Node)
@@ -35,27 +50,27 @@ void SVGPolygon::parseAttributes(xml_node<>* Node)
 
 void SVGPolygon::draw(Graphics* graphics)
 {
-	size_t numPoints = this->points.size();
-	SVGColor fill_color = this->getFill();
-	Color fillColor = { fill_color.getA(), fill_color.getR(), fill_color.getG(), fill_color.getB()};
-	// tao brush cho fill
-	Brush* fillBrush = new SolidBrush(fillColor);
-	SVGStroke stroke = this->getStroke();
-	SVGColor stroke_color = stroke.getColor();
-	Color strokeColor = { stroke_color.getA(), stroke_color.getR(), stroke_color.getG(), stroke_color.getB()};
-	// tao pen cho stroke
-	Pen* pen =  new Pen(strokeColor, stroke.getWidth());
-	pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
-	pen->SetLineJoin(getStroke().getLineJoin());
-	// ep ve point theo gdi
-	vector<PointF> GDIPoints;
-	for (auto p : points) {
-		GDIPoints.push_back({ p.getX(), p.getY() });
-	}
-	graphics->FillPolygon(fillBrush, GDIPoints.data(), static_cast<INT>(numPoints), FillModeWinding);// them mode  FillModeWinding
-	graphics->DrawPolygon(pen, GDIPoints.data(), static_cast<INT>(numPoints));
+	if (points.empty()) return;
 
-	delete fillBrush;
+	Gdiplus::RectF bounds = this->getBoundingBox();
+	Brush* brush = this->createBrush(bounds); // Hỗ trợ Gradient cho Polygon
+
+	SVGStroke stroke = this->getStroke();
+	SVGColor sColor = stroke.getColor();
+	Color strokeColor = { sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB() };
+
+	Pen* pen = new Pen(strokeColor, stroke.getWidth());
+	pen->SetLineCap(stroke.getLineCap(), stroke.getLineCap(), DashCapRound);
+	pen->SetLineJoin(stroke.getLineJoin());
+
+	vector<PointF> GDIPoints;
+	for (auto p : points) GDIPoints.push_back({ p.getX(), p.getY() });
+
+	if (brush) graphics->FillPolygon(brush, GDIPoints.data(), (INT)GDIPoints.size(), FillModeWinding);
+	if (stroke.getWidth() > 0 && sColor.getA() > 0)
+		graphics->DrawPolygon(pen, GDIPoints.data(), (INT)GDIPoints.size());
+
+	if (brush) delete brush;
 	delete pen;
 }
 

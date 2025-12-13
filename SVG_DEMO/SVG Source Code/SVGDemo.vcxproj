@@ -156,7 +156,9 @@
     <ClInclude Include="Path.h" />
     <ClInclude Include="Polyline.h" />
     <ClInclude Include="Stroke.h" />
+    <ClInclude Include="SVGGradient.h" />
     <ClInclude Include="SVGGroup.h" />
+    <ClInclude Include="SVGLinearGradient.h" />
     <ClInclude Include="SVGPoint.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="rapidxml.hpp" />
@@ -166,6 +168,7 @@
     <ClInclude Include="SVGDemo.h" />
     <ClInclude Include="SVGElement.h" />
     <ClInclude Include="SVGRoot.h" />
+    <ClInclude Include="SVGStop.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextElement.h" />
   </ItemGroup>
@@ -188,9 +191,12 @@
     <ClCompile Include="Stroke.cpp" />
     <ClCompile Include="SVGDemo.cpp" />
     <ClCompile Include="SVGElement.cpp" />
+    <ClCompile Include="SVGGradient.cpp" />
     <ClCompile Include="SVGGroup.cpp" />
+    <ClCompile Include="SVGLinearGradient.cpp" />
     <ClCompile Include="SVGPoint.cpp" />
     <ClCompile Include="SVGRoot.cpp" />
+    <ClCompile Include="SVGStop.cpp" />
     <ClCompile Include="TestMain.cpp" />
     <ClCompile Include="TextElement.cpp" />
   </ItemGroup>

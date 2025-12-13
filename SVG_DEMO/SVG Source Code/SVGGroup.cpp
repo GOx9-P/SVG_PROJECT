@@ -30,6 +30,28 @@ bool SVGGroup::isGroup() const
     return true;
 }
 
+
+Gdiplus::RectF SVGGroup::getBoundingBox() {
+    Gdiplus::RectF bounds;
+    bool first = true;
+    for (auto child : group) {
+        if (!child) continue;
+        Gdiplus::RectF childBounds = child->getBoundingBox();
+
+        // Nếu bounds con rỗng (ví dụ gradient def), bỏ qua
+        if (childBounds.Width == 0 && childBounds.Height == 0) continue;
+
+        if (first) {
+            bounds = childBounds;
+            first = false;
+        }
+        else {
+            bounds.Union(bounds, bounds, childBounds);
+        }
+    }
+    return bounds;
+}
+
 void SVGGroup::draw(Graphics* graphics)
 {
     if (!graphics) return;

@@ -199,47 +199,80 @@ static const std::map<string, SVGColor> namedColors = {
     { "yellowgreen",          SVGColor(154, 205, 50, 255) }
 };
 
-SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
+SVGColor::SVGColor() : r(0), g(0), b(0), a(0), isNoneFlag(false), isNotSet(true), isUrlFlag(false) {}
 
-    string colorStr = fillStr;
-    transform(colorStr.begin(), colorStr.end(), colorStr.begin(), [](unsigned char c) { return std::tolower(c); });
+SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha)
+    : r(red), g(green), b(blue), a(alpha), isNoneFlag(false), isNotSet(false), isUrlFlag(false) {}
+
+// --- IMPLEMENT MỚI ---
+bool SVGColor::isUrl() const { return isUrlFlag; }
+
+string SVGColor::getUrlRef() const { return urlRef; }
+
+void SVGColor::setUrlRef(const string& id) {
+    this->urlRef = id;
+    this->isUrlFlag = true;
+    this->isNotSet = false; // Đã set (là URL)
+}
+// ---------------------
+
+// Helper xóa khoảng trắng
+static string trimString(const string& str) {
+    size_t first = str.find_first_not_of(" \t\n\r");
+    if (string::npos == first) return str;
+    size_t last = str.find_last_not_of(" \t\n\r");
+    return str.substr(first, (last - first + 1));
+}
+
+SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
+    SVGColor color;
+    string colorStr = trimString(fillStr); // Xóa khoảng trắng thừa
+
     if (colorStr.empty() || colorStr == "none") {
         SVGColor noneColor(0, 0, 0, 0);
-        noneColor.setIsNone(true); 
+        noneColor.setIsNone(true);
         return noneColor;
     }
+
+    // --- LOGIC MỚI: KIỂM TRA URL ---
+    // Ví dụ: url(#fill0)
+    if (colorStr.find("url(") == 0) {
+        size_t start = colorStr.find('#');
+        size_t end = colorStr.find(')');
+        if (start != string::npos && end != string::npos) {
+            string id = colorStr.substr(start + 1, end - start - 1);
+            color.setUrlRef(id); // Lưu ID lại
+            return color;
+        }
+    }
+    // -------------------------------
+
+    transform(colorStr.begin(), colorStr.end(), colorStr.begin(), [](unsigned char c) { return std::tolower(c); });
+
     BYTE red = 0, green = 0, blue = 0;
 
     try {
         if (colorStr.rfind("rgb(", 0) == 0) {
             string values = colorStr.substr(4, colorStr.length() - 5);
-
             stringstream ss(values);
             string segment;
             int tempVal;
-            getline(ss, segment, ',');
-            stringstream(segment) >> tempVal;
+            getline(ss, segment, ','); stringstream(segment) >> tempVal;
             red = static_cast<BYTE>(max(0, min(255, tempVal)));
-            getline(ss, segment, ',');
-            stringstream(segment) >> tempVal;
+            getline(ss, segment, ','); stringstream(segment) >> tempVal;
             green = static_cast<BYTE>(max(0, min(255, tempVal)));
-            getline(ss, segment, ',');
-            stringstream(segment) >> tempVal;
+            getline(ss, segment, ','); stringstream(segment) >> tempVal;
             blue = static_cast<BYTE>(max(0, min(255, tempVal)));
-
         }
         else if (colorStr.rfind("#", 0) == 0) {
             string hex = colorStr.substr(1);
-
             if (hex.length() == 6) {
                 red = static_cast<BYTE>(stoul(hex.substr(0, 2), nullptr, 16));
                 green = static_cast<BYTE>(stoul(hex.substr(2, 2), nullptr, 16));
                 blue = static_cast<BYTE>(stoul(hex.substr(4, 2), nullptr, 16));
             }
             else if (hex.length() == 3) {
-                string r_hex = hex.substr(0, 1);
-                string g_hex = hex.substr(1, 1);
-                string b_hex = hex.substr(2, 1);
+                string r_hex = hex.substr(0, 1); string g_hex = hex.substr(1, 1); string b_hex = hex.substr(2, 1);
                 red = static_cast<BYTE>(stoul(r_hex + r_hex, nullptr, 16));
                 green = static_cast<BYTE>(stoul(g_hex + g_hex, nullptr, 16));
                 blue = static_cast<BYTE>(stoul(b_hex + b_hex, nullptr, 16));
@@ -249,69 +282,32 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
             auto it = namedColors.find(colorStr);
             if (it != namedColors.end()) {
                 SVGColor foundColor = it->second;
-                red = foundColor.getR();
-                green = foundColor.getG();
-                blue = foundColor.getB();
+                red = foundColor.getR(); green = foundColor.getG(); blue = foundColor.getB();
             }
         }
+    }
+    catch (...) { red = 0; green = 0; blue = 0; }
 
-    }
-    catch (const std::exception& e) {
-        red = 0; green = 0; blue = 0;
-    }
     float clampedOpacity = max(0.0f, min(1.0f, fillOpacity));
     BYTE alpha = static_cast<BYTE>(clampedOpacity * 255.0f);
 
-    SVGColor color(red, green, blue, alpha);
+    // Set màu bình thường
+    color.setR(red); color.setG(green); color.setB(blue); color.setA(alpha);
     color.isNotSet = false;
 
     return color;
 }
 
-void SVGColor::setR(BYTE red) {
-    r = red;
-    isNotSet = false;
-}
-
-void SVGColor::setG(BYTE green) {
-    g = green;
-    isNotSet = false;
-}
-
-void SVGColor::setB(BYTE blue) {
-    b = blue;
-    isNotSet = false;
-}
-
-void SVGColor::setA(BYTE alpha) {
-    a = alpha;
-    isNotSet = false;
-}
-void SVGColor::setIsNone(bool val) {
-    isNoneFlag = val;
-    isNotSet = false;
-}
-bool SVGColor::isNone() const {
-    return isNoneFlag;
-}
-
-bool SVGColor::isSet() const {
-    return !isNotSet;
-}
-
-SVGColor::SVGColor() : r(0), g(0), b(0), a(0), isNoneFlag(false), isNotSet(true) {}
-SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha): r(red), g(green), b(blue), a(alpha), isNoneFlag(false), isNotSet(false) {
-}
-BYTE SVGColor::getR() {
-    return r;
-}
-BYTE SVGColor::getG() {
-    return g;
-}
-BYTE SVGColor::getB() {
-    return b;
-}
-BYTE SVGColor::getA() {
-    return a;
-}
+// ... Các hàm Getter/Setter cũ giữ nguyên ...
+BYTE SVGColor::getR() { return r; }
+BYTE SVGColor::getG() { return g; }
+BYTE SVGColor::getB() { return b; }
+BYTE SVGColor::getA() { return a; }
+void SVGColor::setR(BYTE red) { r = red; isNotSet = false; }
+void SVGColor::setG(BYTE green) { g = green; isNotSet = false; }
+void SVGColor::setB(BYTE blue) { b = blue; isNotSet = false; }
+void SVGColor::setA(BYTE alpha) { a = alpha; isNotSet = false; }
+void SVGColor::setIsNone(bool val) { isNoneFlag = val; isNotSet = false; }
+bool SVGColor::isNone() const { return isNoneFlag; }
+bool SVGColor::isSet() const { return !isNotSet; }
 SVGColor::~SVGColor() {}
