@@ -179,7 +179,6 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 				element->setFill(c);
 				changed = true;
 			}
-			// (Tương tự cho Stroke nếu cần, nhưng Root thường ít stroke)
 
 			if (element->getStroke().getColor().isSet() && !element->getStroke().getColor().isNone()) {
 				SVGStroke s = element->getStroke();
