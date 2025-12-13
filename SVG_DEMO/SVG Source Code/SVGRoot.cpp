@@ -123,6 +123,7 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 			}
 		}
 		stringstream ss(tempViewBox);
+		ss.imbue(std::locale("C")); 
 		float vbX, vbY, vbWidth, vbHeight;
 		vbHeight = vbY = vbX = vbWidth = 0.0f;
 		//char trash;
@@ -145,7 +146,6 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 			graphics->ScaleTransform(scale, scale);
 			// Dich chuyen ve goc toa do
 			graphics->TranslateTransform(-vbX, -vbY);
-
 		}
 	}
 	for (auto element : elements) {
