@@ -425,32 +425,47 @@ void SVGPath::draw(Graphics* graphics)
         }
         else if (current == 'A')
         {
-            float rx, ry, rotation, flagA, flagS;
-            if (ss >> rx >> ry >> rotation >> flagA >> flagS >> x >> y)
-            {
-                // Gọi hàm toán học đã viết ở trên
-                AddArcToPath(path, lastPoint, rx, ry, rotation, (bool)flagA, (bool)flagS, x, y);
+            float rx, ry, rotation, x, y;
+            ss >> rx >> ry >> rotation;
 
+            while (isspace(ss.peek())) ss.get();
+            char fA = ss.get();
+            while (isspace(ss.peek())) ss.get();
+            char fS = ss.get();
+
+            bool bFlagA = (fA == '1');
+            bool bFlagS = (fS == '1');
+
+            if (ss >> x >> y)
+            {
+                AddArcToPath(path, lastPoint, rx, ry, rotation, bFlagA, bFlagS, x, y);
                 lastPoint = PointF(x, y);
-                lastControlPoint = lastPoint; // Reset control point
+                lastControlPoint = lastPoint;
             }
-        }
-            // --- BỔ SUNG LỆNH a: Arc Tương đối ---
+            }
         else if (current == 'a')
         {
-            float rx, ry, rotation, flagA, flagS;
-            if (ss >> rx >> ry >> rotation >> flagA >> flagS >> x >> y)
+            float rx, ry, rotation, x, y;
+            ss >> rx >> ry >> rotation;
+
+            while (isspace(ss.peek())) ss.get();
+            char fA = ss.get();
+            while (isspace(ss.peek())) ss.get();
+            char fS = ss.get();
+
+            bool bFlagA = (fA == '1');
+            bool bFlagS = (fS == '1');
+
+            if (ss >> x >> y)
             {
-                // Tính toạ độ đích thực tế
                 float endX = lastPoint.X + x;
                 float endY = lastPoint.Y + y;
-
-                AddArcToPath(path, lastPoint, rx, ry, rotation, (bool)flagA, (bool)flagS, endX, endY);
-
+                AddArcToPath(path, lastPoint, rx, ry, rotation, bFlagA, bFlagS, endX, endY);
                 lastPoint = PointF(endX, endY);
                 lastControlPoint = lastPoint;
             }
         }
+
         else if (current == 'Z' || current == 'z')  // Dong hinh
         {
             path.CloseFigure();
@@ -471,7 +486,7 @@ void SVGPath::draw(Graphics* graphics)
     pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
     pen->SetLineJoin(getStroke().getLineJoin());
 
-
+    
 	graphics->FillPath(brush, &path);
 	graphics->DrawPath(pen, &path);
 	delete brush;

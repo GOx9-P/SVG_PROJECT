@@ -18,6 +18,11 @@ private:
 
 protected:
 	Gdiplus::Matrix* transformMatrix;
+	// luu lai do trong suot rieng biet cua tung cai.
+	float fillOpacity;
+	float strokeOpacity;
+	bool isFillOpSet;
+	bool isStrokeOpSet;
 
 public:
 
@@ -44,7 +49,22 @@ public:
 
 	float getOpacity() const;
 	void setOpacity(const float&);
+
+
+	float getFillOpacity() const;
+	void setFillOpacity(const float&);
+
+	float getStrokeOpacity() const;
+	void setStrokeOpacity(const float&);
+
+	bool isFillOpacitySet() const;
+	void setIsFillOpacitySet(bool);
+
+	bool isStrokeOpacitySet() const;
+	void setIsStrokeOpacitySet(bool );
 	
+	virtual bool isGroup() const;
+
 	void parseTransform();
 	void render(Gdiplus::Graphics* graphics);
 	virtual void parseAttributes(xml_node<>*) = 0;

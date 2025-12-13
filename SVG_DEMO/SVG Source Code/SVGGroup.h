@@ -13,6 +13,7 @@ public:
 	void parseAttributes(xml_node<>* node);
 	void draw(Graphics* graphics);
 	void addElement(SVGElement* element); //Them 1 con vao nhom
+	bool isGroup() const override;
 	~SVGGroup();
 };
 

@@ -25,6 +25,10 @@ void SVGGroup::parseAttributes(xml_node<>* node)
 	SVGElement::parseAttributes(node);
 }
 
+bool SVGGroup::isGroup() const
+{
+    return true;
+}
 
 void SVGGroup::draw(Graphics* graphics)
 {
@@ -39,10 +43,7 @@ void SVGGroup::draw(Graphics* graphics)
 
     // Tính toán độ trong suốt của Group (Global Opacity)
     // Tạm dùng logic cũ của bạn: lấy alpha của fill làm chuẩn opacity cho group
-    float groupAlpha = 1.0f;
-    if (parentFill.getA() > 0) {
-        groupAlpha = (float)parentFill.getA() / 255.0f;
-    }
+    float groupAlpha = this->getOpacity();
 
     // Duyệt qua từng phần tử con
     for (SVGElement* element : group)
@@ -51,9 +52,17 @@ void SVGGroup::draw(Graphics* graphics)
 
         // 1. SNAPSHOT (Lưu trạng thái gốc)
         SVGColor originalFill = element->getFill();
+        float originalFillOp = element->getFillOpacity();
+        bool originalFillOpSet = element->isFillOpacitySet();
+
         SVGStroke originalStroke = element->getStroke();
+        float originalStrokeOp = element->getStrokeOpacity();
+        bool originalStrokeOpSet = element->isStrokeOpacitySet();
+
         bool isFillChanged = false;
+        bool isFillOpChanged = false;
         bool isStrokeChanged = false;
+        bool isStrokeOpChanged = false;
 
         // ================= XỬ LÝ FILL =================
 
@@ -77,49 +86,78 @@ void SVGGroup::draw(Graphics* graphics)
             isFillChanged = true;
         }
 
-        // C. OPACITY BLENDING (Trộn màu)
-        // Chỉ trộn nếu có màu (A > 0) và group có độ mờ
-        if (element->getFill().getA() > 0 && groupAlpha < 1.0f)
+        // C. Thừa kế Opacity (Propagate Opacity Value)
+        // Nếu con chưa set opacity, copy từ cha xuống để con dùng
+        if (!element->isFillOpacitySet() && this->isFillOpacitySet())
         {
-            SVGColor blendedFill = element->getFill();
-            float currentAlpha = (float)blendedFill.getA();
-            blendedFill.setA((BYTE)(currentAlpha * groupAlpha));
-            element->setFill(blendedFill);
+            element->setFillOpacity(this->getFillOpacity());
+            element->setIsFillOpacitySet(true);
+            isFillOpChanged = true; 
+        }
+
+        // D. Tính Alpha (Baking Alpha)
+        if (element->getFill().isSet())
+        {
+            float effectiveOp = element->getFillOpacity(); // Đã bao gồm kế thừa ở bước C
+            float baseAlpha = (float)element->getFill().getA();
+            float finalAlpha = 255.0f;
+
+            if (element->isGroup()) {
+                // NẾU LÀ GROUP: KHÔNG nhân fill-opacity vào màu.
+                // Vì group con sẽ tự nhân khi nó vẽ các shape của nó.
+                // Chỉ nhân Global Opacity vì nó stack theo layer.
+                finalAlpha = baseAlpha * groupAlpha * element->getOpacity();
+            }
+            else {
+                // NẾU LÀ SHAPE: Nhân tất cả.
+                finalAlpha = baseAlpha * effectiveOp * groupAlpha * element->getOpacity();
+            }
+
+            SVGColor c = element->getFill();
+            c.setA((BYTE)finalAlpha);
+            element->setFill(c);
             isFillChanged = true;
         }
 
         // ================= XỬ LÝ STROKE =================
 
         SVGStroke newStroke = originalStroke;
-        SVGColor childStrokeColor = newStroke.getColor();
+        SVGColor strokeColor = newStroke.getColor();
 
-        // A. Thừa kế Màu Stroke
-        // Nếu màu stroke con CHƯA SET và màu cha ĐÃ SET -> Lấy của cha
-        if (!childStrokeColor.isSet() && !childStrokeColor.isNone() && parentStroke.getColor().isSet())
-        {
+        // A. Inherit Stroke Color
+        if (!strokeColor.isSet() && !strokeColor.isNone() && parentStroke.getColor().isSet()) {
             newStroke.setColor(parentStroke.getColor());
-            childStrokeColor = newStroke.getColor(); // Cập nhật biến cục bộ
+            strokeColor = newStroke.getColor();
             isStrokeChanged = true;
         }
-
-        // B. Thừa kế Độ dày (Stroke Width)
-        // Điều kiện: Con width = 0, Cha width > 0.
-        // VÀ: Con phải có màu stroke (tự có hoặc vừa thừa kế xong)
-        if (newStroke.getWidth() <= 0.0f && parentStroke.getWidth() > 0.0f)
-        {
-            if (!childStrokeColor.isNone() && childStrokeColor.isSet())
-            {
+        // B. Inherit Width
+        if (newStroke.getWidth() <= 0.0f && parentStroke.getWidth() > 0.0f) {
+            if (strokeColor.isSet() && !strokeColor.isNone()) {
                 newStroke.setWidth(parentStroke.getWidth());
                 isStrokeChanged = true;
             }
         }
+        // C. Inherit Stroke Opacity
+        if (!element->isStrokeOpacitySet() && this->isStrokeOpacitySet()) {
+            element->setStrokeOpacity(this->getStrokeOpacity());
+            element->setIsStrokeOpacitySet(true);
+            isStrokeOpChanged = true;
+        }
+        // D. Calculate Stroke Alpha
+        if (strokeColor.isSet()) {
+            float effectiveStrokeOp = element->getStrokeOpacity();
+            float baseAlpha = (float)strokeColor.getA();
+            float finalAlpha = 255.0f;
 
-        // C. Opacity Blending cho Stroke
-        if (childStrokeColor.getA() > 0 && groupAlpha < 1.0f)
-        {
-            float currentStrokeAlpha = (float)childStrokeColor.getA();
-            childStrokeColor.setA((BYTE)(currentStrokeAlpha * groupAlpha));
-            newStroke.setColor(childStrokeColor);
+            if (element->isGroup()) {
+                finalAlpha = baseAlpha * groupAlpha * element->getOpacity();
+            }
+            else {
+                finalAlpha = baseAlpha * effectiveStrokeOp * groupAlpha * element->getOpacity();
+            }
+
+            strokeColor.setA((BYTE)finalAlpha);
+            newStroke.setColor(strokeColor);
             isStrokeChanged = true;
         }
 
@@ -132,11 +170,15 @@ void SVGGroup::draw(Graphics* graphics)
         element->render(graphics);
 
         // 4. HOÀN TÁC TRẠNG THÁI (REVERT)
-        if (isFillChanged) {
-            element->setFill(originalFill);
+        if (isFillChanged) element->setFill(originalFill);
+        if (isFillOpChanged) {
+            element->setFillOpacity(originalFillOp);
+            element->setIsFillOpacitySet(originalFillOpSet);
         }
-        if (isStrokeChanged) {
-            element->setStroke(originalStroke);
+        if (isStrokeChanged) element->setStroke(originalStroke);
+        if (isStrokeOpChanged) {
+            element->setStrokeOpacity(originalStrokeOp);
+            element->setIsStrokeOpacitySet(originalStrokeOpSet);
         }
     }
 

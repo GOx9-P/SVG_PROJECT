@@ -10,7 +10,7 @@ string trim(const string& str) {
 }
 
 // Hàm phân tích cú pháp CSS Inline
-void parseStyleString(const string& styleStr, SVGColor& outFill, SVGStroke& outStroke) {
+void parseStyleString(const string& styleStr, SVGColor& outFill,float&outFillOp, bool& outFillOpSet, SVGStroke& outStroke, float& outStrokeOp,bool& outStrokeOpSet) {
 	stringstream ss(styleStr);
 	string segment;
 
@@ -26,8 +26,17 @@ void parseStyleString(const string& styleStr, SVGColor& outFill, SVGStroke& outS
 				outFill = SVGColor::fromString(value);
 			}
 			else if (key == "stroke") {
-				SVGColor c = SVGColor::fromString(value);
-				outStroke.setColor(c);
+				if (value == "none")
+				{
+					SVGColor temp(0, 0, 0, 0);
+					temp.setIsNone(true);
+					outStroke.setColor(temp);
+				}
+				else
+				{
+					SVGColor c = SVGColor::fromString(value);
+					outStroke.setColor(c);
+				}
 			}
 			else if (key == "stroke-width") {
 				// Xóa chữ "px" nếu có
@@ -36,18 +45,12 @@ void parseStyleString(const string& styleStr, SVGColor& outFill, SVGStroke& outS
 				outStroke.setWidth(atof(value.c_str()));
 			}
 			else if (key == "fill-opacity") {
-				float op = atof(value.c_str());
-				if (!outFill.isNone()) { // Chỉ chỉnh alpha nếu không phải none
-					outFill.setA((BYTE)(op * 255.0f));
-				}
+				outFillOp = atof(value.c_str());
+				outFillOpSet = true;
 			}
 			else if (key == "stroke-opacity") {
-				float op = atof(value.c_str());
-				SVGColor c = outStroke.getColor();
-				if (!c.isNone()) {
-					c.setA((BYTE)(op * 255.0f));
-					outStroke.setColor(c);
-				}
+				outStrokeOp = atof(value.c_str());
+				outStrokeOpSet = true;
 			}
 			else if (key == "stroke-linecap") {
 				outStroke.setLineCap(value);
@@ -63,6 +66,10 @@ SVGElement::SVGElement()
 {
     id = className = style = transform =  "";
     opacity = 1.0f;
+	fillOpacity = 1.0f;
+	strokeOpacity = 1.0f;
+	isFillOpSet = false;
+	isStrokeOpSet = false;
 	this->transformMatrix = new Gdiplus::Matrix();
 }
 
@@ -127,6 +134,42 @@ void SVGElement::setOpacity(const float& newOpacity) {
     opacity = newOpacity;
 }
 
+float SVGElement::getFillOpacity() const
+{ 
+	return fillOpacity; 
+}
+void SVGElement::setFillOpacity(const float& op) 
+{ 
+	fillOpacity = op; 
+}
+
+float SVGElement::getStrokeOpacity() const
+{
+	return strokeOpacity;
+}
+void SVGElement::setStrokeOpacity(const float& op)
+{ 
+	strokeOpacity = op; 
+}
+
+bool SVGElement::isFillOpacitySet() const 
+{ 
+	return isFillOpSet; 
+}
+void SVGElement::setIsFillOpacitySet(bool val) { 
+	isFillOpSet = val; 
+}
+
+bool SVGElement::isStrokeOpacitySet() const
+{ 
+	return isStrokeOpSet; 
+}
+void SVGElement::setIsStrokeOpacitySet(bool val) 
+{ 
+	isStrokeOpSet = val;
+}
+
+bool SVGElement::isGroup() const { return false; }
 
 void preProcessingTranSform(string& s)
 {
@@ -342,50 +385,41 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 	}
 
 	// ================= XỬ LÝ FILL =================
-	bool isFillNone = false;
 
 	// Bước A: Đọc màu fill
 	if (xml_attribute<>* attribute = Node->first_attribute("fill")) {
 		string Tempcolor = attribute->value();
-		if (Tempcolor == "none") isFillNone = true;
-		fill = SVGColor::fromString(Tempcolor); // Hàm này sẽ set isSet() = true
+		if (Tempcolor == "none")
+		{
+			fill.setIsNone(true);
+		}
+		else
+		{
+			fill = SVGColor::fromString(Tempcolor); // Hàm này sẽ set isSet() = true
+		}
 	}
 
 	// Bước B: Đọc fill-opacity và xử lý logic đặc biệt
 	if (xml_attribute<>* attribute = Node->first_attribute("fill-opacity")) {
-		float fillOp = atof(attribute->value());
-
-		// FIX YIN YANG: 
-		// Nếu fill chưa được set (ví dụ <circle fill-opacity="0">) 
-		// nhưng lại có fill-opacity -> Chuẩn SVG quy định mặc định là màu ĐEN.
-		if (!fill.isSet() && !isFillNone) {
-			fill = SVGColor(0, 0, 0, 255); // Gán màu đen đặc, lúc này isSet() = true
-		}
-
-		// Tính toán Alpha: Alpha hiện tại * Fill Opacity * Global Opacity
-		if (!isFillNone && fill.isSet()) { // Chỉ nhân nếu đã có màu
-			float currentAlpha = (float)fill.getA();
-			fill.setA((BYTE)(currentAlpha * fillOp * this->opacity));
-		}
+		this->fillOpacity = atof(attribute->value());
+		this->isFillOpSet = true;
 	}
-	else {
-		// Trường hợp không có fill-opacity nhưng có Global opacity
-		if (!isFillNone && fill.isSet()) {
-			float currentAlpha = (float)fill.getA();
-			fill.setA((BYTE)(currentAlpha * this->opacity));
-		}
-	}
-
 
 	// ================= XỬ LÝ STROKE =================
-	bool isStrokeNone = false;
-
 	// Bước A: Đọc màu stroke
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke")) {
 		string TempColorStroke = attribute->value();
-		if (TempColorStroke == "none") isStrokeNone = true;
-		SVGColor temp = SVGColor::fromString(TempColorStroke);
-		stroke.setColor(temp); // Hàm này sẽ set isSet() = true
+		if (TempColorStroke == "none")
+		{
+			SVGColor c(0, 0, 0, 0);
+			c.setIsNone(true);
+			stroke.setColor(c); 
+		}
+		else
+		{
+			SVGColor tmp = SVGColor::fromString(TempColorStroke);
+			stroke.setColor(tmp);
+		}
 	}
 
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke-width")) {
@@ -394,25 +428,8 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 
 	// Bước B: Đọc stroke-opacity
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke-opacity")) {
-		float strokeOp = atof(attribute->value());
-
-		// Với Stroke, nếu chưa set màu thì opacity không có tác dụng (mặc định stroke là none)
-		// Nên ta chỉ xử lý khi stroke đã được set
-		if (!isStrokeNone && stroke.getColor().isSet()) {
-			SVGColor c = stroke.getColor();
-			float currentAlpha = (float)c.getA();
-			c.setA((BYTE)(currentAlpha * strokeOp * this->opacity));
-			stroke.setColor(c);
-		}
-	}
-	else {
-		// Trường hợp không có stroke-opacity nhưng có Global opacity
-		if (!isStrokeNone && stroke.getColor().isSet()) {
-			SVGColor c = stroke.getColor();
-			float currentAlpha = (float)c.getA();
-			c.setA((BYTE)(currentAlpha * this->opacity));
-			stroke.setColor(c);
-		}
+		this->strokeOpacity = atof(attribute->value());
+		this->isStrokeOpSet = true;
 	}
 
 	// ================= CÁC THUỘC TÍNH KHÁC =================
@@ -431,7 +448,7 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 	// Parse Style (Inline CSS) - Lưu ý: Phần này nên đặt cẩn thận vì nó có thể override các thuộc tính trên
 	if (xml_attribute<>* attribute = Node->first_attribute("style")) {
 		string styleStr = attribute->value();
-		parseStyleString(styleStr, this->fill, this->stroke);
+		parseStyleString(styleStr, this->fill, this->fillOpacity, this->isFillOpSet, this->stroke, this->strokeOpacity, this->isStrokeOpSet);
 
 		// Lưu ý bổ sung: Nếu trong style có opacity, bạn cần áp dụng logic nhân this->opacity tương tự ở trên
 		// Tuy nhiên với cấu trúc hiện tại hàm parseStyleString của bạn đang parse trực tiếp vào fill/stroke

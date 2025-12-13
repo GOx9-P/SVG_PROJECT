@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "SVGRoot.h"
 #include "Rect.h"
 #include "Circle.h"
@@ -150,7 +150,65 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 	}
 	for (auto element : elements) {
 		if (element) {
-			element->render(graphics);// thay draw thanh render de trung gian qua element::render xu li transform.
+			SVGColor originalFill = element->getFill();
+			SVGStroke originalStroke = element->getStroke();
+			bool changed = false;
+
+			// 1. Fallback Black cho Root Elements (Yin Yang fix)
+			if (!element->getFill().isSet() && !element->getFill().isNone()) {
+				element->setFill(SVGColor(0, 0, 0, 255));
+				changed = true;
+			}
+
+			// 2. Apply Opacity cho Root Elements
+			if (element->getFill().isSet()) {
+				float effectiveOp = element->getFillOpacity();
+				float globalOp = element->getOpacity();
+				float baseAlpha = (float)element->getFill().getA();
+				float finalAlpha = 255.0f;
+
+				if (element->isGroup()) {
+					finalAlpha = baseAlpha * globalOp;
+				}
+				else {
+					finalAlpha = baseAlpha * effectiveOp * globalOp;
+				}
+
+				SVGColor c = element->getFill();
+				c.setA((BYTE)finalAlpha);
+				element->setFill(c);
+				changed = true;
+			}
+			// (Tương tự cho Stroke nếu cần, nhưng Root thường ít stroke)
+
+			if (element->getStroke().getColor().isSet() && !element->getStroke().getColor().isNone()) {
+				SVGStroke s = element->getStroke();
+				SVGColor c = s.getColor();
+
+				float effectiveOp = element->getStrokeOpacity();
+				float globalOp = element->getOpacity();
+				float baseAlpha = (float)c.getA();
+				float finalAlpha = 255.0f;
+
+				if (element->isGroup()) {
+					finalAlpha = baseAlpha * globalOp;
+				}
+				else {
+					finalAlpha = baseAlpha * effectiveOp * globalOp;
+				}
+
+				c.setA((BYTE)finalAlpha);
+				s.setColor(c);
+				element->setStroke(s);
+				changed = true;
+			}
+
+			element->render(graphics);
+
+			if (changed) {
+				element->setFill(originalFill);
+				element->setStroke(originalStroke);
+			}
 		}
 	}
 	graphics->Restore(curState);
