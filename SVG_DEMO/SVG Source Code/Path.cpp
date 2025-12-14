@@ -158,7 +158,11 @@ void SVGPath::parsePathData(GraphicsPath& path)
     // 3. Khởi tạo biến cục bộ
     char current = 0;
     float x = 0, y = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-    PointF lastPoint(0, 0);
+    PointF lastPoint(0, 0);// Diem ve cuoi cung
+
+    PointF subPathStart(0, 0);
+
+    // Diem dieu khien cuoi cung (dung cho duong cong muot S/s)
     PointF lastControlPoint(0, 0);
 
     // 4. Vòng lặp parse (Logic cũ của bạn)
@@ -176,8 +180,10 @@ void SVGPath::parsePathData(GraphicsPath& path)
             if (ss >> x >> y) {
                 path.StartFigure();
                 lastPoint = PointF(x, y);
-                lastControlPoint = lastPoint;
-                current = 'L';
+                lastControlPoint = lastPoint; 
+                subPathStart = lastPoint;
+                current = 'L'; 
+
             }
         }
         else if (current == 'm') // MoveTo Relative
@@ -186,6 +192,7 @@ void SVGPath::parsePathData(GraphicsPath& path)
                 path.StartFigure();
                 lastPoint = PointF(lastPoint.X + x, lastPoint.Y + y);
                 lastControlPoint = lastPoint;
+                subPathStart = lastPoint;
                 current = 'l';
             }
         }
@@ -379,6 +386,7 @@ void SVGPath::parsePathData(GraphicsPath& path)
         {
             path.CloseFigure();
             lastControlPoint = lastPoint;
+            lastPoint = subPathStart;
         }
         else
         {
