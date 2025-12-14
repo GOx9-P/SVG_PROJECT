@@ -190,5 +190,6 @@
     <None Include="TestCases\svg-17.svg" />
     <None Include="TestCases\svg-18.svg" />
     <None Include="svg-02.svg" />
+    <None Include="Test5.svg" />
   </ItemGroup>
 </Project>
