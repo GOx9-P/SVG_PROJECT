@@ -214,6 +214,7 @@
     <None Include="Test2.svg" />
     <None Include="Test3.svg" />
     <None Include="Test4.svg" />
+    <None Include="Test5.svg" />
     <None Include="TestCases\svg-01.svg" />
     <None Include="TestCases\svg-03.svg" />
     <None Include="TestCases\svg-04.svg" />
