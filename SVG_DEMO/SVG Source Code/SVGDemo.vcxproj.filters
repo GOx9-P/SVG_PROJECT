@@ -101,9 +101,6 @@
     <ClCompile Include="SVGElement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SVGPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
