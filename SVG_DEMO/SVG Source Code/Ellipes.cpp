@@ -19,6 +19,16 @@ float SVGEllipse::getRy() const {
 	return ry;
 }
 
+Gdiplus::RectF SVGEllipse::getBoundingBox() {
+	float rx = this->getRx();
+	float ry = this->getRy();
+	return Gdiplus::RectF(
+		this->getPosition().getX() - rx,
+		this->getPosition().getY() - ry,
+		2 * rx, 2 * ry
+	);
+}
+
 void SVGEllipse::parseAttributes(xml_node<>* Node)
 {
 	GeometricElement::parseAttributes(Node);
@@ -34,21 +44,22 @@ void SVGEllipse::parseAttributes(xml_node<>* Node)
 
 void SVGEllipse::draw(Graphics* graphics)
 {
-	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB() };
-	if (getFill().getA() == 0 && !getFill().isNone() && getStroke().getWidth() == 0)
-	{
-		fillColor = Color(255, 0, 0, 0);
-	}
-	Brush* brush = new SolidBrush(fillColor);
-	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
+	Gdiplus::RectF bounds = this->getBoundingBox();
+	Brush* brush = this->createBrush(bounds);
 
-	Pen* pen = new Pen(fillColorWidth,getStroke().getWidth());
-	pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
-	pen->SetLineJoin(getStroke().getLineJoin());
-	graphics->FillEllipse(brush, getPosition().getX()-rx,getPosition().getY()- ry, 2 * rx, 2 * ry);
-	graphics->DrawEllipse(pen, getPosition().getX() - rx, getPosition().getY() - ry, 2 * rx, 2 * ry);
+	SVGStroke stroke = this->getStroke();
+	SVGColor sColor = stroke.getColor();
+	Color strokeColor = { sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB() };
 
-	delete brush;
+	Pen* pen = new Pen(strokeColor, stroke.getWidth());
+	pen->SetLineCap(stroke.getLineCap(), stroke.getLineCap(), DashCapRound);
+	pen->SetLineJoin(stroke.getLineJoin());
+
+	if (brush) graphics->FillEllipse(brush, bounds);
+	if (stroke.getWidth() > 0 && sColor.getA() > 0)
+		graphics->DrawEllipse(pen, bounds);
+
+	if (brush) delete brush;
 	delete pen;
 }
 

@@ -12,6 +12,7 @@ public:
 	void setR(float);
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics* graphics);
+	Gdiplus::RectF getBoundingBox() override;
 	~SVGCircle();
 };
 

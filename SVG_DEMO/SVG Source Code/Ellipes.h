@@ -15,6 +15,7 @@ public:
 	float getRy() const;
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics* graphics);
+	Gdiplus::RectF getBoundingBox() override;
 	~SVGEllipse();
 };
 

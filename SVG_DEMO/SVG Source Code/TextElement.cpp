@@ -155,6 +155,14 @@ std::wstring trim(const std::wstring& str) {
     return str.substr(first, (last - first + 1));
 }
 
+Gdiplus::RectF TextElement::getBoundingBox() {
+    // Để tính chính xác cần Graphics context, ở đây ta ước lượng sơ bộ
+    // Hoặc trả về Rect rỗng nếu bạn chưa muốn áp dụng gradient lên text ngay
+    // Code dưới đây là ước lượng (Width = số ký tự * size * 0.6)
+    float estimatedW = textContent.length() * fontSize * 0.6f;
+    float estimatedH = fontSize;
+    return Gdiplus::RectF(position.getX(), position.getY() - fontSize, estimatedW, estimatedH);
+}
 
 void TextElement::draw(Graphics* graphics)
 {

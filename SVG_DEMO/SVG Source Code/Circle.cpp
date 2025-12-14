@@ -22,25 +22,38 @@ void SVGCircle::parseAttributes(xml_node<>* Node)
 	}
 }
 
+// Thêm vào file Circle.cpp
+
+Gdiplus::RectF SVGCircle::getBoundingBox() {
+	float r = this->getR();
+	// Khung bao của hình tròn là hình vuông ngoại tiếp nó
+	// Toạ độ góc trái trên = Tâm - Bán kính
+	return Gdiplus::RectF(
+		this->getPosition().getX() - r,
+		this->getPosition().getY() - r,
+		2 * r,
+		2 * r
+	);
+}
 
 void SVGCircle::draw(Graphics* graphics)
 {
-	Color fillColor = { getFill().getA(),getFill().getR(),getFill().getG(),getFill().getB()};
-	if (getFill().getA() == 0 && !getFill().isNone() && getStroke().getWidth() == 0)
-	{
-		fillColor = Color(255, 0, 0, 0);
-	}
-	Brush* brush = new SolidBrush(fillColor);
+	Gdiplus::RectF bounds = this->getBoundingBox();
+	Brush* brush = this->createBrush(bounds);
 
-	Color fillColorWidth = { getStroke().getColor().getA(),getStroke().getColor().getR() ,getStroke().getColor().getG() ,getStroke().getColor().getB() };
-	Pen* pen = new Pen(fillColorWidth, getStroke().getWidth());
-	pen->SetLineCap(getStroke().getLineCap(), getStroke().getLineCap(), DashCapRound);
-	pen->SetLineJoin(getStroke().getLineJoin());
+	SVGStroke stroke = this->getStroke();
+	SVGColor sColor = stroke.getColor();
+	Color strokeColor = { sColor.getA(), sColor.getR(), sColor.getG(), sColor.getB() };
 
-	graphics->FillEllipse(brush, getPosition().getX()-r, getPosition().getY()-r, 2*r, 2*r);
-	graphics->DrawEllipse(pen, getPosition().getX() - r, getPosition().getY() - r, 2 * r, 2 * r);
+	Pen* pen = new Pen(strokeColor, stroke.getWidth());
+	pen->SetLineCap(stroke.getLineCap(), stroke.getLineCap(), DashCapRound);
+	pen->SetLineJoin(stroke.getLineJoin());
 
-	delete brush;
+	if (brush) graphics->FillEllipse(brush, bounds);
+	if (stroke.getWidth() > 0 && sColor.getA() > 0)
+		graphics->DrawEllipse(pen, bounds);
+
+	if (brush) delete brush;
 	delete pen;
 }
 

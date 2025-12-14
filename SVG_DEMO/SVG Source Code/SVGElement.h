@@ -1,4 +1,4 @@
-#ifndef _SVGELEMENT_H_
+﻿#ifndef _SVGELEMENT_H_
 #define _SVGELEMENT_H_
 
 #include "Library.h"
@@ -18,63 +18,54 @@ private:
 
 protected:
 	Gdiplus::Matrix* transformMatrix;
-	// luu lai do trong suot rieng biet cua tung cai.
 	float fillOpacity;
 	float strokeOpacity;
 	bool isFillOpSet;
 	bool isStrokeOpSet;
 
-public:
+	// Hàm Helper để tạo Brush (Solid hoặc Gradient)
+	Gdiplus::Brush* createBrush(Gdiplus::RectF bounds);
 
+public:
 	SVGElement();
 
+	// ... (Các Getter/Setter cũ giữ nguyên) ...
 	string getId() const;
 	void setId(const string&);
-
 	string getClassName() const;
 	void setClassName(const string&);
-
 	string getStyle() const;
 	void setStyle(const string&);
-
 	string getTransform() const;
 	void setTransform(const string&);
-
-
 	SVGColor getFill() const;
 	void setFill(const SVGColor&);
-
 	SVGStroke getStroke() const;
-    void setStroke(const SVGStroke&);
-
+	void setStroke(const SVGStroke&);
 	float getOpacity() const;
 	void setOpacity(const float&);
-
-
 	float getFillOpacity() const;
 	void setFillOpacity(const float&);
-
 	float getStrokeOpacity() const;
 	void setStrokeOpacity(const float&);
-
 	bool isFillOpacitySet() const;
 	void setIsFillOpacitySet(bool);
-
 	bool isStrokeOpacitySet() const;
-	void setIsStrokeOpacitySet(bool );
-	
+	void setIsStrokeOpacitySet(bool);
+
 	virtual bool isGroup() const;
 
 	void parseTransform();
 	void render(Gdiplus::Graphics* graphics);
+
+	// --- PHẦN MỚI THÊM ---
 	virtual void parseAttributes(xml_node<>*) = 0;
 	virtual void draw(Graphics* graphics) = 0;
 
-
+	// Bắt buộc các hình con phải tự tính khung bao của nó
+	virtual Gdiplus::RectF getBoundingBox() = 0;
 
 	virtual ~SVGElement();
 };
 
-#endif // !_SVGELEMENT_H_
-
-
+#endif

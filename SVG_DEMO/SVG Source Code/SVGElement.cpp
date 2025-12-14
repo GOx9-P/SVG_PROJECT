@@ -1,5 +1,7 @@
 ﻿#include "stdafx.h"
 #include "SVGElement.h"
+#include "SVGRoot.h"        
+#include "SVGLinearGradient.h"
 
 // Hàm hỗ trợ xóa khoảng trắng thừa đầu/cuối chuỗi
 string trim(const string& str) {
@@ -363,6 +365,38 @@ void SVGElement::parseTransform()
 //		parseStyleString(styleStr, this->fill, this->stroke);
 //	}
 //}
+
+
+Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
+	SVGColor color = this->getFill();
+
+	// 1. Nếu màu là URL (Gradient)
+	if (color.isUrl()) {
+		string id = color.getUrlRef();
+
+		// Tìm trong kho chứa static của SVGRoot
+		if (SVGRoot::defsMap.find(id) != SVGRoot::defsMap.end()) {
+			SVGGradient* grad = SVGRoot::defsMap[id];
+
+			// Ép kiểu sang LinearGradient
+			SVGLinearGradient* linGrad = dynamic_cast<SVGLinearGradient*>(grad);
+			if (linGrad) {
+				return linGrad->createBrush(bounds);
+			}
+		}
+		// Nếu không tìm thấy ID, fallback về Transparent hoặc Black tuỳ chuẩn
+		return new SolidBrush(Color(0, 0, 0, 0));
+	}
+
+	// 2. Nếu là màu thường (Solid)
+	if (color.isNone()) {
+		return nullptr; // Không vẽ
+	}
+
+	Color gdiColor(color.getA(), color.getR(), color.getG(), color.getB());
+	return new Gdiplus::SolidBrush(gdiColor);
+}
+
 
 void SVGElement::parseAttributes(xml_node<>* Node)
 {
