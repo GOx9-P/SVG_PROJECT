@@ -193,6 +193,8 @@ void SVGPath::draw(Graphics* graphics)
     float x = 0, y = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;
     PointF lastPoint(0, 0);// Diem ve cuoi cung
 
+    PointF subPathStart(0, 0);
+
     // Diem dieu khien cuoi cung (dung cho duong cong muot S/s)
     PointF lastControlPoint(0, 0);
 
@@ -215,7 +217,9 @@ void SVGPath::draw(Graphics* graphics)
                 path.StartFigure();
                 lastPoint = PointF(x, y);
                 lastControlPoint = lastPoint; 
+                subPathStart = lastPoint;
                 current = 'L'; 
+
             }
         }
         else if (current == 'm')// Di chuyen tuong doi
@@ -225,6 +229,7 @@ void SVGPath::draw(Graphics* graphics)
                 path.StartFigure();
                 lastPoint = PointF(lastPoint.X + x, lastPoint.Y + y);
                 lastControlPoint = lastPoint;
+                subPathStart = lastPoint;
                 current = 'l';
             }
         }
@@ -470,6 +475,7 @@ void SVGPath::draw(Graphics* graphics)
         {
             path.CloseFigure();
             lastControlPoint = lastPoint;
+            lastPoint = subPathStart;
         }
         else
         {

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <title>Sticky Numbers and Path Parser Test</title>
+  <rect width="100%" height="100%" fill="#f0f0f0" />
+
+  <g transform="translate(0, 0)">
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="black">1. Sticky: 0.1320.232</text>
+    <path d="M50 50 l0.1320.232 100 0" stroke="red" stroke-width="5" fill="none" />
+    <circle cx="50" cy="50" r="3" fill="black" /> </g>
+
+  <g transform="translate(0, 100)">
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="black">2. Decimals: l50.5.5</text>
+    <path d="M50 50 l50.5.5 l.5.5 l0 20" stroke="blue" stroke-width="5" fill="none" />
+  </g>
+
+  <g transform="translate(0, 200)">
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="black">3. Negatives: l50-20</text>
+    <path d="M50 50 l50-20 l-10-10" stroke="green" stroke-width="5" fill="none" />
+  </g>
+
+  <g transform="translate(300, 0)">
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="black">4. Arc Flags: 0 01100</text>
+    <path d="M50 50 A40 40 0 01130 50" stroke="purple" stroke-width="5" fill="none" />
+    <rect x="50" y="10" width="80" height="80" stroke="#ccc" fill="none"/>
+  </g>
+
+  <g transform="translate(300, 150)">
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="black">5. Command Sticky: 50L150</text>
+    <path d="M50 50L150 50L100 100z" stroke="orange" stroke-width="5" fill="none" />
+  </g>
+
+   <g transform="translate(300, 300)">
+    <text x="20" y="30" font-family="Arial" font-size="16" fill="black">6. Extreme Mix</text>
+    <path d="M50.5.5h100v50.5.5l-50 0z" stroke="black" stroke-width="3" fill="none" />
+  </g>
+
+</svg>
