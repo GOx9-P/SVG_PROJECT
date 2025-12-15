@@ -213,7 +213,6 @@ void SVGColor::setUrlRef(const string& id) {
     this->isUrlFlag = true;
     this->isNotSet = false; // Đã set (là URL)
 }
-// ---------------------
 
 // Helper xóa khoảng trắng
 static string trimString(const string& str) {

@@ -4,7 +4,6 @@
 
 void AddRoundedRectangle(GraphicsPath& path, Gdiplus::RectF bounds, float rx, float ry)
 {
-	// Theo chuẩn SVG: Nếu rx > width/2, thì rx = width/2 (tương tự với ry)
 	if (rx > bounds.Width / 2.0f) rx = bounds.Width / 2.0f;
 	if (ry > bounds.Height / 2.0f) ry = bounds.Height / 2.0f;
 
@@ -135,7 +134,7 @@ void SVGRect::draw(Graphics* graphics)
 	// 5. Vẽ
 	if (effectiveRx > 0 || effectiveRy > 0)
 	{
-		// TRƯỜNG HỢP CÓ BO GÓC: Dùng GraphicsPath ---
+		// TRƯỜNG HỢP CÓ BO GÓC: Dùng GraphicsPath
 		GraphicsPath path;
 		AddRoundedRectangle(path, bounds, effectiveRx, effectiveRy);
 
