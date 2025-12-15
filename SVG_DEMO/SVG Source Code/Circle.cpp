@@ -22,8 +22,6 @@ void SVGCircle::parseAttributes(xml_node<>* Node)
 	}
 }
 
-// Thêm vào file Circle.cpp
-
 Gdiplus::RectF SVGCircle::getBoundingBox() {
 	float r = this->getR();
 	// Khung bao của hình tròn là hình vuông ngoại tiếp nó

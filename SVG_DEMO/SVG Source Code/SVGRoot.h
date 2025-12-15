@@ -14,7 +14,6 @@ private:
 	vector<SVGElement*> elements;
 
 public:
-	// Static Map: Dùng std::map rõ ràng
 	static std::map<string, SVGGradient*> defsMap;
 
 	// Hàm dọn dẹp

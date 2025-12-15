@@ -14,7 +14,6 @@ public:
 	void setPosition2(SVGPoint&);
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics* graphics);
-	// Thêm vào public:
 	Gdiplus::RectF getBoundingBox() override;
 	~SVGLine();
 };

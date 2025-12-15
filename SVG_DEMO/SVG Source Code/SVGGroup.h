@@ -14,7 +14,6 @@ public:
 	void draw(Graphics* graphics);
 	void addElement(SVGElement* element); //Them 1 con vao nhom
 	bool isGroup() const override;
-	// Thêm vào public:
 	Gdiplus::RectF getBoundingBox() override;
 	~SVGGroup();
 };

@@ -312,8 +312,6 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		this->opacity = atof(attr->value());
 	}
 
-	// ================= XỬ LÝ FILL =================
-
 	// Bước A: Đọc màu fill
 	if (xml_attribute<>* attribute = Node->first_attribute("fill")) {
 		string Tempcolor = attribute->value();
@@ -333,7 +331,6 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		this->isFillOpSet = true;
 	}
 
-	// ================= XỬ LÝ STROKE =================
 	// Bước A: Đọc màu stroke
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke")) {
 		string TempColorStroke = attribute->value();
@@ -360,7 +357,6 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		this->isStrokeOpSet = true;
 	}
 
-	// ================= CÁC THUỘC TÍNH KHÁC =================
 	if (xml_attribute<>* attr = Node->first_attribute("stroke-linecap")) {
 		this->stroke.setLineCap(attr->value());
 	}
@@ -373,14 +369,10 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		stroke.setWidth(1.0f);
 	}
 
-	// Parse Style (Inline CSS) - Lưu ý: Phần này nên đặt cẩn thận vì nó có thể override các thuộc tính trên
+	// Parse Style (Inline CSS)
 	if (xml_attribute<>* attribute = Node->first_attribute("style")) {
 		string styleStr = attribute->value();
 		parseStyleString(styleStr, this->fill, this->fillOpacity, this->isFillOpSet, this->stroke, this->strokeOpacity, this->isStrokeOpSet);
-
-		// Lưu ý bổ sung: Nếu trong style có opacity, bạn cần áp dụng logic nhân this->opacity tương tự ở trên
-		// Tuy nhiên với cấu trúc hiện tại hàm parseStyleString của bạn đang parse trực tiếp vào fill/stroke
-		// Nên nếu muốn chính xác tuyệt đối, bạn nên chuyển việc nhân Global Opacity xuống cuối cùng hàm này.
 	}
 }
 

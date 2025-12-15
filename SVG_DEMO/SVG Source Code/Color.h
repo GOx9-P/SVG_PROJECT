@@ -15,10 +15,8 @@ private:
     bool isNoneFlag;
     bool isNotSet;
 
-    // --- PHẦN MỚI: Xử lý tham chiếu URL ---
     bool isUrlFlag;
     string urlRef; // Lưu ID (ví dụ: "fill0")
-    // --------------------------------------
 
 public:
     SVGColor();
@@ -31,11 +29,9 @@ public:
     bool isNone() const;
     bool isSet() const;
 
-    // --- PHẦN MỚI: Getter/Setter cho URL ---
     bool isUrl() const;
     string getUrlRef() const;
     void setUrlRef(const string& id);
-    // ---------------------------------------
 
     void setR(BYTE red);
     void setG(BYTE green);

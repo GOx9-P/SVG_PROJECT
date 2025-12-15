@@ -23,13 +23,11 @@ protected:
 	bool isFillOpSet;
 	bool isStrokeOpSet;
 
-	// Hàm Helper để tạo Brush (Solid hoặc Gradient)
 	Gdiplus::Brush* createBrush(Gdiplus::RectF bounds);
 
 public:
 	SVGElement();
 
-	// ... (Các Getter/Setter cũ giữ nguyên) ...
 	string getId() const;
 	void setId(const string&);
 	string getClassName() const;
@@ -58,7 +56,6 @@ public:
 	void parseTransform();
 	void render(Gdiplus::Graphics* graphics);
 
-	// --- PHẦN MỚI THÊM ---
 	virtual void parseAttributes(xml_node<>*) = 0;
 	virtual void draw(Graphics* graphics) = 0;
 

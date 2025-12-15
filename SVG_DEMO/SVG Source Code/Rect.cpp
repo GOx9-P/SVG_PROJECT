@@ -2,7 +2,6 @@
 #include "Rect.h"
 #include "SVGElement.h"
 
-// --- Helper Function: Thêm hình chữ nhật bo góc vào GraphicsPath ---
 void AddRoundedRectangle(GraphicsPath& path, Gdiplus::RectF bounds, float rx, float ry)
 {
 	// Theo chuẩn SVG: Nếu rx > width/2, thì rx = width/2 (tương tự với ry)
@@ -136,7 +135,7 @@ void SVGRect::draw(Graphics* graphics)
 	// 5. Vẽ
 	if (effectiveRx > 0 || effectiveRy > 0)
 	{
-		// --- TRƯỜNG HỢP CÓ BO GÓC: Dùng GraphicsPath ---
+		// TRƯỜNG HỢP CÓ BO GÓC: Dùng GraphicsPath ---
 		GraphicsPath path;
 		AddRoundedRectangle(path, bounds, effectiveRx, effectiveRy);
 
@@ -149,7 +148,7 @@ void SVGRect::draw(Graphics* graphics)
 	}
 	else
 	{
-		// --- TRƯỜNG HỢP HÌNH CHỮ NHẬT THƯỜNG ---
+		// TRƯỜNG HỢP HÌNH CHỮ NHẬT THƯỜNG
 		if (brush) {
 			graphics->FillRectangle(brush, bounds);
 		}

@@ -9,12 +9,11 @@
 #include "Polyline.h"
 #include "TextElement.h"
 #include "SVGGroup.h"
-#include "SVGLinearGradient.h" // Bắt buộc include để nhận diện class
+#include "SVGLinearGradient.h" 
 #include <sstream>
 
-// --- 1. KHỞI TẠO BIẾN TĨNH (STATIC) ---
+
 std::map<string, SVGGradient*> SVGRoot::defsMap;
-// --------------------------------------
 
 SVGElement* SVGRoot::createNode(xml_node<>* node)
 {
@@ -69,7 +68,6 @@ void SVGRoot::parseNodes(xml_node<>* node, SVGGroup* parentGroup)
 	for (xml_node<>* child = node->first_node(); child != nullptr; child = child->next_sibling()) {
 		string nodeName = child->name();
 
-		// --- FIX: XỬ LÝ THẺ DEFS ---
 		if (nodeName == "defs") {
 			// Nếu gặp defs, ta chỉ duyệt con của nó để tìm Gradient
 			for (xml_node<>* defChild = child->first_node(); defChild; defChild = defChild->next_sibling()) {
@@ -90,22 +88,17 @@ void SVGRoot::parseNodes(xml_node<>* node, SVGGroup* parentGroup)
 						}
 					}
 					else {
-						// Các thẻ khác trong defs (như rect, circle...) không cần hiển thị
-						// nên ta xóa đi để tránh leak memory
 						delete defElement;
 					}
 				}
 			}
-			continue; // Xử lý xong defs thì qua thẻ tiếp theo của vòng lặp chính
+			continue; 
 		}
-		// ---------------------------
 
 		SVGElement* newElement = this->createNode(child);
 		if (newElement != nullptr) {
-			// ... (Giữ nguyên code cũ của bạn ở dưới) ...
 			newElement->parseAttributes(child);
 
-			// ... logic xử lý Gradient cũ (nếu nó nằm ngoài defs) ...
 			SVGGradient* grad = dynamic_cast<SVGGradient*>(newElement);
 			if (grad != nullptr) {
 				if (!grad->getId().empty()) {
@@ -146,8 +139,6 @@ void SVGRoot::loadFromFile(const string& filename)
 	xml_document<> doc;
 
 	try {
-		// --- 3. FIX LỖI RAPIDXML CHO VISUAL STUDIO CŨ ---
-		// Dùng &buffer[0] thay vì buffer.data()
 		doc.parse<0>(buffer.data());
 
 		xml_node<>* rootNode = doc.first_node("svg");
@@ -263,20 +254,15 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 	graphics->Restore(curState);
 }
 
-// --- 4. HÀM HỦY (DESTRUCTOR) ---
 SVGRoot::~SVGRoot()
 {
-	// Chỉ xóa elements thuộc về đối tượng này
 	for (auto element : this->elements) {
 		if (element) delete element;
 	}
 	this->elements.clear();
-	// KHÔNG được xóa defsMap ở đây
 }
 
-// --- 5. HÀM DỌN DẸP STATIC (QUAN TRỌNG) ---
 void SVGRoot::CleanupStaticResources() {
-	// Dùng iterator kiểu cũ để tương thích mọi phiên bản VS và tránh lỗi auto
 	std::map<string, SVGGradient*>::iterator it;
 	for (it = SVGRoot::defsMap.begin(); it != SVGRoot::defsMap.end(); ++it) {
 		if (it->second != nullptr) {

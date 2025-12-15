@@ -2,13 +2,11 @@
 #include "Path.h"
 #include <cmath>
 #include <algorithm>
-#include <sstream> // Cần thiết cho stringstream
+#include <sstream> 
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-// --- PHẦN HÀM HỖ TRỢ (GIỮ NGUYÊN) ---
 
 // Hàm tính góc giữa 2 vector
 double angleBetween(PointF u, PointF v) {
@@ -22,8 +20,6 @@ double angleBetween(PointF u, PointF v) {
 // Hàm xử lý toán học để thêm Arc vào Path
 void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float rotation, bool largeArc, bool sweep, float endX, float endY)
 {
-    // ... (Giữ nguyên toàn bộ logic AddArcToPath cũ của bạn ở đây) ...
-    // Copy lại y nguyên nội dung hàm AddArcToPath từ file cũ của bạn vào đây
     // 1. Xử lý dữ liệu đầu vào
     float x0 = start.X;
     float y0 = start.Y;
@@ -117,8 +113,6 @@ void AddArcToPath(GraphicsPath& path, PointF start, float rx, float ry, float ro
     }
 }
 
-// --- IMPLEMENTATION SVGPath ---
-
 SVGPath::SVGPath() { d = ""; }
 SVGPath::SVGPath(const string& D) { d = D; }
 SVGPath::SVGPath(const SVGPath& other) { this->d = other.getD(); }
@@ -139,7 +133,6 @@ void SVGPath::parseAttributes(xml_node<>* Node)
     }
 }
 
-// HÀM MỚI: Tách logic parse ra khỏi draw
 void SVGPath::parsePathData(GraphicsPath& path)
 {
     // 1. Xử lý chuỗi d (Thay vì dùng handleData sửa trực tiếp member, ta sửa trên bản sao local)
@@ -165,7 +158,7 @@ void SVGPath::parsePathData(GraphicsPath& path)
     // Diem dieu khien cuoi cung (dung cho duong cong muot S/s)
     PointF lastControlPoint(0, 0);
 
-    // 4. Vòng lặp parse (Logic cũ của bạn)
+    // 4. Vòng lặp parse
     while (!ss.eof())
     {
         while (isspace(ss.peek())) ss.get();
@@ -174,7 +167,6 @@ void SVGPath::parsePathData(GraphicsPath& path)
         char next = ss.peek();
         if (isalpha(next)) ss >> current;
 
-        // --- BẮT ĐẦU CÁC LỆNH VẼ ---
         if (current == 'M') // MoveTo Absolute
         {
             if (ss >> x >> y) {
@@ -395,7 +387,6 @@ void SVGPath::parsePathData(GraphicsPath& path)
     }
 }
 
-// HÀM MỚI: Dùng để tính Gradient
 Gdiplus::RectF SVGPath::getBoundingBox()
 {
     GraphicsPath path;
@@ -405,13 +396,13 @@ Gdiplus::RectF SVGPath::getBoundingBox()
     return bounds;
 }
 
-// CẬP NHẬT: Dùng createBrush cho Gradient
+// Dùng createBrush cho Gradient
 void SVGPath::draw(Graphics* graphics)
 {
     GraphicsPath path;
     parsePathData(path); // Tạo hình
 
-    // 1. Tính toán Bounding Box để lấy Gradient (nếu có)
+    // 1. Tính toán Bounding Box để lấy Gradient
     RectF bounds;
     path.GetBounds(&bounds);
 

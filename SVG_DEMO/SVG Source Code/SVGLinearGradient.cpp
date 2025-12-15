@@ -14,7 +14,6 @@ SVGLinearGradient::SVGLinearGradient() {
 void SVGLinearGradient::parseAttributes(xml_node<>* node) {
     SVGGradient::parseAttributes(node); // Parse stops và ID
 
-    // Helper lambda để đọc giá trị % hoặc số thực
     auto parseVal = [&](xml_attribute<>* attr, float defVal) {
         if (!attr) return defVal;
         string val = attr->value();

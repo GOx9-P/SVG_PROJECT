@@ -204,7 +204,6 @@ SVGColor::SVGColor() : r(0), g(0), b(0), a(0), isNoneFlag(false), isNotSet(true)
 SVGColor::SVGColor(BYTE red, BYTE green, BYTE blue, BYTE alpha)
     : r(red), g(green), b(blue), a(alpha), isNoneFlag(false), isNotSet(false), isUrlFlag(false) {}
 
-// --- IMPLEMENT MỚI ---
 bool SVGColor::isUrl() const { return isUrlFlag; }
 
 string SVGColor::getUrlRef() const { return urlRef; }
@@ -234,7 +233,7 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
         return noneColor;
     }
 
-    // --- LOGIC MỚI: KIỂM TRA URL ---
+    //Kiểm tra URL
     // Ví dụ: url(#fill0)
     if (colorStr.find("url(") == 0) {
         size_t start = colorStr.find('#');
@@ -245,7 +244,6 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
             return color;
         }
     }
-    // -------------------------------
 
     transform(colorStr.begin(), colorStr.end(), colorStr.begin(), [](unsigned char c) { return std::tolower(c); });
 
@@ -298,7 +296,6 @@ SVGColor SVGColor::fromString(const string& fillStr, float fillOpacity) {
     return color;
 }
 
-// ... Các hàm Getter/Setter cũ giữ nguyên ...
 BYTE SVGColor::getR() { return r; }
 BYTE SVGColor::getG() { return g; }
 BYTE SVGColor::getB() { return b; }

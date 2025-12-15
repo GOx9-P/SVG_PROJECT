@@ -20,7 +20,7 @@ public:
 	void setRy(const float&);
 	void parseAttributes(xml_node<>*);
 	void draw(Graphics* graphics);
-	Gdiplus::RectF getBoundingBox() override; // Thêm d?ng này
+	Gdiplus::RectF getBoundingBox() override;
 	~SVGRect();
 };
 

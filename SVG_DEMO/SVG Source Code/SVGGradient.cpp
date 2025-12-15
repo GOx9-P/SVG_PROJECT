@@ -75,7 +75,6 @@ void SVGGradient::parseAttributes(xml_node<>* node) {
         if (xml_attribute<>* attr = child->first_attribute("stop-opacity"))
             opacity = atof(attr->value());
 
-        // --- XỬ LÝ STYLE TRONG STOP ---
         if (xml_attribute<>* attr = child->first_attribute("style")) {
             string style = attr->value();
             stringstream ss(style);
@@ -97,7 +96,6 @@ void SVGGradient::parseAttributes(xml_node<>* node) {
                 }
             }
         }
-        // ------------------------------
 
         this->addStop(SVGStop(offset, color, opacity));
     }
