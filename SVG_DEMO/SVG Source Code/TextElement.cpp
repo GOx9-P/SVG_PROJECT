@@ -161,6 +161,35 @@ Gdiplus::RectF TextElement::getBoundingBox() {
     return Gdiplus::RectF(position.getX(), position.getY() - fontSize, estimatedW, estimatedH);
 }
 
+void reviseContent(wstring& content)
+{
+    wstring newContent;
+    bool inSpace = true;
+
+    for (wchar_t ch : content)
+    {
+        if (iswspace(ch))
+        {
+            if (!inSpace)
+            {
+                newContent.push_back(L' ');
+                inSpace = true;
+            }
+        }
+        else
+        {
+            newContent.push_back(ch);
+            inSpace = false;
+        }
+    }
+
+    if (!newContent.empty() && newContent.back() == L' ')
+        newContent.pop_back();
+
+    content = newContent;
+}
+
+
 void TextElement::draw(Graphics* graphics)
 {
     if (!graphics) return;
@@ -227,6 +256,7 @@ void TextElement::draw(Graphics* graphics)
         wstring wstr(sizeNeeded, 0);
         MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), &wstr[0], sizeNeeded);
         wTextContent = wstr;
+        reviseContent(wTextContent);
     }
 
     // 3. TÍNH TOÁN VỊ TRÍ BASELINE
