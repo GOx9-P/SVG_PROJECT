@@ -27,7 +27,6 @@ protected:
 
 public:
 	SVGElement();
-
 	string getId() const;
 	void setId(const string&);
 	string getClassName() const;

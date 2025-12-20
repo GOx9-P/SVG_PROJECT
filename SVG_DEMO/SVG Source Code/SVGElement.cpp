@@ -77,7 +77,7 @@ SVGElement::SVGElement()
 
 SVGElement::~SVGElement()
 {
-
+	
 }
 
 string SVGElement::getId() const {
@@ -206,7 +206,7 @@ void SVGElement::parseTransform()
 		string command;
 		getline(ss1, command, '(');
 		command = deleteSpace(command);
-		
+
 		// vi trong transform nhan cac lenh tu phai sang trai nen ta phai nhan vao phia truoc ma tran.
 		if (command == "translate")
 		{
@@ -381,7 +381,7 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 void SVGElement::render(Gdiplus::Graphics* graphics)
 {
 	Gdiplus::GraphicsState state = graphics->Save();
-	graphics->MultiplyTransform(this->transformMatrix, Gdiplus::MatrixOrderPrepend);
+	graphics->MultiplyTransform(transformMatrix, Gdiplus::MatrixOrderPrepend);
 	this->draw(graphics);
 	graphics->Restore(state);
 }
