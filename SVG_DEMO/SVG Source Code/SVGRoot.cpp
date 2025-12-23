@@ -10,6 +10,7 @@
 #include "TextElement.h"
 #include "SVGGroup.h"
 #include "SVGLinearGradient.h" 
+#include "SVGRadialGradient.h"
 #include <sstream>
 
 
@@ -48,6 +49,10 @@ SVGElement* SVGRoot::createNode(xml_node<>* node)
 	}
 	else if (nodeName == "linearGradient") {
 		newElement = new SVGLinearGradient();
+	}
+	else if (nodeName == "radialGradient")
+	{
+		newElement = new SVGRadialGradient();
 	}
 	else {
 		std::cerr << "The khong duoc ho tro!!!" << endl;
@@ -92,7 +97,7 @@ void SVGRoot::parseNodes(xml_node<>* node, SVGGroup* parentGroup)
 					}
 				}
 			}
-			continue; 
+			continue;
 		}
 
 		SVGElement* newElement = this->createNode(child);
