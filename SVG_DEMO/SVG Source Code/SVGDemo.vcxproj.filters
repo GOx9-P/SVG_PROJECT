@@ -87,6 +87,9 @@
     <ClInclude Include="SVGLinearGradient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SVGRadialGradient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SVGLinearGradient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SVGRadialGradient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

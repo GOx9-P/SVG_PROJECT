@@ -2,6 +2,7 @@
 #include "SVGElement.h"
 #include "SVGRoot.h"        
 #include "SVGLinearGradient.h"
+#include "SVGRadialGradient.h"
 
 // Hàm hỗ trợ xóa khoảng trắng thừa đầu/cuối chuỗi
 string trim(const string& str) {
@@ -12,7 +13,7 @@ string trim(const string& str) {
 }
 
 // Hàm phân tích cú pháp CSS Inline
-void parseStyleString(const string& styleStr, SVGColor& outFill,float&outFillOp, bool& outFillOpSet, SVGStroke& outStroke, float& outStrokeOp,bool& outStrokeOpSet) {
+void parseStyleString(const string& styleStr, SVGColor& outFill, float& outFillOp, bool& outFillOpSet, SVGStroke& outStroke, float& outStrokeOp, bool& outStrokeOpSet) {
 	stringstream ss(styleStr);
 	string segment;
 
@@ -66,8 +67,8 @@ void parseStyleString(const string& styleStr, SVGColor& outFill,float&outFillOp,
 
 SVGElement::SVGElement()
 {
-    id = className = style = transform =  "";
-    opacity = 1.0f;
+	id = className = style = transform = "";
+	opacity = 1.0f;
 	fillOpacity = 1.0f;
 	strokeOpacity = 1.0f;
 	isFillOpSet = false;
@@ -77,72 +78,72 @@ SVGElement::SVGElement()
 
 SVGElement::~SVGElement()
 {
-	
+
 }
 
 string SVGElement::getId() const {
-    return id;
+	return id;
 }
 
 void SVGElement::setId(const string& newId) {
-    id = newId;
+	id = newId;
 }
 
 string SVGElement::getClassName() const {
-    return className;
+	return className;
 }
 
 void SVGElement::setClassName(const string& newClassName) {
-    className = newClassName;
+	className = newClassName;
 }
 
 string SVGElement::getStyle() const {
-    return style;
+	return style;
 }
 
 void SVGElement::setStyle(const string& newStyle) {
-    style = newStyle;
+	style = newStyle;
 }
 
 string SVGElement::getTransform() const {
-    return transform;
+	return transform;
 }
 
 void SVGElement::setTransform(const string& newTransform) {
-    transform = newTransform;
+	transform = newTransform;
 }
 
 SVGColor SVGElement::getFill() const {
-    return fill;
+	return fill;
 }
 
 void SVGElement::setFill(const SVGColor& newFill) {
-    fill = newFill;
+	fill = newFill;
 }
 
 SVGStroke SVGElement::getStroke() const {
-    return stroke;
+	return stroke;
 }
 
 void SVGElement::setStroke(const SVGStroke& newStroke) {
-    stroke = newStroke;
+	stroke = newStroke;
 }
 
 float SVGElement::getOpacity() const {
-    return opacity;
+	return opacity;
 }
 
 void SVGElement::setOpacity(const float& newOpacity) {
-    opacity = newOpacity;
+	opacity = newOpacity;
 }
 
 float SVGElement::getFillOpacity() const
-{ 
-	return fillOpacity; 
+{
+	return fillOpacity;
 }
-void SVGElement::setFillOpacity(const float& op) 
-{ 
-	fillOpacity = op; 
+void SVGElement::setFillOpacity(const float& op)
+{
+	fillOpacity = op;
 }
 
 float SVGElement::getStrokeOpacity() const
@@ -150,24 +151,24 @@ float SVGElement::getStrokeOpacity() const
 	return strokeOpacity;
 }
 void SVGElement::setStrokeOpacity(const float& op)
-{ 
-	strokeOpacity = op; 
+{
+	strokeOpacity = op;
 }
 
-bool SVGElement::isFillOpacitySet() const 
-{ 
-	return isFillOpSet; 
+bool SVGElement::isFillOpacitySet() const
+{
+	return isFillOpSet;
 }
-void SVGElement::setIsFillOpacitySet(bool val) { 
-	isFillOpSet = val; 
+void SVGElement::setIsFillOpacitySet(bool val) {
+	isFillOpSet = val;
 }
 
 bool SVGElement::isStrokeOpacitySet() const
-{ 
-	return isStrokeOpSet; 
+{
+	return isStrokeOpSet;
 }
-void SVGElement::setIsStrokeOpacitySet(bool val) 
-{ 
+void SVGElement::setIsStrokeOpacitySet(bool val)
+{
 	isStrokeOpSet = val;
 }
 
@@ -261,6 +262,42 @@ void SVGElement::parseTransform()
 	}
 }
 
+//Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
+//	if (this->getFill().isSet() && !this->getFill().isNone())
+//	{
+//		// ... (Giữ nguyên logic tạo SolidBrush từ màu fill) ...
+//		SVGColor c = this->getFill();
+//		return new Gdiplus::SolidBrush(Gdiplus::Color(c.getA(), c.getR(), c.getG(), c.getB()));
+//	}
+//	SVGColor color = this->getFill();
+//	string fillUrl = color.getUrlRef();
+//	// 1. Nếu màu là URL (Gradient)
+//	if (color.isUrl()) {
+//		string id = color.getUrlRef();
+//
+//		// Tìm trong kho chứa static của SVGRoot
+//		if (SVGRoot::defsMap.find(id) != SVGRoot::defsMap.end()) {
+//			SVGGradient* grad = SVGRoot::defsMap[id];
+//
+//			// Ép kiểu sang LinearGradient
+//			SVGLinearGradient* linGrad = dynamic_cast<SVGLinearGradient*>(grad);
+//			if (linGrad) {
+//				return linGrad->createBrush(bounds);
+//			}
+//		}
+//		// Nếu không tìm thấy ID, fallback về Transparent hoặc Black tuỳ chuẩn
+//		return new SolidBrush(Color(0, 0, 0, 0));
+//	}
+//
+//	// 2. Nếu là màu thường (Solid)
+//	if (color.isNone()) {
+//		return nullptr; // Không vẽ
+//	}
+//
+//	Color gdiColor(color.getA(), color.getR(), color.getG(), color.getB());
+//	return new Gdiplus::SolidBrush(gdiColor);
+//}
+
 Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
 	SVGColor color = this->getFill();
 
@@ -272,25 +309,23 @@ Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
 		if (SVGRoot::defsMap.find(id) != SVGRoot::defsMap.end()) {
 			SVGGradient* grad = SVGRoot::defsMap[id];
 
-			// Ép kiểu sang LinearGradient
-			SVGLinearGradient* linGrad = dynamic_cast<SVGLinearGradient*>(grad);
-			if (linGrad) {
-				return linGrad->createBrush(bounds);
+			if (grad) {
+				// Đa hình: Tự động gọi createBrush của Linear hoặc Radial
+				return grad->createBrush(bounds);
 			}
 		}
-		// Nếu không tìm thấy ID, fallback về Transparent hoặc Black tuỳ chuẩn
-		return new SolidBrush(Color(0, 0, 0, 0));
+		// Fallback nếu không tìm thấy gradient
+		return new Gdiplus::SolidBrush(Gdiplus::Color(0, 0, 0, 0));
 	}
 
 	// 2. Nếu là màu thường (Solid)
 	if (color.isNone()) {
-		return nullptr; // Không vẽ
+		return nullptr;
 	}
 
-	Color gdiColor(color.getA(), color.getR(), color.getG(), color.getB());
+	Gdiplus::Color gdiColor(color.getA(), color.getR(), color.getG(), color.getB());
 	return new Gdiplus::SolidBrush(gdiColor);
 }
-
 
 void SVGElement::parseAttributes(xml_node<>* Node)
 {
@@ -338,7 +373,7 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		{
 			SVGColor c(0, 0, 0, 0);
 			c.setIsNone(true);
-			stroke.setColor(c); 
+			stroke.setColor(c);
 		}
 		else
 		{

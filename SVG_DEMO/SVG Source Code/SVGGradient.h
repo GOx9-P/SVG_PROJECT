@@ -27,6 +27,8 @@ public:
     // Hàm draw rỗng vì Gradient không tự vẽ mình
     void draw(Graphics* graphics) override {}
     Gdiplus::RectF getBoundingBox() override;
+
+    virtual Gdiplus::Brush* createBrush(const Gdiplus::RectF& boundingBox) = 0;
 };
 
 #endif

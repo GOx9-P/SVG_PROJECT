@@ -13,7 +13,7 @@ public:
     void parseAttributes(xml_node<>* node) override;
 
     // Hàm quan trọng: Tạo Brush GDI+ dựa trên bounding box của hình cần vẽ
-    Gdiplus::LinearGradientBrush* createBrush(const Gdiplus::RectF& boundingBox);
+    Gdiplus::Brush* createBrush(const Gdiplus::RectF& boundingBox) override;
 };
 
 #endif
