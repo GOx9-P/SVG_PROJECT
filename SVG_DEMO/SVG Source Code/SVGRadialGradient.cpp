@@ -56,9 +56,17 @@ static void applyTransformString(Gdiplus::Matrix* matrix, const string& transStr
             float angle, cx = 0, cy = 0; ss >> angle;
             streampos oldPos = ss.tellg();
             if (ss >> cx >> cy) {
-                matrix->Translate(cx, cy, Gdiplus::MatrixOrderAppend); // Fix thứ tự rotate tâm
-                matrix->Rotate(angle, Gdiplus::MatrixOrderAppend);
+                // FIX LỖI: Thứ tự translate để xoay quanh tâm (cx, cy) bị ngược.
+                // Đúng: Dời (-cx, -cy) về gốc -> Xoay -> Dời ngược lại (cx, cy)
+
+                // Bước 1: Dời tâm xoay về gốc tọa độ (0,0)
                 matrix->Translate(-cx, -cy, Gdiplus::MatrixOrderAppend);
+
+                // Bước 2: Thực hiện xoay
+                matrix->Rotate(angle, Gdiplus::MatrixOrderAppend);
+
+                // Bước 3: Dời tâm xoay về vị trí cũ
+                matrix->Translate(cx, cy, Gdiplus::MatrixOrderAppend);
             }
             else {
                 ss.clear(); ss.seekg(oldPos);

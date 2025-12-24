@@ -171,6 +171,14 @@ void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
 {
 	GraphicsState curState = graphics->Save();
 	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
+	// 2. Thiết lập nội suy chất lượng cao nhất (Giúp vùng tím sáng mịn và rực rỡ)
+	graphics->SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+
+	// 3. Tăng chất lượng hòa trộn màu (Alpha Blending cho lông cáo và quả cầu)
+	graphics->SetCompositingQuality(Gdiplus::CompositingQualityHighQuality);
+
+	// 4. Chế độ bù đắp pixel để hình ảnh sắc nét, không bị nhòe ở biên
+	graphics->SetPixelOffsetMode(Gdiplus::PixelOffsetModeHighQuality);
 	if (!viewBox.empty()) {
 		string tempViewBox = viewBox;
 		for (auto& ch : tempViewBox) {
