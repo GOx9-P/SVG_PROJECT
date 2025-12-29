@@ -49,7 +49,7 @@ Gdiplus::RectF SVGGroup::getBoundingBox() {
             bounds.Union(bounds, bounds, childBounds);
         }
     }
-    return bounds;
+    return this->TransformRect(bounds);
 }
 
 void SVGGroup::draw(Graphics* graphics)

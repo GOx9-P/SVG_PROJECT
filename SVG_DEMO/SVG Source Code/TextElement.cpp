@@ -155,11 +155,7 @@ std::wstring trim(const std::wstring& str) {
     return str.substr(first, (last - first + 1));
 }
 
-Gdiplus::RectF TextElement::getBoundingBox() {
-    float estimatedW = textContent.length() * fontSize * 0.6f;
-    float estimatedH = fontSize;
-    return Gdiplus::RectF(position.getX(), position.getY() - fontSize, estimatedW, estimatedH);
-}
+
 
 void reviseContent(wstring& content)
 {
@@ -189,7 +185,103 @@ void reviseContent(wstring& content)
     content = newContent;
 }
 
+Gdiplus::RectF TextElement::getBoundingBox() {
+    HDC hdc = GetDC(NULL);
+    Graphics g(hdc);
 
+    // 1. TÌM FONT (Logic giống hệt hàm draw)
+    FontFamily* pFontFamily = nullptr;
+    wstring wFontList = L"Arial";
+    if (!this->fontFamily.empty()) {
+        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), NULL, 0);
+        wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), &wstr[0], sizeNeeded);
+        wFontList = wstr;
+    }
+
+    size_t pos = 0;
+    std::wstring token;
+    std::wstring delimiter = L",";
+    std::wstring s = wFontList;
+    bool fontFound = false;
+
+    while ((pos = s.find(delimiter)) != std::string::npos || s.length() > 0) {
+        if (pos != std::string::npos) { token = s.substr(0, pos); s.erase(0, pos + delimiter.length()); }
+        else { token = s; s = L""; }
+        token = trim(token);
+        if (token.empty() || token == L"serif" || token == L"sans-serif" || token == L"monospace") continue;
+
+        pFontFamily = new FontFamily(token.c_str());
+        if (pFontFamily->GetLastStatus() == Ok && pFontFamily->IsStyleAvailable(FontStyleRegular)) {
+            fontFound = true; break;
+        }
+        delete pFontFamily; pFontFamily = nullptr;
+        if (s.length() == 0) break;
+    }
+    if (!fontFound || pFontFamily == nullptr) pFontFamily = new FontFamily(L"Arial");
+
+    // 2. TÍNH BASELINE
+    int style = FontStyleRegular;
+    float ascentDesignUnits = (float)pFontFamily->GetCellAscent(style);
+    float emHeightDesignUnits = (float)pFontFamily->GetEmHeight(style);
+    float ascentPixels = 0;
+    if (emHeightDesignUnits > 0) {
+        ascentPixels = (ascentDesignUnits / emHeightDesignUnits) * this->fontSize;
+    }
+
+    // 3. CHUẨN BỊ TEXT
+    wstring wTextContent = L"";
+    if (!this->textContent.empty()) {
+        int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0);
+        wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), &wstr[0], sizeNeeded);
+        wTextContent = wstr;
+        reviseContent(wTextContent);
+    }
+
+    // 4. FORMAT
+    StringFormat format;
+    if (this->textAnchor == "middle") format.SetAlignment(StringAlignmentCenter);
+    else if (this->textAnchor == "end") format.SetAlignment(StringAlignmentFar);
+    else format.SetAlignment(StringAlignmentNear);
+
+    PointF origin(position.getX(), position.getY() - ascentPixels);
+
+    // 5. ĐO BẰNG GRAPHICSPATH (CHÍNH XÁC TUYỆT ĐỐI)
+    GraphicsPath path;
+    path.AddString(
+        wTextContent.c_str(),
+        -1,
+        pFontFamily,
+        style,
+        this->fontSize,
+        origin,
+        &format
+    );
+
+    RectF boundingBox;
+    SVGStroke stroke = this->getStroke();
+
+    // Nếu có viền, ta dùng Pen để đo độ dày viền
+    if (stroke.getColor().getA() > 0 && stroke.getWidth() > 0) {
+        Pen pen(Color::Black, stroke.getWidth());
+        // Hàm này tính cả phần lấn ra ngoài của viền
+        path.GetBounds(&boundingBox, NULL, &pen);
+    }
+    else {
+        path.GetBounds(&boundingBox);
+    }
+
+    // 6. THÊM PADDING AN TOÀN (SAFE BUFFER)
+    // Để tránh việc khử răng cưa (antialiasing) ở mép pixel bị cắt, ta mở rộng thêm 5px mỗi chiều
+    float safetyPad = 5.0f;
+    boundingBox.Inflate(safetyPad, safetyPad);
+
+    delete pFontFamily;
+    ReleaseDC(NULL, hdc);
+
+    return this->TransformRect(boundingBox);
+}
 void TextElement::draw(Graphics* graphics)
 {
     if (!graphics) return;
@@ -316,5 +408,6 @@ void TextElement::draw(Graphics* graphics)
 TextElement::~TextElement()
 {
 }
+
 
 

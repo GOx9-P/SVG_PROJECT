@@ -196,6 +196,7 @@ float DegToRad(float Deg)
 
 void SVGElement::parseTransform()
 {
+	this->hasTransform = true;
 	preProcessingTranSform(transform);
 	stringstream ss(transform);
 	string info;
@@ -421,3 +422,52 @@ void SVGElement::render(Gdiplus::Graphics* graphics)
 	graphics->Restore(state);
 }
 
+RectF SVGElement::getBoundingBox() {
+	return RectF(0, 0, 0, 0);
+}
+
+
+void SVGElement::parseTransformAttribute(const string& transformStr) {
+	if (transformStr.empty()) return;
+	this->hasTransform = true;
+
+	// Reset matrix cũ
+	transformMatrix->Reset();
+
+	// Logic parse chuỗi transform là khá dài (bạn có thể tìm thư viện hoặc tự viết).
+	// Ở đây tôi ví dụ nhanh logic translate/scale nếu bạn chưa có:
+	// Gợi ý: Hãy dùng regex hoặc string find để tách "translate(x,y)" và gọi:
+	// transformMatrix.Translate(tx, ty);
+	// transformMatrix.Scale(sx, sy);
+	// transformMatrix.Rotate(angle);
+
+	// QUAN TRỌNG: Bạn phải đảm bảo hàm render() cũng dùng chính matrix này
+	// thay vì parse lại từ đầu.
+}
+
+RectF SVGElement::TransformRect(RectF rect) {
+	if (!hasTransform) return rect;
+
+	// Lấy 4 góc của hình chữ nhật
+	PointF pts[4];
+	pts[0] = PointF(rect.X, rect.Y);
+	pts[1] = PointF(rect.X + rect.Width, rect.Y);
+	pts[2] = PointF(rect.X, rect.Y + rect.Height);
+	pts[3] = PointF(rect.X + rect.Width, rect.Y + rect.Height);
+
+	// Biến đổi các điểm theo matrix
+	transformMatrix->TransformPoints(pts, 4);
+
+	// Tìm min/max mới để tạo hình chữ nhật bao quanh mới
+	float minX = pts[0].X, maxX = pts[0].X;
+	float minY = pts[0].Y, maxY = pts[0].Y;
+
+	for (int i = 1; i < 4; i++) {
+		if (pts[i].X < minX) minX = pts[i].X;
+		if (pts[i].X > maxX) maxX = pts[i].X;
+		if (pts[i].Y < minY) minY = pts[i].Y;
+		if (pts[i].Y > maxY) maxY = pts[i].Y;
+	}
+
+	return RectF(minX, minY, maxX - minX, maxY - minY);
+}

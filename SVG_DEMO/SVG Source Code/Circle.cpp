@@ -26,12 +26,13 @@ Gdiplus::RectF SVGCircle::getBoundingBox() {
 	float r = this->getR();
 	// Khung bao của hình tròn là hình vuông ngoại tiếp nó
 	// Toạ độ góc trái trên = Tâm - Bán kính
-	return Gdiplus::RectF(
+	 Gdiplus::RectF raw(
 		this->getPosition().getX() - r,
 		this->getPosition().getY() - r,
 		2 * r,
 		2 * r
 	);
+	 return this->TransformRect(raw);
 }
 
 void SVGCircle::draw(Graphics* graphics)

@@ -22,7 +22,7 @@ protected:
 	float strokeOpacity;
 	bool isFillOpSet;
 	bool isStrokeOpSet;
-
+	bool hasTransform = false;
 	Gdiplus::Brush* createBrush(Gdiplus::RectF bounds);
 
 public:
@@ -59,8 +59,12 @@ public:
 	virtual void draw(Graphics* graphics) = 0;
 
 	// Bắt buộc các hình con phải tự tính khung bao của nó
-	virtual Gdiplus::RectF getBoundingBox() = 0;
+	virtual Gdiplus::RectF getBoundingBox();
+	// Thêm hàm này để parse chuỗi transform="translate(...) scale(...)"
+	void parseTransformAttribute(const string& transformStr);
 
+	// Hàm hỗ trợ áp dụng transform lên hình chữ nhật
+	RectF TransformRect(RectF rect);
 	virtual ~SVGElement();
 };
 

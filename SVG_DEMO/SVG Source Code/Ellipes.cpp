@@ -22,11 +22,12 @@ float SVGEllipse::getRy() const {
 Gdiplus::RectF SVGEllipse::getBoundingBox() {
 	float rx = this->getRx();
 	float ry = this->getRy();
-	return Gdiplus::RectF(
+	 Gdiplus::RectF raw(
 		this->getPosition().getX() - rx,
 		this->getPosition().getY() - ry,
 		2 * rx, 2 * ry
 	);
+	return this->TransformRect(raw);
 }
 
 void SVGEllipse::parseAttributes(xml_node<>* Node)
