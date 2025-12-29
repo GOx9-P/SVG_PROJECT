@@ -31,6 +31,8 @@ public:
 	float getVbY();
 	float getVbWidth();
 	float getVbHeight();
+	//ham ho tro browser
+	void Clear();
 
 	~SVGRoot();
 };

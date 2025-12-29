@@ -4,7 +4,9 @@
 #include <windowsx.h>
 #include <locale>
 #include <string>
+#include <commdlg.h>
 
+#define IDM_FILE_OPEN   1002
 #define IDM_FILE_EXIT   1001
 #define IDM_HELP_GUIDE  1201
 
@@ -15,10 +17,19 @@ float g_Angle = 0.0f;
 float scaleTransform = 1.0f;
 bool g_HasInitCamera = false;
 RectF g_SvgBounds;
+Bitmap* g_pCachedBitmap = NULL;
 
 bool g_IsDragging = false;
 int g_LastMouseX = 0;
 int g_LastMouseY = 0;
+
+std::string WStringToString(const std::wstring& wstr) {
+    if (wstr.empty()) return std::string();
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
 
 void ShowHelpGuide(HWND hWnd) {
     MessageBox(hWnd,
@@ -49,6 +60,26 @@ void InitCamera(float screenW, float screenH) {
     g_PanY = 0.0f;
     g_Angle = 0.0f;
     scaleTransform = 1.0f;
+}
+
+void UpdateCachedBitmap() {
+    if (g_pCachedBitmap) { delete g_pCachedBitmap; g_pCachedBitmap = NULL; }
+    g_SvgBounds = svgRoot.getBoundingBox();
+
+    float padding = 50.0f;
+    if (g_SvgBounds.Width <= 0) g_SvgBounds.Width = 100;
+    if (g_SvgBounds.Height <= 0) g_SvgBounds.Height = 100;
+
+    int w = (int)ceil(g_SvgBounds.Width + 2 * padding);
+    int h = (int)ceil(g_SvgBounds.Height + 2 * padding);
+
+    g_pCachedBitmap = new Bitmap(w, h);
+    Graphics g(g_pCachedBitmap);
+    g.SetSmoothingMode(SmoothingModeAntiAlias);
+    g.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+    g.Clear(Color::Transparent);
+    g.TranslateTransform(-g_SvgBounds.X + padding, -g_SvgBounds.Y + padding);
+    svgRoot.render(&g, 0, 0, true);
 }
 
 VOID OnPaint(HDC hdc) {
@@ -110,6 +141,31 @@ VOID OnPaint(HDC hdc) {
     screenGraphics.DrawImage(&backBuffer, 0, 0);
 }
 
+bool OpenFileDialog(HWND hWnd, std::string& outFileName) {
+    OPENFILENAME ofn;       
+    wchar_t szFile[260];    
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFile = szFile;
+    ofn.lpstrFile[0] = '\0'; 
+    ofn.nMaxFile = sizeof(szFile);
+
+    ofn.lpstrFilter = L"SVG Files (*.svg)\0*.svg\0All Files (*.*)\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE) {
+        outFileName = WStringToString(ofn.lpstrFile);
+        return true;
+    }
+    return false;
+}
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR lpCmdLine, INT iCmdShow) {
@@ -138,7 +194,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR lpCmdLine, INT iCmdShow)
     HMENU hMenu = CreateMenu();
     HMENU hFileMenu = CreatePopupMenu();
 
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"&File");
     AppendMenu(hMenu, MF_STRING, IDM_HELP_GUIDE, L"&Help");
+    AppendMenu(hFileMenu, MF_STRING, IDM_FILE_OPEN, L"&Open... (Ctrl+O)");
+    AppendMenu(hFileMenu, MF_STRING, IDM_FILE_EXIT, L"E&xit");
 
     WNDCLASS wndClass;
     wndClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -178,7 +237,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     PAINTSTRUCT ps;
     switch (message) {
     case WM_COMMAND:
-        switch (LOWORD(wParam)) {
+        switch (LOWORD(wParam)) 
+        {
+        case IDM_FILE_OPEN:
+        {
+            std::string newFile;
+            if (OpenFileDialog(hWnd, newFile)) {
+                try {
+                    svgRoot.Clear();
+                    SVGRoot::CleanupStaticResources();
+                    svgRoot.loadFromFile(newFile);
+                    ResetView();
+                    g_HasInitCamera = false;
+                    UpdateCachedBitmap();
+                    InvalidateRect(hWnd, NULL, FALSE);
+                    std::wstring title = L"SVG Viewer - " + std::wstring(newFile.begin(), newFile.end());
+                    SetWindowText(hWnd, title.c_str());
+                }
+                catch (const std::exception& e) {
+                    MessageBoxA(hWnd, e.what(), "Error Loading File", MB_OK | MB_ICONERROR);
+                }
+            }
+            break;
+        }
         case IDM_HELP_GUIDE:
             ShowHelpGuide(hWnd);
             break;
@@ -221,6 +302,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         case 'F': scaleTransform = (scaleTransform == 1.0f) ? -1.0f : 1.0f; break;
         case '0': ResetView(); break;
         case VK_F1: ShowHelpGuide(hWnd); break;
+        case 'O':
+            if (GetKeyState(VK_CONTROL) < 0) {
+                SendMessage(hWnd, WM_COMMAND, IDM_FILE_OPEN, 0);
+            }
+            break;
         }
         InvalidateRect(hWnd, NULL, FALSE);
         return 0;

@@ -335,3 +335,15 @@ float SVGRoot::getVbHeight()
 {
 	return vbHeight;
 }
+
+void SVGRoot::Clear()
+{
+	for (auto element : this->elements) {
+		if (element) delete element;
+	}
+	this->elements.clear();
+
+	width = 0;
+	height = 0;
+	viewBox = "";
+}
