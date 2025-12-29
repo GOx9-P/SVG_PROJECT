@@ -209,6 +209,10 @@
     <Image Include="SVGDemo.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Apple.svg" />
+    <None Include="FireFox.svg" />
+    <None Include="Google.svg" />
+    <None Include="instagram.svg" />
     <None Include="sample.svg" />
     <None Include="svg-02.svg" />
     <None Include="Test1.svg" />

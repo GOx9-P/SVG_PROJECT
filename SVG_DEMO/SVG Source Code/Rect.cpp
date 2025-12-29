@@ -97,12 +97,13 @@ void SVGRect::parseAttributes(xml_node<>* Node)
 }
 
 Gdiplus::RectF SVGRect::getBoundingBox() {
-	return Gdiplus::RectF(
+	 Gdiplus::RectF raw(
 		this->getPosition().getX(),
 		this->getPosition().getY(),
 		this->getWidth(),
 		this->getHeight()
 	);
+	 return this->TransformRect(raw);
 }
 
 void SVGRect::draw(Graphics* graphics)

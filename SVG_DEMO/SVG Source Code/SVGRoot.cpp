@@ -152,13 +152,23 @@ void SVGRoot::loadFromFile(const string& filename)
 			return;
 		}
 		if (xml_attribute<>* widthAttribute = rootNode->first_attribute("width")) {
-			this->width = stof(widthAttribute->value());
+			string val = widthAttribute->value();
+			this->width = stof(val);
+			if (val.find("pt") != string::npos) this->width *= 1.33333f;
 		}
 		if (xml_attribute<>* heightAttribute = rootNode->first_attribute("height")) {
-			this->height = stof(heightAttribute->value());
+			string val = heightAttribute->value();
+			this->height = stof(val);
+			if (val.find("pt") != string::npos) this->height *= 1.33333f;
 		}
 		if (xml_attribute<>* viewBoxAtrribute = rootNode->first_attribute("viewBox")) {
 			this->viewBox = viewBoxAtrribute->value();
+
+			
+			string temp = this->viewBox;
+			for (char& c : temp) if (c == ',') c = ' '; // Thay dấu phẩy bằng dấu cách
+			stringstream ss(temp);
+			ss >> this->vbX >> this->vbY >> this->vbWidth >> this->vbHeight;
 		}
 		this->parseNodes(rootNode, nullptr);
 	}
@@ -167,11 +177,19 @@ void SVGRoot::loadFromFile(const string& filename)
 	}
 }
 
-void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight)
+void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight, bool ignoreViewBox)
 {
 	GraphicsState curState = graphics->Save();
 	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
-	if (!viewBox.empty()) {
+	// 2. Thiết lập nội suy chất lượng cao nhất (Giúp vùng tím sáng mịn và rực rỡ)
+	graphics->SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+
+	// 3. Tăng chất lượng hòa trộn màu (Alpha Blending cho lông cáo và quả cầu)
+	graphics->SetCompositingQuality(Gdiplus::CompositingQualityHighQuality);
+
+	// 4. Chế độ bù đắp pixel để hình ảnh sắc nét, không bị nhòe ở biên
+	graphics->SetPixelOffsetMode(Gdiplus::PixelOffsetModeHighQuality);
+	if (!ignoreViewBox&&!viewBox.empty()) {
 		string tempViewBox = viewBox;
 		for (auto& ch : tempViewBox) {
 			if (ch == ',') {
@@ -275,4 +293,45 @@ void SVGRoot::CleanupStaticResources() {
 		}
 	}
 	SVGRoot::defsMap.clear();
+}
+
+RectF SVGRoot::getBoundingBox() {
+	RectF totalBounds(0, 0, 0, 0);
+	bool isFirst = true;
+
+	// Duyệt qua danh sách m_elements
+	for (auto* element : elements) {
+		// Gọi hàm GetBoundingBox (lúc này đã đúng cho từng loại hình)
+		RectF childBounds = element->getBoundingBox();
+
+		if (childBounds.Width <= 0 || childBounds.Height <= 0) continue;
+
+		if (isFirst) {
+			totalBounds = childBounds;
+			isFirst = false;
+		}
+		else {
+			RectF temp = totalBounds;
+			RectF::Union(totalBounds, temp, childBounds);
+		}
+	}
+	return totalBounds;
+}
+
+
+float SVGRoot::getVbX()
+{
+	return vbX;
+}
+float SVGRoot::getVbY()
+{
+	return vbY;
+}
+float SVGRoot::getVbWidth()
+{
+	return vbWidth;
+}
+float SVGRoot::getVbHeight()
+{
+	return vbHeight;
 }

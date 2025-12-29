@@ -194,5 +194,9 @@
     <None Include="TestCases\svg-18.svg" />
     <None Include="svg-02.svg" />
     <None Include="Test5.svg" />
+    <None Include="Apple.svg" />
+    <None Include="FireFox.svg" />
+    <None Include="Google.svg" />
+    <None Include="instagram.svg" />
   </ItemGroup>
 </Project>
