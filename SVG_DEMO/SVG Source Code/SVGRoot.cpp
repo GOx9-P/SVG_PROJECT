@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "SVGRoot.h"
 #include "Rect.h"
 #include "Circle.h"
