@@ -44,7 +44,7 @@ void ApplyTransform(Graphics* graphics, float w, float h) {
     // Kết hợp scaleTransform (lật) và g_Zoom (phóng to)
     // Nếu scaleTransform là -1 -> scale X sẽ là -g_Zoom -> Lật & Phóng to
     graphics->ScaleTransform(scaleTransform * g_Zoom, g_Zoom);
-
+   
 }
 
 //Reset về mặc định (nếu cần)
@@ -406,189 +406,189 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 
     setlocale(LC_ALL, "C");
 
-    HWND                hWnd;
-    MSG                 msg;
-    WNDCLASS            wndClass;
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR           gdiplusToken;
+   HWND                hWnd;
+   MSG                 msg;
+   WNDCLASS            wndClass;
+   GdiplusStartupInput gdiplusStartupInput;
+   ULONG_PTR           gdiplusToken;
 
 
 
-    //// Read XML
-    //xml_document<> doc;
-    //xml_node<> *rootNode;
-    //// Read the xml file into a vector
-    //ifstream file("sample.svg");
-    //vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-    //buffer.push_back('\0');
-    //// Parse the buffer using the xml file parsing library into doc 
-    //doc.parse<0>(&buffer[0]);
+   //// Read XML
+   //xml_document<> doc;
+   //xml_node<> *rootNode;
+   //// Read the xml file into a vector
+   //ifstream file("sample.svg");
+   //vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+   //buffer.push_back('\0');
+   //// Parse the buffer using the xml file parsing library into doc 
+   //doc.parse<0>(&buffer[0]);
 
-    //rootNode = doc.first_node();
-    //xml_node<> *node = rootNode->first_node();
+   //rootNode = doc.first_node();
+   //xml_node<> *node = rootNode->first_node();
 
-    //while (node != NULL) {
-       // char *nodeName = node->name();
-       // xml_attribute<> *firstAttribute = node->first_attribute();
-       // char *attributeName = firstAttribute->name();
-       // char *attributeValue = firstAttribute->value();
-       // xml_attribute<> *secondAttribute = firstAttribute->next_attribute();
-       // // Set breakpoint here to view value
-       // // Ref: http://rapidxml.sourceforge.net/manual.html
-       // node = node->next_sibling();
-    //}
+   //while (node != NULL) {
+	  // char *nodeName = node->name();
+	  // xml_attribute<> *firstAttribute = node->first_attribute();
+	  // char *attributeName = firstAttribute->name();
+	  // char *attributeValue = firstAttribute->value();
+	  // xml_attribute<> *secondAttribute = firstAttribute->next_attribute();
+	  // // Set breakpoint here to view value
+	  // // Ref: http://rapidxml.sourceforge.net/manual.html
+	  // node = node->next_sibling();
+   //}
 
-    // Initialize GDI+.
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+   // Initialize GDI+.
+   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-    try {
-        svgRoot.loadFromFile("svg-11.svg");
-        if (g_pCachedBitmap) { delete g_pCachedBitmap; g_pCachedBitmap = NULL; }
-        g_HasInitCamera = false;
-        ResetView();
-    }
-    catch (const exception& e) {
-        MessageBoxA(NULL, e.what(), "Error!!!", MB_OK | MB_ICONERROR);
-        GdiplusShutdown(gdiplusToken);
-        return -1;
-    }
+   try {
+       svgRoot.loadFromFile("svg-14.svg");
+       if (g_pCachedBitmap) { delete g_pCachedBitmap; g_pCachedBitmap = NULL; }
+       g_HasInitCamera = false;
+       ResetView();
+   }
+   catch (const exception& e) {
+       MessageBoxA(NULL, e.what(), "Error!!!", MB_OK | MB_ICONERROR);
+       GdiplusShutdown(gdiplusToken);
+       return -1;
+   }
+   
+   wndClass.style          = CS_HREDRAW | CS_VREDRAW;
+   wndClass.lpfnWndProc    = WndProc;
+   wndClass.cbClsExtra     = 0;
+   wndClass.cbWndExtra     = 0;
+   wndClass.hInstance      = hInstance;
+   wndClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
+   wndClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
+   wndClass.hbrBackground  = (HBRUSH)GetStockObject(WHITE_BRUSH);
+   wndClass.lpszMenuName   = NULL;
+   wndClass.lpszClassName  = TEXT("GettingStarted");
+   
+   RegisterClass(&wndClass);
+   
+   hWnd = CreateWindow(
+      TEXT("GettingStarted"),   // window class name
+      TEXT("SVG Demo"),  // window caption
+      WS_OVERLAPPEDWINDOW,      // window style
+      CW_USEDEFAULT,            // initial x position
+      CW_USEDEFAULT,            // initial y position
+      CW_USEDEFAULT,            // initial x size
+      CW_USEDEFAULT,            // initial y size
+      NULL,                     // parent window handle
+      NULL,                     // window menu handle
+      hInstance,                // program instance handle
+      NULL);                    // creation parameters
+      
+   ShowWindow(hWnd, iCmdShow);
+   UpdateWindow(hWnd);
+   
+   while(GetMessage(&msg, NULL, 0, 0))
+   {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+   }
+   
+   SVGRoot::CleanupStaticResources();
 
-    wndClass.style = CS_HREDRAW | CS_VREDRAW;
-    wndClass.lpfnWndProc = WndProc;
-    wndClass.cbClsExtra = 0;
-    wndClass.cbWndExtra = 0;
-    wndClass.hInstance = hInstance;
-    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-    wndClass.lpszMenuName = NULL;
-    wndClass.lpszClassName = TEXT("GettingStarted");
-
-    RegisterClass(&wndClass);
-
-    hWnd = CreateWindow(
-        TEXT("GettingStarted"),   // window class name
-        TEXT("SVG Demo"),  // window caption
-        WS_OVERLAPPEDWINDOW,      // window style
-        CW_USEDEFAULT,            // initial x position
-        CW_USEDEFAULT,            // initial y position
-        CW_USEDEFAULT,            // initial x size
-        CW_USEDEFAULT,            // initial y size
-        NULL,                     // parent window handle
-        NULL,                     // window menu handle
-        hInstance,                // program instance handle
-        NULL);                    // creation parameters
-
-    ShowWindow(hWnd, iCmdShow);
-    UpdateWindow(hWnd);
-
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    SVGRoot::CleanupStaticResources();
-
-    GdiplusShutdown(gdiplusToken);
-    return msg.wParam;
+   GdiplusShutdown(gdiplusToken);
+   return msg.wParam;
 }  // WinMain
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
-    WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, 
+   WPARAM wParam, LPARAM lParam)
 {
-    HDC          hdc;
-    PAINTSTRUCT  ps;
+   HDC          hdc;
+   PAINTSTRUCT  ps;
+   
+   switch(message)
+   {
+    //XỬ LÝ ZOOM (LĂN CHUỘT GIỮA)
+   case WM_MOUSEWHEEL:
+   {
+       short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+       // Lăn lên -> Phóng to, Lăn xuống -> Thu nhỏ
+       if (zDelta > 0) {
+           g_Zoom *= 1.1f;
+       }
+       else {
+           g_Zoom /= 1.1f;
+       }
+       //Yêu cầu vẽ lại màn hình ngay lập tức
+       InvalidateRect(hWnd, NULL, FALSE);
+       return 0;
+   }
+   //XỬ LÝ KÉO THẢ
+   case WM_LBUTTONDOWN: // Nhấn chuột trái
+       g_IsDragging = true;
+       g_LastMouseX = GET_X_LPARAM(lParam); // Lưu vị trí bắt đầu
+       g_LastMouseY = GET_Y_LPARAM(lParam);
+       SetCapture(hWnd); // Bắt chuột không cho chạy ra ngoài
+       return 0;
 
-    switch (message)
-    {
-        //XỬ LÝ ZOOM (LĂN CHUỘT GIỮA)
-    case WM_MOUSEWHEEL:
-    {
-        short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        // Lăn lên -> Phóng to, Lăn xuống -> Thu nhỏ
-        if (zDelta > 0) {
-            g_Zoom *= 1.1f;
-        }
-        else {
-            g_Zoom /= 1.1f;
-        }
-        //Yêu cầu vẽ lại màn hình ngay lập tức
-        InvalidateRect(hWnd, NULL, FALSE);
-        return 0;
-    }
-    //XỬ LÝ KÉO THẢ
-    case WM_LBUTTONDOWN: // Nhấn chuột trái
-        g_IsDragging = true;
-        g_LastMouseX = GET_X_LPARAM(lParam); // Lưu vị trí bắt đầu
-        g_LastMouseY = GET_Y_LPARAM(lParam);
-        SetCapture(hWnd); // Bắt chuột không cho chạy ra ngoài
-        return 0;
+   case WM_MOUSEMOVE: // Di chuyển chuột
+       if (g_IsDragging) {
+           int currentX = GET_X_LPARAM(lParam);
+           int currentY = GET_Y_LPARAM(lParam);
 
-    case WM_MOUSEMOVE: // Di chuyển chuột
-        if (g_IsDragging) {
-            int currentX = GET_X_LPARAM(lParam);
-            int currentY = GET_Y_LPARAM(lParam);
+           // Tính khoảng cách đã di chuyển
+           int dx = currentX - g_LastMouseX;
+           int dy = currentY - g_LastMouseY;
 
-            // Tính khoảng cách đã di chuyển
-            int dx = currentX - g_LastMouseX;
-            int dy = currentY - g_LastMouseY;
+           // Cộng dồn vào vị trí Pan toàn cục
+           g_PanX += dx;
+           g_PanY += dy;
 
-            // Cộng dồn vào vị trí Pan toàn cục
-            g_PanX += dx;
-            g_PanY += dy;
+           // Cập nhật vị trí chuột cũ
+           g_LastMouseX = currentX;
+           g_LastMouseY = currentY;
 
-            // Cập nhật vị trí chuột cũ
-            g_LastMouseX = currentX;
-            g_LastMouseY = currentY;
+           // Vẽ lại
+           InvalidateRect(hWnd, NULL, FALSE);
+       }
+       return 0;
 
-            // Vẽ lại
-            InvalidateRect(hWnd, NULL, FALSE);
-        }
-        return 0;
+   case WM_LBUTTONUP: // Nhả chuột trái
+       g_IsDragging = false;
+       ReleaseCapture();
+       return 0;
 
-    case WM_LBUTTONUP: // Nhả chuột trái
-        g_IsDragging = false;
-        ReleaseCapture();
-        return 0;
-
-        //XỬ LÝ XOAY ////// THEM FLIP
-    case WM_KEYDOWN:
-        switch (wParam) {
-        case 'R': // Nhấn R để xoay phải
-            g_Angle += 10.0f;
-            InvalidateRect(hWnd, NULL, FALSE);
-            break;
-        case 'L': // Nhấn L để xoay trái
-            g_Angle -= 10.0f;
-            InvalidateRect(hWnd, NULL, FALSE);
-            break;
-        case 'F':
-            if (scaleTransform == 1.0f)
-                scaleTransform = -1.0f;
-            else
-            {
-                scaleTransform = 1.0f;
-            }
-            InvalidateRect(hWnd, NULL, FALSE);
-            break;
-        case '0': // Nhấn 0 để Reset
-            ResetView();
-            InvalidateRect(hWnd, NULL, FALSE);
-            break;
-        }
-        return 0;
-    case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        OnPaint(hdc);
-        EndPaint(hWnd, &ps);
-        return 0;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
+       //XỬ LÝ XOAY ////// THEM FLIP
+   case WM_KEYDOWN:
+       switch (wParam) {
+       case 'R': // Nhấn R để xoay phải
+           g_Angle += 10.0f;
+           InvalidateRect(hWnd, NULL, FALSE);
+           break;
+       case 'L': // Nhấn L để xoay trái
+           g_Angle -= 10.0f;
+           InvalidateRect(hWnd, NULL, FALSE);
+           break;
+       case 'F':
+           if(scaleTransform==1.0f)
+           scaleTransform = -1.0f;
+           else
+           {
+               scaleTransform = 1.0f;
+           }
+           InvalidateRect(hWnd, NULL, FALSE); 
+           break;
+       case '0': // Nhấn 0 để Reset
+           ResetView();
+           InvalidateRect(hWnd, NULL, FALSE);
+           break;
+       }
+       return 0;
+   case WM_PAINT:
+      hdc = BeginPaint(hWnd, &ps);
+      OnPaint(hdc);
+      EndPaint(hWnd, &ps);
+      return 0;
+   case WM_DESTROY:
+      PostQuitMessage(0);
+      return 0;
+   default:
+      return DefWindowProc(hWnd, message, wParam, lParam);
+   }
 } // WndProc
 
 //#include "stdafx.h"
