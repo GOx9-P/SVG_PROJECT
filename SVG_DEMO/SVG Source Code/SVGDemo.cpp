@@ -399,100 +399,172 @@ VOID OnPaint(HDC hdc)
 
 
 
+//LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+//
+//INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
+//{
+//
+//    setlocale(LC_ALL, "C");
+//
+//   HWND                hWnd;
+//   MSG                 msg;
+//   WNDCLASS            wndClass;
+//   GdiplusStartupInput gdiplusStartupInput;
+//   ULONG_PTR           gdiplusToken;
+//
+//
+//
+//   //// Read XML
+//   //xml_document<> doc;
+//   //xml_node<> *rootNode;
+//   //// Read the xml file into a vector
+//   //ifstream file("sample.svg");
+//   //vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+//   //buffer.push_back('\0');
+//   //// Parse the buffer using the xml file parsing library into doc 
+//   //doc.parse<0>(&buffer[0]);
+//
+//   //rootNode = doc.first_node();
+//   //xml_node<> *node = rootNode->first_node();
+//
+//   //while (node != NULL) {
+//	  // char *nodeName = node->name();
+//	  // xml_attribute<> *firstAttribute = node->first_attribute();
+//	  // char *attributeName = firstAttribute->name();
+//	  // char *attributeValue = firstAttribute->value();
+//	  // xml_attribute<> *secondAttribute = firstAttribute->next_attribute();
+//	  // // Set breakpoint here to view value
+//	  // // Ref: http://rapidxml.sourceforge.net/manual.html
+//	  // node = node->next_sibling();
+//   //}
+//
+//   // Initialize GDI+.
+//   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+//
+//   try {
+//       svgRoot.loadFromFile("svg-11.svg");
+//       if (g_pCachedBitmap) { delete g_pCachedBitmap; g_pCachedBitmap = NULL; }
+//       g_HasInitCamera = false;
+//       ResetView();
+//   }
+//   catch (const exception& e) {
+//       MessageBoxA(NULL, e.what(), "Error!!!", MB_OK | MB_ICONERROR);
+//       GdiplusShutdown(gdiplusToken);
+//       return -1;
+//   }
+//   
+//   wndClass.style          = CS_HREDRAW | CS_VREDRAW;
+//   wndClass.lpfnWndProc    = WndProc;
+//   wndClass.cbClsExtra     = 0;
+//   wndClass.cbWndExtra     = 0;
+//   wndClass.hInstance      = hInstance;
+//   wndClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
+//   wndClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
+//   wndClass.hbrBackground  = (HBRUSH)GetStockObject(WHITE_BRUSH);
+//   wndClass.lpszMenuName   = NULL;
+//   wndClass.lpszClassName  = TEXT("GettingStarted");
+//   
+//   RegisterClass(&wndClass);
+//   
+//   hWnd = CreateWindow(
+//      TEXT("GettingStarted"),   // window class name
+//      TEXT("SVG Demo"),  // window caption
+//      WS_OVERLAPPEDWINDOW,      // window style
+//      CW_USEDEFAULT,            // initial x position
+//      CW_USEDEFAULT,            // initial y position
+//      CW_USEDEFAULT,            // initial x size
+//      CW_USEDEFAULT,            // initial y size
+//      NULL,                     // parent window handle
+//      NULL,                     // window menu handle
+//      hInstance,                // program instance handle
+//      NULL);                    // creation parameters
+//      
+//   ShowWindow(hWnd, iCmdShow);
+//   UpdateWindow(hWnd);
+//   
+//   while(GetMessage(&msg, NULL, 0, 0))
+//   {
+//      TranslateMessage(&msg);
+//      DispatchMessage(&msg);
+//   }
+//   
+//   SVGRoot::CleanupStaticResources();
+//
+//   GdiplusShutdown(gdiplusToken);
+//   return msg.wParam;
+//}  // WinMain
+
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
-{
-
+INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR lpCmdLine, INT iCmdShow) {
     setlocale(LC_ALL, "C");
 
-   HWND                hWnd;
-   MSG                 msg;
-   WNDCLASS            wndClass;
-   GdiplusStartupInput gdiplusStartupInput;
-   ULONG_PTR           gdiplusToken;
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+    // --- LOGIC XỬ LÝ DÒNG LỆNH ---
+    string fileName = "FireFox.svg"; // File mặc định
+
+    if (lpCmdLine && strlen(lpCmdLine) > 0) {
+        string cmdArg = lpCmdLine;
+        // Xử lý nếu đường dẫn file có dấu ngoặc kép (do chứa khoảng trắng)
+        if (cmdArg.length() >= 2 && cmdArg.front() == '\"' && cmdArg.back() == '\"') {
+            cmdArg = cmdArg.substr(1, cmdArg.length() - 2);
+        }
+        fileName = cmdArg;
+    }
+
+    try {
+        svgRoot.loadFromFile(fileName);
+    }
+    catch (const exception& e) {
+        string errorMsg = "Loi nap file: " + fileName + "\nChi tiet: " + e.what();
+        MessageBoxA(NULL, errorMsg.c_str(), "SVG Error", MB_OK | MB_ICONERROR);
+        GdiplusStartupInput gdiplusStartupInput; // Shutdown nhe truoc khi thoat
+        GdiplusShutdown(gdiplusToken);
+        return -1;
+    }
+
+    // Đăng ký lớp cửa sổ
+    WNDCLASS wndClass;
+    wndClass.style = CS_HREDRAW | CS_VREDRAW;
+    wndClass.lpfnWndProc = WndProc;
+    wndClass.cbClsExtra = 0;
+    wndClass.cbWndExtra = 0;
+    wndClass.hInstance = hInstance;
+    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    wndClass.lpszMenuName = NULL;
+    wndClass.lpszClassName = TEXT("GettingStarted");
+
+    RegisterClass(&wndClass);
+
+    HWND hWnd = CreateWindow(
+        TEXT("GettingStarted"),
+        (std::wstring(L"SVG Renderer - ") + (lpCmdLine && lpCmdLine[0] ? L"Custom File" : L"FireFox.svg")).c_str(),
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        NULL, NULL, hInstance, NULL);
+
+    ShowWindow(hWnd, iCmdShow);
+    UpdateWindow(hWnd);
+
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    SVGRoot::CleanupStaticResources();
+    GdiplusShutdown(gdiplusToken);
+    return msg.wParam;
+}
 
 
 
-   //// Read XML
-   //xml_document<> doc;
-   //xml_node<> *rootNode;
-   //// Read the xml file into a vector
-   //ifstream file("sample.svg");
-   //vector<char> buffer((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-   //buffer.push_back('\0');
-   //// Parse the buffer using the xml file parsing library into doc 
-   //doc.parse<0>(&buffer[0]);
-
-   //rootNode = doc.first_node();
-   //xml_node<> *node = rootNode->first_node();
-
-   //while (node != NULL) {
-	  // char *nodeName = node->name();
-	  // xml_attribute<> *firstAttribute = node->first_attribute();
-	  // char *attributeName = firstAttribute->name();
-	  // char *attributeValue = firstAttribute->value();
-	  // xml_attribute<> *secondAttribute = firstAttribute->next_attribute();
-	  // // Set breakpoint here to view value
-	  // // Ref: http://rapidxml.sourceforge.net/manual.html
-	  // node = node->next_sibling();
-   //}
-
-   // Initialize GDI+.
-   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-
-   try {
-       svgRoot.loadFromFile("svg-14.svg");
-       if (g_pCachedBitmap) { delete g_pCachedBitmap; g_pCachedBitmap = NULL; }
-       g_HasInitCamera = false;
-       ResetView();
-   }
-   catch (const exception& e) {
-       MessageBoxA(NULL, e.what(), "Error!!!", MB_OK | MB_ICONERROR);
-       GdiplusShutdown(gdiplusToken);
-       return -1;
-   }
-   
-   wndClass.style          = CS_HREDRAW | CS_VREDRAW;
-   wndClass.lpfnWndProc    = WndProc;
-   wndClass.cbClsExtra     = 0;
-   wndClass.cbWndExtra     = 0;
-   wndClass.hInstance      = hInstance;
-   wndClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
-   wndClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
-   wndClass.hbrBackground  = (HBRUSH)GetStockObject(WHITE_BRUSH);
-   wndClass.lpszMenuName   = NULL;
-   wndClass.lpszClassName  = TEXT("GettingStarted");
-   
-   RegisterClass(&wndClass);
-   
-   hWnd = CreateWindow(
-      TEXT("GettingStarted"),   // window class name
-      TEXT("SVG Demo"),  // window caption
-      WS_OVERLAPPEDWINDOW,      // window style
-      CW_USEDEFAULT,            // initial x position
-      CW_USEDEFAULT,            // initial y position
-      CW_USEDEFAULT,            // initial x size
-      CW_USEDEFAULT,            // initial y size
-      NULL,                     // parent window handle
-      NULL,                     // window menu handle
-      hInstance,                // program instance handle
-      NULL);                    // creation parameters
-      
-   ShowWindow(hWnd, iCmdShow);
-   UpdateWindow(hWnd);
-   
-   while(GetMessage(&msg, NULL, 0, 0))
-   {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-   }
-   
-   SVGRoot::CleanupStaticResources();
-
-   GdiplusShutdown(gdiplusToken);
-   return msg.wParam;
-}  // WinMain
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, 
    WPARAM wParam, LPARAM lParam)
