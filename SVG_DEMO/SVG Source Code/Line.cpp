@@ -24,7 +24,8 @@ Gdiplus::RectF SVGLine::getBoundingBox() {
 	float x1 = p1.getX(), y1 = p1.getY();
 	float x2 = p2.getX(), y2 = p2.getY();
 	Gdiplus::RectF raw(min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1));
-	return this->TransformRect(raw);
+	//return this->TransformRect(raw);
+	return raw;
 }
 
 void SVGLine::parseAttributes(xml_node<>* Node)

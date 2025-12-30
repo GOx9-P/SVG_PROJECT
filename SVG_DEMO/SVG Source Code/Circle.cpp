@@ -32,7 +32,8 @@ Gdiplus::RectF SVGCircle::getBoundingBox() {
 		2 * r,
 		2 * r
 	);
-	 return this->TransformRect(raw);
+	 //return this->TransformRect(raw);
+	 return raw;
 }
 
 void SVGCircle::draw(Graphics* graphics)

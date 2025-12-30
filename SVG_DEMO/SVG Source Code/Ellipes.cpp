@@ -27,7 +27,8 @@ Gdiplus::RectF SVGEllipse::getBoundingBox() {
 		this->getPosition().getY() - ry,
 		2 * rx, 2 * ry
 	);
-	return this->TransformRect(raw);
+	//return this->TransformRect(raw);
+	 return raw;
 }
 
 void SVGEllipse::parseAttributes(xml_node<>* Node)

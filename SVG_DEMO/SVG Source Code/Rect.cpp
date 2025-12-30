@@ -103,7 +103,8 @@ Gdiplus::RectF SVGRect::getBoundingBox() {
 		this->getWidth(),
 		this->getHeight()
 	);
-	 return this->TransformRect(raw);
+	 return raw;
+	 //return this->TransformRect(raw);
 }
 
 void SVGRect::draw(Graphics* graphics)

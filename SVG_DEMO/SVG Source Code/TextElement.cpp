@@ -280,7 +280,8 @@ Gdiplus::RectF TextElement::getBoundingBox() {
     delete pFontFamily;
     ReleaseDC(NULL, hdc);
 
-    return this->TransformRect(boundingBox);
+    //return this->TransformRect(boundingBox);
+    return boundingBox;
 }
 void TextElement::draw(Graphics* graphics)
 {

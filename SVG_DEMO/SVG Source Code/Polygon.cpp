@@ -22,7 +22,8 @@ Gdiplus::RectF SVGPolygon::getBoundingBox() {
 		if (p.getY() > maxY) maxY = p.getY();
 	}
 	Gdiplus::RectF raw(minX, minY, maxX - minX, maxY - minY);
-	return this->TransformRect(raw);
+	return raw;
+	//return this->TransformRect(raw);
 }
 
 void SVGPolygon::parseAttributes(xml_node<>* Node)

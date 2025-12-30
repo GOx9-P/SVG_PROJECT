@@ -393,7 +393,8 @@ Gdiplus::RectF SVGPath::getBoundingBox()
     parsePathData(path); // Tái sử dụng logic parse
     RectF bounds;
     path.GetBounds(&bounds);
-    return this->TransformRect(bounds);
+    //return this->TransformRect(bounds);
+    return bounds;
 }
 
 // Dùng createBrush cho Gradient
