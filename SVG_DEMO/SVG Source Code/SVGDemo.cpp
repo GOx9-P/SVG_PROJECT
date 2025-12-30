@@ -101,9 +101,14 @@ VOID OnPaint(HDC hdc) {
     Graphics bufferGraphics(&backBuffer);
 
     bufferGraphics.SetSmoothingMode(SmoothingModeAntiAlias);
-    bufferGraphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-    bufferGraphics.SetCompositingQuality(CompositingQualityHighQuality);
-    bufferGraphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    // [FIX] Đổi sang Bilinear để tránh lỗi mất màu khi zoom nhỏ
+    bufferGraphics.SetInterpolationMode(Gdiplus::InterpolationModeBilinear);
+
+    // 3. Tăng chất lượng hòa trộn màu (Alpha Blending cho lông cáo và quả cầu)
+    bufferGraphics.SetCompositingQuality(Gdiplus::CompositingQualityDefault);
+
+    // [FIX] Đổi sang Default hoặc None để tránh lỗi lệch pixel/thu nhỏ nền khi zoom out
+    bufferGraphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeDefault);
     bufferGraphics.Clear(Color::White);
 
     GraphicsState state = bufferGraphics.Save();

@@ -180,15 +180,25 @@ void SVGRoot::loadFromFile(const string& filename)
 void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight, bool ignoreViewBox)
 {
 	GraphicsState curState = graphics->Save();
+
+	// 1. BẮT BUỘC BẬT AntiAlias
+	// Nếu tắt (HighSpeed/None), các hình < 1 pixel sẽ bị làm tròn thành 0 và biến mất (lỗi mất màu).
 	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
-	// 2. Thiết lập nội suy chất lượng cao nhất (Giúp vùng tím sáng mịn và rực rỡ)
-	graphics->SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
 
-	// 3. Tăng chất lượng hòa trộn màu (Alpha Blending cho lông cáo và quả cầu)
-	graphics->SetCompositingQuality(Gdiplus::CompositingQualityHighQuality);
+	// 2. QUAN TRỌNG NHẤT: Dùng PixelOffsetModeDefault
+	// TUYỆT ĐỐI KHÔNG dùng HighQuality hay Half. 
+	// Hai chế độ kia sẽ dịch hình đi 0.5px, làm nền bị co lại (shrinking) khi zoom nhỏ.
+	// Chế độ Default giữ nguyên tọa độ gốc, đảm bảo hình phủ kín vùng vẽ.
+	graphics->SetPixelOffsetMode(Gdiplus::PixelOffsetModeDefault);
 
-	// 4. Chế độ bù đắp pixel để hình ảnh sắc nét, không bị nhòe ở biên
-	graphics->SetPixelOffsetMode(Gdiplus::PixelOffsetModeHighQuality);
+	// 3. Dùng Bilinear (hoặc NearestNeighbor) thay vì Bicubic
+	// Bicubic cố gắng lấy mẫu màu xung quanh, khi hình quá nhỏ sẽ bị pha loãng dẫn đến nhạt màu.
+	// Bilinear ổn định hơn cho vector nét mảnh.
+	graphics->SetInterpolationMode(Gdiplus::InterpolationModeBilinear);
+
+	// 4. CompositingQualityDefault
+	// Không dùng GammaCorrected hay HighSpeed để tránh GDI+ tự động thay đổi độ đậm nhạt của màu alpha.
+	graphics->SetCompositingQuality(Gdiplus::CompositingQualityDefault);
 	if (!ignoreViewBox&&!viewBox.empty()) {
 		string tempViewBox = viewBox;
 		for (auto& ch : tempViewBox) {
