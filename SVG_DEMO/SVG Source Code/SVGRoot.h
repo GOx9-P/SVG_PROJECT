@@ -31,6 +31,8 @@ public:
 	float getVbY();
 	float getVbWidth();
 	float getVbHeight();
+	float getWidth();
+	float getHeight();
 	//ham ho tro browser
 	void Clear();
 

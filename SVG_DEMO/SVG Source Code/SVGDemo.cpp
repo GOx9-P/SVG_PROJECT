@@ -9,6 +9,7 @@
 #define IDM_FILE_OPEN   1002
 #define IDM_FILE_EXIT   1001
 #define IDM_HELP_GUIDE  1201
+#define IDM_FILE_SAVE_AS 1003
 
 float g_Zoom = 1.0f;
 float g_PanX = 0.0f;
@@ -141,6 +142,119 @@ VOID OnPaint(HDC hdc) {
     screenGraphics.DrawImage(&backBuffer, 0, 0);
 }
 
+
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid) {
+    UINT num = 0;
+    UINT size = 0;
+    // Lay tat ca cac loai du lieu maf GDI+ ho tro
+    Gdiplus::GetImageEncodersSize(&num, &size);
+    if (size == 0) {
+        return -1;
+    }
+    Gdiplus::ImageCodecInfo* pImageCodecInfo = new Gdiplus::ImageCodecInfo[size];
+    if (pImageCodecInfo == nullptr) {
+        return -1;
+    }
+    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
+    for (UINT i = 0; i < num; ++i) {
+        if (wcscmp(pImageCodecInfo[i].MimeType, format) == 0) {
+            *pClsid = pImageCodecInfo[i].Clsid;
+			delete[] pImageCodecInfo;
+			return i;   
+        }
+    }
+	delete[] pImageCodecInfo;
+    return -1;
+}
+
+// Thay thế toàn bộ hàm SaveSVGImage cũ bằng hàm này
+void SaveSVGImage(HWND hWnd, SVGRoot* root) {
+    if (!root) {
+        MessageBox(hWnd, L"Chưa có dữ liệu SVG để lưu!", L"Lỗi", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    OPENFILENAME ofn;
+    wchar_t szFile[260] = { 0 };
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = L"PNG Image (*.png)\0*.png\0JPEG Image (*.jpg)\0*.jpg\0All Files (*.*)\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrDefExt = L"png";
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+    if (GetSaveFileName(&ofn) == TRUE) {
+        // [QUAN TRỌNG 1] Lấy kích thước hiện tại của cửa sổ View
+        // Để đảm bảo ảnh lưu ra có tỉ lệ và vị trí (độ lệch) y hệt màn hình
+        RECT rect;
+        GetClientRect(hWnd, &rect);
+        int winWidth = rect.right - rect.left;
+        int winHeight = rect.bottom - rect.top;
+
+        // Tạo Bitmap bằng kích thước cửa sổ
+        Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(winWidth, winHeight, PixelFormat32bppARGB);
+        Gdiplus::Graphics* graphics = Gdiplus::Graphics::FromImage(bitmap);
+
+        graphics->SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+        graphics->SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+        graphics->SetPixelOffsetMode(Gdiplus::PixelOffsetModeHighQuality);
+
+        bool isJPG = (wcsstr(szFile, L".jpg") != NULL || wcsstr(szFile, L".jpeg") != NULL);
+        if (isJPG) graphics->Clear(Gdiplus::Color::White);
+        else graphics->Clear(Gdiplus::Color::Transparent);
+
+        // [QUAN TRỌNG 2] SAO CHÉP LOGIC CAMERA TỪ ONPAINT
+        // Tính toán ViewBox và các thông số y hệt như lúc hiển thị
+        float vbX = root->getVbX();
+        float vbY = root->getVbY();
+        float vbW = root->getVbWidth();
+        float vbH = root->getVbHeight();
+
+        if (vbW <= 0 || vbH <= 0) {
+            vbX = 0; vbY = 0;
+            if (g_SvgBounds.Width > 0 && g_SvgBounds.Height > 0) {
+                vbW = g_SvgBounds.X + g_SvgBounds.Width;
+                vbH = g_SvgBounds.Y + g_SvgBounds.Height;
+            }
+            else { vbW = 100; vbH = 100; }
+        }
+
+        float cxWorld = g_SvgBounds.X + g_SvgBounds.Width / 2.0f;
+        float cyWorld = g_SvgBounds.Y + g_SvgBounds.Height / 2.0f;
+
+        // Tính toán điểm neo dựa trên độ lệch (Pan) và Zoom hiện tại
+        float pivotX = (cxWorld - vbX) * g_Zoom + g_PanX;
+        float pivotY = (cyWorld - vbY) * g_Zoom + g_PanY;
+
+        // Áp dụng chuỗi biến đổi y hệt OnPaint
+        graphics->TranslateTransform(pivotX, pivotY);           // 1. Dời đến vị trí lệch
+        graphics->RotateTransform(g_Angle);                     // 2. Xoay
+        graphics->ScaleTransform(scaleTransform * g_Zoom, g_Zoom); // 3. Zoom & Flip (Lật)
+        graphics->TranslateTransform(-cxWorld, -cyWorld);       // 4. Dời về gốc để xoay/scale
+
+        // [QUAN TRỌNG 3] Vẽ với chế độ ignoreViewBox = true
+        // Để hình vẽ tuân theo các phép biến đổi Transform ở trên
+        root->render(graphics, 0, 0, true);
+
+        // Lưu file
+        CLSID encoderClsid;
+        if (isJPG) GetEncoderClsid(L"image/jpeg", &encoderClsid);
+        else GetEncoderClsid(L"image/png", &encoderClsid);
+
+        Gdiplus::Status stat = bitmap->Save(szFile, &encoderClsid, NULL);
+
+        if (stat == Gdiplus::Ok) MessageBox(hWnd, L"Lưu ảnh thành công!", L"Thông báo", MB_OK | MB_ICONINFORMATION);
+        else MessageBox(hWnd, L"Lưu ảnh thất bại!", L"Lỗi", MB_OK | MB_ICONERROR);
+
+        delete graphics;
+        delete bitmap;
+    }
+}
+
 bool OpenFileDialog(HWND hWnd, std::string& outFileName) {
     OPENFILENAME ofn;       
     wchar_t szFile[260];    
@@ -192,11 +306,12 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR lpCmdLine, INT iCmdShow)
     }
 
     HMENU hMenu = CreateMenu();
-    HMENU hFileMenu = CreatePopupMenu();
+    HMENU hFileMenu = CreatePopupMenu();    
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"&File");
     AppendMenu(hMenu, MF_STRING, IDM_HELP_GUIDE, L"&Help");
     AppendMenu(hFileMenu, MF_STRING, IDM_FILE_OPEN, L"&Open... (Ctrl+O)");
+    AppendMenu(hFileMenu, MF_STRING, IDM_FILE_SAVE_AS, L"&Save As... (Ctrl+S)");
     AppendMenu(hFileMenu, MF_STRING, IDM_FILE_EXIT, L"E&xit");
 
     WNDCLASS wndClass;
@@ -237,7 +352,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     PAINTSTRUCT ps;
     switch (message) {
     case WM_COMMAND:
-        switch (LOWORD(wParam)) 
+        switch (LOWORD(wParam))
         {
         case IDM_FILE_OPEN:
         {
@@ -262,6 +377,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         }
         case IDM_HELP_GUIDE:
             ShowHelpGuide(hWnd);
+            break;
+        case IDM_FILE_SAVE_AS:
+            SaveSVGImage(hWnd, &svgRoot);
             break;
         case IDM_FILE_EXIT:
             PostQuitMessage(0);
@@ -305,6 +423,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         case 'O':
             if (GetKeyState(VK_CONTROL) < 0) {
                 SendMessage(hWnd, WM_COMMAND, IDM_FILE_OPEN, 0);
+            }
+            break;
+        case 'S':
+            if (GetKeyState(VK_CONTROL) < 0) {
+                SendMessage(hWnd, WM_COMMAND, IDM_FILE_SAVE_AS, 0);
             }
             break;
         }

@@ -336,6 +336,14 @@ float SVGRoot::getVbHeight()
 	return vbHeight;
 }
 
+float SVGRoot::getWidth() {
+	return width;
+}
+
+float SVGRoot::getHeight() {
+	return height;
+}
+
 void SVGRoot::Clear()
 {
 	for (auto element : this->elements) {
