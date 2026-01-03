@@ -168,6 +168,7 @@ void SaveSVGImage(HWND hWnd, SVGRoot* root) {
     ZeroMemory(&ofn, sizeof(ofn)); ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hWnd; ofn.lpstrFile = szFile; ofn.nMaxFile = sizeof(szFile);
     ofn.lpstrFilter = L"PNG Image (*.png)\0*.png\0JPEG Image (*.jpg)\0*.jpg\0All Files (*.*)\0*.*\0";
+    ofn.lpstrDefExt = L"png";
     ofn.nFilterIndex = 1; ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
 
     if (GetSaveFileName(&ofn) == TRUE) {
