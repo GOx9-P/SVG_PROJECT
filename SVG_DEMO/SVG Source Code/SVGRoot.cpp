@@ -164,7 +164,7 @@ void SVGRoot::loadFromFile(const string& filename)
 		if (xml_attribute<>* viewBoxAtrribute = rootNode->first_attribute("viewBox")) {
 			this->viewBox = viewBoxAtrribute->value();
 
-			
+
 			string temp = this->viewBox;
 			for (char& c : temp) if (c == ',') c = ' '; // Thay dấu phẩy bằng dấu cách
 			stringstream ss(temp);
@@ -180,8 +180,19 @@ void SVGRoot::loadFromFile(const string& filename)
 void SVGRoot::render(Graphics* graphics, int viewPortWidth, int viewPortHeight, bool ignoreViewBox)
 {
 	GraphicsState curState = graphics->Save();
-	//if (!ignoreViewBox&&!viewBox.empty()) {
-	if (!ignoreViewBox && !viewBox.empty() && viewPortWidth > 0 && viewPortHeight > 0){
+	if (!ignoreViewBox && !viewBox.empty()) {
+		string tempViewBox = viewBox;
+		for (auto& ch : tempViewBox) {
+			if (ch == ',') {
+				ch = ' ';
+			}
+		}
+		stringstream ss(tempViewBox);
+		ss.imbue(std::locale("C"));
+		float vbX, vbY, vbWidth, vbHeight;
+		vbHeight = vbY = vbX = vbWidth = 0.0f;
+
+		ss >> vbX >> vbY >> vbWidth >> vbHeight;
 		if (vbWidth > 0 && vbHeight > 0) {
 			float scaleX = viewPortWidth / vbWidth;
 			float scaleY = viewPortHeight / vbHeight;

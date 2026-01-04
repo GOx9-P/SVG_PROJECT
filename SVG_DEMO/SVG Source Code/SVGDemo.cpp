@@ -20,8 +20,12 @@ float g_Angle = 0.0f;
 float scaleTransform = 1.0f;
 
 bool g_HasInitCamera = false;
+RectF g_SvgBounds;
+
 Bitmap* g_pCachedBitmap = NULL;
+const float PADDING_BITMAP = 50.0f;
 bool g_IsInteracting = false;
+
 bool g_IsDragging = false;
 int g_LastMouseX = 0;
 int g_LastMouseY = 0;
@@ -45,7 +49,8 @@ void ShowHelpGuide(HWND hWnd) {
         L"4. Phím L : Xoay trái\n"
         L"5. Phím F : Lật ảnh (Flip)\n"
         L"6. Phím 0 : Reset về mặc định\n",
-        L"Help", MB_OK | MB_ICONINFORMATION);
+        L"Help",
+        MB_OK | MB_ICONINFORMATION);
 }
 
 void ResetView() {
@@ -61,8 +66,27 @@ void InitCamera(float screenW, float screenH) {
 }
 
 void UpdateCachedBitmap() {
-    // Chỉ dùng để update trạng thái, không render bitmap tĩnh để tránh lỗi khi xoay
     if (g_pCachedBitmap) { delete g_pCachedBitmap; g_pCachedBitmap = NULL; }
+
+    g_SvgBounds = svgRoot.getBoundingBox();
+
+    if (g_SvgBounds.Width <= 0) g_SvgBounds.Width = 100;
+    if (g_SvgBounds.Height <= 0) g_SvgBounds.Height = 100;
+
+    int w = (int)ceil(g_SvgBounds.Width + 2 * PADDING_BITMAP);
+    int h = (int)ceil(g_SvgBounds.Height + 2 * PADDING_BITMAP);
+    if (w > 4000) w = 4000;
+    if (h > 4000) h = 4000;
+
+    g_pCachedBitmap = new Bitmap(w, h);
+    Graphics g(g_pCachedBitmap);
+
+    g.SetSmoothingMode(SmoothingModeAntiAlias);
+    g.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+    g.Clear(Color::Transparent);
+
+    g.TranslateTransform(-g_SvgBounds.X + PADDING_BITMAP, -g_SvgBounds.Y + PADDING_BITMAP);
+    svgRoot.render(&g, 0, 0, true);
 }
 
 VOID OnPaint(HDC hdc) {
@@ -77,6 +101,8 @@ VOID OnPaint(HDC hdc) {
         InitCamera(winWidth, winHeight);
         g_HasInitCamera = true;
     }
+
+    if (g_pCachedBitmap == NULL) UpdateCachedBitmap();
 
     Bitmap backBuffer((INT)winWidth, (INT)winHeight);
     Graphics bufferGraphics(&backBuffer);
@@ -93,55 +119,30 @@ VOID OnPaint(HDC hdc) {
     bufferGraphics.Clear(Color::White);
     GraphicsState state = bufferGraphics.Save();
 
-    // --- LOGIC: VIEWBOX + OBJECT CENTER INTERACTION (NO CLIP, NO FIT) ---
+    float cxWorld = g_SvgBounds.X + g_SvgBounds.Width / 2.0f;
+    float cyWorld = g_SvgBounds.Y + g_SvgBounds.Height / 2.0f;
+    float vbX = (svgRoot.getVbWidth() > 0) ? svgRoot.getVbX() : 0;
+    float vbY = (svgRoot.getVbWidth() > 0) ? svgRoot.getVbY() : 0;
 
-    // 1. Lấy thông tin ViewBox
-    float vbX = svgRoot.getVbX();
-    float vbY = svgRoot.getVbY();
-    float vbW = svgRoot.getVbWidth();
-    float vbH = svgRoot.getVbHeight();
+    float pivotX = (cxWorld - vbX) * g_Zoom + g_PanX;
+    float pivotY = (cyWorld - vbY) * g_Zoom + g_PanY;
 
-    // Fallback nếu không có ViewBox thì dùng BoundingBox
-    if (vbW <= 0 || vbH <= 0) {
-        RectF bb = svgRoot.getBoundingBox();
-        vbX = bb.X; vbY = bb.Y; vbW = bb.Width; vbH = bb.Height;
+    bufferGraphics.TranslateTransform(pivotX, pivotY);
+    bufferGraphics.RotateTransform(g_Angle);
+    bufferGraphics.ScaleTransform(scaleTransform * g_Zoom, g_Zoom);
+    bufferGraphics.TranslateTransform(-cxWorld, -cyWorld);
+
+    if (g_IsInteracting && g_pCachedBitmap) {
+        float drawX = g_SvgBounds.X - PADDING_BITMAP;
+        float drawY = g_SvgBounds.Y - PADDING_BITMAP;
+        bufferGraphics.DrawImage(g_pCachedBitmap, drawX, drawY);
     }
-    if (vbW <= 0) vbW = 100; if (vbH <= 0) vbH = 100;
-
-    // 2. CẤU HÌNH HIỂN THỊ: TẮT FIT TO SCREEN
-    // Đặt scale = 1.0 (kích thước thật) và tx, ty = 0 (vẽ từ góc trên trái)
-    float fitScale = 1.0f;
-    float tx = 0.0f;
-    float ty = 0.0f;
-
-    // 3. Lấy tâm vật thể (BoundingBox) để xoay
-    RectF bb = svgRoot.getBoundingBox();
-    float objCX = bb.X + bb.Width / 2.0f;
-    float objCY = bb.Y + bb.Height / 2.0f;
-
-    // 4. Áp dụng chuỗi biến đổi ma trận
-    // D. Đưa về màn hình (chỉ cộng Pan, không scale fit, không center fit)
-    bufferGraphics.TranslateTransform(tx + g_PanX, ty + g_PanY);
-
-    // C. Scale fit (Ở đây là 1.0 - giữ nguyên kích thước)
-    bufferGraphics.ScaleTransform(fitScale, fitScale);
-
-    // B. Dời ViewBox về gốc (để khớp với tọa độ vẽ)
-    bufferGraphics.TranslateTransform(-vbX, -vbY);
-
-    // A. Tương tác người dùng (Xoay/Zoom quanh TÂM VẬT THỂ)
-    bufferGraphics.TranslateTransform(objCX, objCY);        // Dời tâm vật thể về vị trí cũ
-    bufferGraphics.RotateTransform(g_Angle);                // Xoay
-    bufferGraphics.ScaleTransform(scaleTransform * g_Zoom, g_Zoom); // Zoom
-    bufferGraphics.TranslateTransform(-objCX, -objCY);      // Dời tâm vật thể về gốc để xoay
-
-    // 5. QUAN TRỌNG: KHÔNG SET CLIP
-    // Đã xóa lệnh SetClip để phần thừa ngoài ViewBox vẫn hiện ra
-
-    // 6. Vẽ (Ignore ViewBox nội tại vì ta đã xử lý ma trận ở trên)
-    svgRoot.render(&bufferGraphics, (int)winWidth, (int)winHeight, true);
+    else {
+        svgRoot.render(&bufferGraphics, 0, 0, true);
+    }
 
     bufferGraphics.Restore(state);
+
     Graphics screenGraphics(hdc);
     screenGraphics.DrawImage(&backBuffer, 0, 0);
 }
@@ -182,38 +183,20 @@ void SaveSVGImage(HWND hWnd, SVGRoot* root) {
         if (wcsstr(szFile, L".jpg")) g->Clear(Color::White);
         else g->Clear(Color::Transparent);
 
-        // --- Áp dụng Logic Ma trận y hệt OnPaint ---
-        float vbX = root->getVbX();
-        float vbY = root->getVbY();
-        float vbW = root->getVbWidth();
-        float vbH = root->getVbHeight();
+        float cxWorld = g_SvgBounds.X + g_SvgBounds.Width / 2.0f;
+        float cyWorld = g_SvgBounds.Y + g_SvgBounds.Height / 2.0f;
+        float vbX = (root->getVbWidth() > 0) ? root->getVbX() : 0;
+        float vbY = (root->getVbWidth() > 0) ? root->getVbY() : 0;
+        float pivotX = (cxWorld - vbX) * g_Zoom + g_PanX;
+        float pivotY = (cyWorld - vbY) * g_Zoom + g_PanY;
 
-        if (vbW <= 0 || vbH <= 0) {
-            RectF bb = root->getBoundingBox();
-            vbX = bb.X; vbY = bb.Y; vbW = bb.Width; vbH = bb.Height;
-        }
-        if (vbW <= 0) vbW = 100; if (vbH <= 0) vbH = 100;
-
-        float fitScale = 1.0f;
-        float tx = 0.0f;
-        float ty = 0.0f;
-
-        RectF bb = root->getBoundingBox();
-        float objCX = bb.X + bb.Width / 2.0f;
-        float objCY = bb.Y + bb.Height / 2.0f;
-
-        g->TranslateTransform(tx + g_PanX, ty + g_PanY);
-        g->ScaleTransform(fitScale, fitScale);
-        g->TranslateTransform(-vbX, -vbY);
-
-        g->TranslateTransform(objCX, objCY);
+        g->TranslateTransform(pivotX, pivotY);
         g->RotateTransform(g_Angle);
         g->ScaleTransform(scaleTransform * g_Zoom, g_Zoom);
-        g->TranslateTransform(-objCX, -objCY);
+        g->TranslateTransform(-cxWorld, -cyWorld);
 
-        // Đã xóa SetClip ở đây luôn
-
-        root->render(g, w, h, true);
+        // Lưu file luôn dùng Vector Render để ảnh đẹp nhất
+        root->render(g, 0, 0, true);
 
         CLSID clsid;
         GetEncoderClsid(wcsstr(szFile, L".jpg") ? L"image/jpeg" : L"image/png", &clsid);
@@ -247,7 +230,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR lpCmdLine, INT iCmdShow)
     GdiplusStartupInput gdiplusStartupInput; ULONG_PTR gdiplusToken;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-    std::string fileName = "FireFox.svg";
+    std::string fileName = "svg-14.svg";
     if (lpCmdLine && strlen(lpCmdLine) > 0) {
         std::string cmdArg = lpCmdLine;
         if (cmdArg.length() >= 2 && cmdArg.front() == '\"') cmdArg = cmdArg.substr(1, cmdArg.length() - 2);
