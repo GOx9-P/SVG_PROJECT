@@ -118,31 +118,17 @@ VOID OnPaint(HDC hdc) {
 
     bufferGraphics.Clear(Color::White);
     GraphicsState state = bufferGraphics.Save();
-
-    float cxWorld = g_SvgBounds.X + g_SvgBounds.Width / 2.0f;
-    float cyWorld = g_SvgBounds.Y + g_SvgBounds.Height / 2.0f;
-    float vbX = (svgRoot.getVbWidth() > 0) ? svgRoot.getVbX() : 0;
-    float vbY = (svgRoot.getVbWidth() > 0) ? svgRoot.getVbY() : 0;
-
-    float pivotX = (cxWorld - vbX) * g_Zoom + g_PanX;
-    float pivotY = (cyWorld - vbY) * g_Zoom + g_PanY;
-
-    bufferGraphics.TranslateTransform(pivotX, pivotY);
+    bufferGraphics.TranslateTransform(g_PanX, g_PanY);
+    // Nếu muốn zoom tại tâm màn hình:
+    bufferGraphics.TranslateTransform(winWidth / 2.0f, winHeight / 2.0f);
     bufferGraphics.RotateTransform(g_Angle);
-    bufferGraphics.ScaleTransform(scaleTransform * g_Zoom, g_Zoom);
-    bufferGraphics.TranslateTransform(-cxWorld, -cyWorld);
+    bufferGraphics.ScaleTransform(g_Zoom * scaleTransform, g_Zoom);
+    bufferGraphics.TranslateTransform(-winWidth / 2.0f, -winHeight / 2.0f);
 
-    if (g_IsInteracting && g_pCachedBitmap) {
-        float drawX = g_SvgBounds.X - PADDING_BITMAP;
-        float drawY = g_SvgBounds.Y - PADDING_BITMAP;
-        bufferGraphics.DrawImage(g_pCachedBitmap, drawX, drawY);
-    }
-    else {
-        svgRoot.render(&bufferGraphics, 0, 0, true);
-    }
+    svgRoot.render(&bufferGraphics, (int)winWidth, (int)winHeight, false);
+
 
     bufferGraphics.Restore(state);
-
     Graphics screenGraphics(hdc);
     screenGraphics.DrawImage(&backBuffer, 0, 0);
 }
@@ -195,8 +181,8 @@ void SaveSVGImage(HWND hWnd, SVGRoot* root) {
         g->ScaleTransform(scaleTransform * g_Zoom, g_Zoom);
         g->TranslateTransform(-cxWorld, -cyWorld);
 
-        // Lưu file luôn dùng Vector Render để ảnh đẹp nhất
-        root->render(g, 0, 0, true);
+        // Lưu file luôn dùng Vector Render để ảnh đẹp nhấ
+        root->render(g, w, h, false);
 
         CLSID clsid;
         GetEncoderClsid(wcsstr(szFile, L".jpg") ? L"image/jpeg" : L"image/png", &clsid);
