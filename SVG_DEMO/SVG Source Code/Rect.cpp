@@ -7,24 +7,19 @@ void AddRoundedRectangle(GraphicsPath& path, Gdiplus::RectF bounds, float rx, fl
 	if (rx > bounds.Width / 2.0f) rx = bounds.Width / 2.0f;
 	if (ry > bounds.Height / 2.0f) ry = bounds.Height / 2.0f;
 
-	// Đường kính của góc bo
+
 	float dX = rx * 2;
 	float dY = ry * 2;
 
-	// Bắt đầu vẽ 4 cung tròn ở 4 góc
-	// 1. Góc trên-trái (Top-Left): 180 độ đến 270 độ
+	
 	path.AddArc(bounds.X, bounds.Y, dX, dY, 180, 90);
-
-	// 2. Góc trên-phải (Top-Right): 270 độ đến 360 độ
+	
 	path.AddArc(bounds.X + bounds.Width - dX, bounds.Y, dX, dY, 270, 90);
-
-	// 3. Góc dưới-phải (Bottom-Right): 0 độ đến 90 độ
+	
 	path.AddArc(bounds.X + bounds.Width - dX, bounds.Y + bounds.Height - dY, dX, dY, 0, 90);
-
-	// 4. Góc dưới-trái (Bottom-Left): 90 độ đến 180 độ
+	
 	path.AddArc(bounds.X, bounds.Y + bounds.Height - dY, dX, dY, 90, 90);
 
-	// Đóng hình (nối điểm cuối về đầu)
 	path.CloseFigure();
 }
 
@@ -104,27 +99,25 @@ Gdiplus::RectF SVGRect::getBoundingBox() {
 		this->getHeight()
 	);
 	 return raw;
-	 //return this->TransformRect(raw);
+	
 }
 
 void SVGRect::draw(Graphics* graphics)
 {
-	// 1. Lấy khung bao
+	
 	Gdiplus::RectF bounds = this->getBoundingBox();
 
-	// 2. Xử lý Logic Rx, Ry theo chuẩn SVG
 	float effectiveRx = this->getRx();
 	float effectiveRy = this->getRy();
 
-	// Nếu rx có nhưng ry không -> ry = rx
+	
 	if (effectiveRx > 0 && effectiveRy == 0) effectiveRy = effectiveRx;
-	// Nếu ry có nhưng rx không -> rx = ry
+	
 	if (effectiveRy > 0 && effectiveRx == 0) effectiveRx = effectiveRy;
 
-	// 3. Tạo Brush (Tự động chọn Solid hoặc Gradient từ lớp cha)
 	Brush* brush = this->createBrush(bounds);
 
-	// 4. Tạo Pen cho viền
+	
 	SVGStroke stroke = this->getStroke();
 	SVGColor strokeColor = stroke.getColor();
 	Color GDIStrokeColor(strokeColor.getA(), strokeColor.getR(), strokeColor.getG(), strokeColor.getB());
@@ -133,10 +126,10 @@ void SVGRect::draw(Graphics* graphics)
 	pen->SetLineCap(stroke.getLineCap(), stroke.getLineCap(), DashCapRound);
 	pen->SetLineJoin(stroke.getLineJoin());
 
-	// 5. Vẽ
+	
 	if (effectiveRx > 0 || effectiveRy > 0)
 	{
-		// TRƯỜNG HỢP CÓ BO GÓC: Dùng GraphicsPath
+		
 		GraphicsPath path;
 		AddRoundedRectangle(path, bounds, effectiveRx, effectiveRy);
 
@@ -149,7 +142,7 @@ void SVGRect::draw(Graphics* graphics)
 	}
 	else
 	{
-		// TRƯỜNG HỢP HÌNH CHỮ NHẬT THƯỜNG
+		
 		if (brush) {
 			graphics->FillRectangle(brush, bounds);
 		}

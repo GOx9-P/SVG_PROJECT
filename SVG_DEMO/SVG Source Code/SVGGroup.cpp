@@ -38,7 +38,7 @@ Gdiplus::RectF SVGGroup::getBoundingBox() {
         if (!child) continue;
         Gdiplus::RectF childBounds = child->getBoundingBox();
 
-        // Nếu bounds con rỗng (ví dụ gradient def), bỏ qua
+        
         if (childBounds.Width == 0 && childBounds.Height == 0) continue;
 
         if (first) {
@@ -49,7 +49,7 @@ Gdiplus::RectF SVGGroup::getBoundingBox() {
             bounds.Union(bounds, bounds, childBounds);
         }
     }
-    //return this->TransformRect(bounds);
+  
     return bounds;
 }
 
@@ -63,15 +63,15 @@ void SVGGroup::draw(Graphics* graphics)
     SVGColor parentFill = this->getFill();
     SVGStroke parentStroke = this->getStroke();
 
-    // Tính toán độ trong suốt của Group (Global Opacity)
+   
     float groupAlpha = this->getOpacity();
 
-    // Duyệt qua từng phần tử con
+ 
     for (SVGElement* element : group)
     {
         if (!element) continue;
 
-        // 1. SNAPSHOT (Lưu trạng thái gốc)
+      
         SVGColor originalFill = element->getFill();
         float originalFillOp = element->getFillOpacity();
         bool originalFillOpSet = element->isFillOpacitySet();
@@ -85,7 +85,7 @@ void SVGGroup::draw(Graphics* graphics)
         bool isStrokeChanged = false;
         bool isStrokeOpChanged = false;
 
-        // Nếu con CHƯA SET màu và cha ĐÃ SET màu -> Lấy của cha
+      
         if (!originalFill.isSet() && !originalFill.isNone() && parentFill.isSet())
         {
             element->setFill(parentFill);
@@ -99,7 +99,7 @@ void SVGGroup::draw(Graphics* graphics)
             isFillChanged = true;
         }
 
-        // Nếu con chưa set opacity, copy từ cha xuống để con dùng
+       
         if (!element->isFillOpacitySet() && this->isFillOpacitySet())
         {
             element->setFillOpacity(this->getFillOpacity());
@@ -107,7 +107,7 @@ void SVGGroup::draw(Graphics* graphics)
             isFillOpChanged = true; 
         }
 
-        // D. Tính Alpha (Baking Alpha)
+        
         if (element->getFill().isSet())
         {
             float effectiveOp = element->getFillOpacity(); 
@@ -130,26 +130,26 @@ void SVGGroup::draw(Graphics* graphics)
         SVGStroke newStroke = originalStroke;
         SVGColor strokeColor = newStroke.getColor();
 
-        // A. Inherit Stroke Color
+    
         if (!strokeColor.isSet() && !strokeColor.isNone() && parentStroke.getColor().isSet()) {
             newStroke.setColor(parentStroke.getColor());
             strokeColor = newStroke.getColor();
             isStrokeChanged = true;
         }
-        // B. Inherit Width
+       
         if (newStroke.getWidth() <= 0.0f && parentStroke.getWidth() > 0.0f) {
             if (strokeColor.isSet() && !strokeColor.isNone()) {
                 newStroke.setWidth(parentStroke.getWidth());
                 isStrokeChanged = true;
             }
         }
-        // C. Inherit Stroke Opacity
+       
         if (!element->isStrokeOpacitySet() && this->isStrokeOpacitySet()) {
             element->setStrokeOpacity(this->getStrokeOpacity());
             element->setIsStrokeOpacitySet(true);
             isStrokeOpChanged = true;
         }
-        // D. Calculate Stroke Alpha
+     
         if (strokeColor.isSet()) {
             float effectiveStrokeOp = element->getStrokeOpacity();
             float baseAlpha = (float)strokeColor.getA();
@@ -167,15 +167,14 @@ void SVGGroup::draw(Graphics* graphics)
             isStrokeChanged = true;
         }
 
-        // Áp dụng Stroke mới nếu có thay đổi
+       
         if (isStrokeChanged) {
             element->setStroke(newStroke);
         }
 
-        // 3. VẼ (RENDER)
+       
         element->render(graphics);
 
-        // 4. HOÀN TÁC TRẠNG THÁI (REVERT)
         if (isFillChanged) element->setFill(originalFill);
         if (isFillOpChanged) {
             element->setFillOpacity(originalFillOp);

@@ -189,7 +189,6 @@ Gdiplus::RectF TextElement::getBoundingBox() {
     HDC hdc = GetDC(NULL);
     Graphics g(hdc);
 
-    // 1. TÌM FONT (Logic giống hệt hàm draw)
     FontFamily* pFontFamily = nullptr;
     wstring wFontList = L"Arial";
     if (!this->fontFamily.empty()) {
@@ -220,7 +219,7 @@ Gdiplus::RectF TextElement::getBoundingBox() {
     }
     if (!fontFound || pFontFamily == nullptr) pFontFamily = new FontFamily(L"Arial");
 
-    // 2. TÍNH BASELINE
+
     int style = FontStyleRegular;
     float ascentDesignUnits = (float)pFontFamily->GetCellAscent(style);
     float emHeightDesignUnits = (float)pFontFamily->GetEmHeight(style);
@@ -229,7 +228,6 @@ Gdiplus::RectF TextElement::getBoundingBox() {
         ascentPixels = (ascentDesignUnits / emHeightDesignUnits) * this->fontSize;
     }
 
-    // 3. CHUẨN BỊ TEXT
     wstring wTextContent = L"";
     if (!this->textContent.empty()) {
         int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0);
@@ -239,7 +237,7 @@ Gdiplus::RectF TextElement::getBoundingBox() {
         reviseContent(wTextContent);
     }
 
-    // 4. FORMAT
+
     StringFormat format;
     if (this->textAnchor == "middle") format.SetAlignment(StringAlignmentCenter);
     else if (this->textAnchor == "end") format.SetAlignment(StringAlignmentFar);
@@ -247,7 +245,6 @@ Gdiplus::RectF TextElement::getBoundingBox() {
 
     PointF origin(position.getX(), position.getY() - ascentPixels);
 
-    // 5. ĐO BẰNG GRAPHICSPATH (CHÍNH XÁC TUYỆT ĐỐI)
     GraphicsPath path;
     path.AddString(
         wTextContent.c_str(),
@@ -262,25 +259,23 @@ Gdiplus::RectF TextElement::getBoundingBox() {
     RectF boundingBox;
     SVGStroke stroke = this->getStroke();
 
-    // Nếu có viền, ta dùng Pen để đo độ dày viền
+
     if (stroke.getColor().getA() > 0 && stroke.getWidth() > 0) {
         Pen pen(Color::Black, stroke.getWidth());
-        // Hàm này tính cả phần lấn ra ngoài của viền
+
         path.GetBounds(&boundingBox, NULL, &pen);
     }
     else {
         path.GetBounds(&boundingBox);
     }
 
-    // 6. THÊM PADDING AN TOÀN (SAFE BUFFER)
-    // Để tránh việc khử răng cưa (antialiasing) ở mép pixel bị cắt, ta mở rộng thêm 5px mỗi chiều
+  
     float safetyPad = 5.0f;
     boundingBox.Inflate(safetyPad, safetyPad);
 
     delete pFontFamily;
     ReleaseDC(NULL, hdc);
 
-    //return this->TransformRect(boundingBox);
     return boundingBox;
 }
 void TextElement::draw(Graphics* graphics)
@@ -289,8 +284,7 @@ void TextElement::draw(Graphics* graphics)
 
     FontFamily* pFontFamily = nullptr;
 
-    // Chuyển chuỗi font-family từ class sang wstring
-    wstring wFontList = L"Arial"; // Mặc định
+    wstring wFontList = L"Arial"; 
     if (!this->fontFamily.empty()) {
         int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->fontFamily[0], (int)this->fontFamily.size(), NULL, 0);
         wstring wstr(sizeNeeded, 0);
@@ -298,7 +292,7 @@ void TextElement::draw(Graphics* graphics)
         wFontList = wstr;
     }
 
-    // Tách chuỗi và tìm font hợp lệ
+
     size_t pos = 0;
     std::wstring token;
     std::wstring delimiter = L",";
@@ -315,34 +309,28 @@ void TextElement::draw(Graphics* graphics)
             s = L"";
         }
 
-        token = trim(token); // Cắt khoảng trắng thừa
+        token = trim(token); 
 
-        // Bỏ qua các từ khóa generic của CSS mà GDI+ không hiểu
         if (token.empty() || token == L"serif" || token == L"sans-serif" || token == L"monospace" || token == L"cursive" || token == L"fantasy")
             continue;
 
-        // Thử tạo Font
         pFontFamily = new FontFamily(token.c_str());
 
-        // Kiểm tra xem máy có font này không
         if (pFontFamily->GetLastStatus() == Ok && pFontFamily->IsStyleAvailable(FontStyleRegular)) {
             fontFound = true;
-            break; // Đã tìm thấy, thoát vòng lặp
+            break; 
         }
 
-        // Không dùng được thì xóa đi để thử cái tiếp theo
         delete pFontFamily;
         pFontFamily = nullptr;
 
         if (s.length() == 0) break;
     }
-
-    // Nếu không tìm thấy font nào trong list, dùng Arial làm đường cùng
     if (!fontFound || pFontFamily == nullptr) {
         pFontFamily = new FontFamily(L"Arial");
     }
 
-    //2. CHUẨN BỊ NỘI DUNG TEXT
+
     wstring wTextContent = L"";
     if (!this->textContent.empty()) {
         int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &this->textContent[0], (int)this->textContent.size(), NULL, 0);
@@ -352,7 +340,7 @@ void TextElement::draw(Graphics* graphics)
         reviseContent(wTextContent);
     }
 
-    // 3. TÍNH TOÁN VỊ TRÍ BASELINE
+
     int style = FontStyleRegular;
 
     float ascentDesignUnits = (float)pFontFamily->GetCellAscent(style);
@@ -365,7 +353,6 @@ void TextElement::draw(Graphics* graphics)
 
     PointF origin(this->getPosition().getX(), this->getPosition().getY() - ascentPixels);
 
-    // 4. XỬ LÝ CĂN LỀ & VẼ 
     StringFormat format;
     if (this->textAnchor == "middle") format.SetAlignment(StringAlignmentCenter);
     else if (this->textAnchor == "end") format.SetAlignment(StringAlignmentFar);
@@ -375,14 +362,13 @@ void TextElement::draw(Graphics* graphics)
     path.AddString(
         wTextContent.c_str(),
         -1,
-        pFontFamily, // Dùng con trỏ font đã tìm được
+        pFontFamily, 
         style,
         this->fontSize,
         origin,
         &format
     );
 
-    // Tô màu (Fill)
     SVGColor fillColor = this->getFill();
     if (fillColor.getA() > 0) {
         Color gdiFillColor(fillColor.getA(), fillColor.getR(), fillColor.getG(), fillColor.getB());
@@ -390,7 +376,7 @@ void TextElement::draw(Graphics* graphics)
         graphics->FillPath(&brush, &path);
     }
 
-    // Viền (Stroke)
+
     SVGStroke stroke = this->getStroke();
     if (stroke.getColor().getA() > 0 && stroke.getWidth() > 0) {
         SVGColor sColor = stroke.getColor();

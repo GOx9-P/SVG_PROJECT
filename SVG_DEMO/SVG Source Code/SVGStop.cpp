@@ -10,37 +10,35 @@
 
 using namespace std;
 
-//SVGStop::SVGStop() : offset(0.0f), stopOpacity(1.0f) {
-//    stopColor = SVGColor(0, 0, 0, 255);
-//}
-//
-//SVGStop::SVGStop(float offset, const SVGColor& color, float opacity) {
-//    this->offset = offset;
-//    this->stopColor = color;
-//    this->stopOpacity = opacity;
-//}
 
-float SVGStop::getOffset() const { return offset; }
-void SVGStop::setOffset(float val) { offset = val; }
+float SVGStop::getOffset() const 
+{
+    return offset; 
+}
+void SVGStop::setOffset(float val)
+{ 
+    offset = val; 
+}
 
-SVGColor SVGStop::getStopColor() const { return stopColor; }
-void SVGStop::setStopColor(const SVGColor& val) { stopColor = val; }
+SVGColor SVGStop::getStopColor() const
+{
+    return stopColor; 
+}
+void SVGStop::setStopColor(const SVGColor& val) 
+{ 
+    stopColor = val; 
+}
 
 float SVGStop::getStopOpacity() const { return stopOpacity; }
 void SVGStop::setStopOpacity(float val) { stopOpacity = val; }
 
-// Helper: Hàm parse số an toàn (Bắt buộc dùng dấu chấm)
 static float parseFloatSafe(const string& str) {
     if (str.empty()) return 0.0f;
     string s = str;
-    // Thay thế dấu phẩy thành dấu chấm (nếu có)
     for (char& c : s) if (c == ',') c = '.';
-
-    // Xóa ký tự % nếu có
     if (!s.empty() && s.back() == '%') s.pop_back();
-
     stringstream ss(s);
-    ss.imbue(std::locale::classic()); // Ép kiểu số chuẩn quốc tế
+    ss.imbue(std::locale::classic()); 
     float val = 0;
     ss >> val;
     return val;

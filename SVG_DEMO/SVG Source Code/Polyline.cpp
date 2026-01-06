@@ -23,7 +23,6 @@ Gdiplus::RectF SVGPolyline::getBoundingBox() {
 	}
 	Gdiplus::RectF raw(minX, minY, maxX - minX, maxY - minY);
 	return raw;
-	//return this->TransformRect(raw);
 }
 
 void SVGPolyline::parseAttributes(xml_node<>* Node)
@@ -55,7 +54,7 @@ void SVGPolyline::draw(Graphics* graphics)
 	if (points.empty()) return;
 
 	Gdiplus::RectF bounds = this->getBoundingBox();
-	Brush* brush = this->createBrush(bounds); // Hỗ trợ Gradient cho Polygon
+	Brush* brush = this->createBrush(bounds); 
 
 	SVGStroke stroke = this->getStroke();
 	SVGColor sColor = stroke.getColor();

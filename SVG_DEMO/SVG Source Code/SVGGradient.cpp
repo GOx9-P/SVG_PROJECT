@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "SVGGradient.h"
-#include "SVGRoot.h" // BẮT BUỘC CÓ để truy cập defsMap
+#include "SVGRoot.h" 
 #include <sstream>
 
 SVGGradient::SVGGradient() {
@@ -42,7 +42,7 @@ static string trim(const string& str) {
 }
 
 void SVGGradient::parseAttributes(xml_node<>* node) {
-    SVGElement::parseAttributes(node); // Parse ID
+    SVGElement::parseAttributes(node); 
 
     if (xml_attribute<>* attr = node->first_attribute("gradientUnits"))
         gradientUnits = attr->value();
@@ -59,7 +59,6 @@ void SVGGradient::parseAttributes(xml_node<>* node) {
         }
     }
 
-    // 1. Duyệt thẻ con <stop>
     for (xml_node<>* child = node->first_node("stop"); child; child = child->next_sibling("stop")) {
         float offset = 0.0f;
         float opacity = 1.0f;
@@ -91,14 +90,13 @@ void SVGGradient::parseAttributes(xml_node<>* node) {
         this->addStop(SVGStop(offset, color, opacity));
     }
 
-    // 2. Xử lý xlink:href (QUAN TRỌNG CHO INSTAGRAM LOGO)
     if (this->stops.empty()) {
         if (xml_attribute<>* attr = node->first_attribute("xlink:href")) {
             string href = attr->value();
             if (href.length() > 1 && href[0] == '#') {
                 string refID = href.substr(1);
 
-                // Kiểm tra xem ID có tồn tại trong map không trước khi truy cập
+              
                 if (SVGRoot::defsMap.find(refID) != SVGRoot::defsMap.end()) {
                     SVGGradient* parentGrad = SVGRoot::defsMap[refID];
                     if (parentGrad) {

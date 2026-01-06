@@ -4,7 +4,7 @@
 #include "SVGLinearGradient.h"
 #include "SVGRadialGradient.h"
 
-// Hàm hỗ trợ xóa khoảng trắng thừa đầu/cuối chuỗi
+
 string trim(const string& str) {
 	size_t first = str.find_first_not_of(" \t\n\r");
 	if (string::npos == first) return str;
@@ -12,19 +12,19 @@ string trim(const string& str) {
 	return str.substr(first, (last - first + 1));
 }
 
-// Hàm phân tích cú pháp CSS Inline
+
 void parseStyleString(const string& styleStr, SVGColor& outFill, float& outFillOp, bool& outFillOpSet, SVGStroke& outStroke, float& outStrokeOp, bool& outStrokeOpSet) {
 	stringstream ss(styleStr);
 	string segment;
 
-	// 1. Tách các cặp thuộc tính bằng dấu chấm phẩy ';'
+
 	while (getline(ss, segment, ';')) {
 		size_t colonPos = segment.find(':');
 		if (colonPos != string::npos) {
 			string key = trim(segment.substr(0, colonPos));
 			string value = trim(segment.substr(colonPos + 1));
 
-			// 2. Map sang các thuộc tính tương ứng
+		
 			if (key == "fill") {
 				outFill = SVGColor::fromString(value);
 			}
@@ -42,7 +42,7 @@ void parseStyleString(const string& styleStr, SVGColor& outFill, float& outFillO
 				}
 			}
 			else if (key == "stroke-width") {
-				// Xóa chữ "px" nếu có
+				
 				size_t pxPos = value.find("px");
 				if (pxPos != string::npos) value = value.substr(0, pxPos);
 				outStroke.setWidth(atof(value.c_str()));
@@ -209,7 +209,7 @@ void SVGElement::parseTransform()
 		getline(ss1, command, '(');
 		command = deleteSpace(command);
 
-		// vi trong transform nhan cac lenh tu phai sang trai nen ta phai nhan vao phia truoc ma tran.
+
 		if (command == "translate")
 		{
 			float x = 0, y = 0;
@@ -263,63 +263,27 @@ void SVGElement::parseTransform()
 	}
 }
 
-//Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
-//	if (this->getFill().isSet() && !this->getFill().isNone())
-//	{
-//		// ... (Giữ nguyên logic tạo SolidBrush từ màu fill) ...
-//		SVGColor c = this->getFill();
-//		return new Gdiplus::SolidBrush(Gdiplus::Color(c.getA(), c.getR(), c.getG(), c.getB()));
-//	}
-//	SVGColor color = this->getFill();
-//	string fillUrl = color.getUrlRef();
-//	// 1. Nếu màu là URL (Gradient)
-//	if (color.isUrl()) {
-//		string id = color.getUrlRef();
-//
-//		// Tìm trong kho chứa static của SVGRoot
-//		if (SVGRoot::defsMap.find(id) != SVGRoot::defsMap.end()) {
-//			SVGGradient* grad = SVGRoot::defsMap[id];
-//
-//			// Ép kiểu sang LinearGradient
-//			SVGLinearGradient* linGrad = dynamic_cast<SVGLinearGradient*>(grad);
-//			if (linGrad) {
-//				return linGrad->createBrush(bounds);
-//			}
-//		}
-//		// Nếu không tìm thấy ID, fallback về Transparent hoặc Black tuỳ chuẩn
-//		return new SolidBrush(Color(0, 0, 0, 0));
-//	}
-//
-//	// 2. Nếu là màu thường (Solid)
-//	if (color.isNone()) {
-//		return nullptr; // Không vẽ
-//	}
-//
-//	Color gdiColor(color.getA(), color.getR(), color.getG(), color.getB());
-//	return new Gdiplus::SolidBrush(gdiColor);
-//}
-
 Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
 	SVGColor color = this->getFill();
 
-	// 1. Nếu màu là URL (Gradient)
+	
 	if (color.isUrl()) {
 		string id = color.getUrlRef();
 
-		// Tìm trong kho chứa static của SVGRoot
+		
 		if (SVGRoot::defsMap.find(id) != SVGRoot::defsMap.end()) {
 			SVGGradient* grad = SVGRoot::defsMap[id];
 
 			if (grad) {
-				// Đa hình: Tự động gọi createBrush của Linear hoặc Radial
+				
 				return grad->createBrush(bounds);
 			}
 		}
-		// Fallback nếu không tìm thấy gradient
+		
 		return new Gdiplus::SolidBrush(Gdiplus::Color(0, 0, 0, 0));
 	}
 
-	// 2. Nếu là màu thường (Solid)
+	
 	if (color.isNone()) {
 		return nullptr;
 	}
@@ -330,7 +294,7 @@ Gdiplus::Brush* SVGElement::createBrush(Gdiplus::RectF bounds) {
 
 void SVGElement::parseAttributes(xml_node<>* Node)
 {
-	// 1. Lấy ID, Class, Transform (Giữ nguyên)
+	
 	if (xml_attribute<>* attribute = Node->first_attribute("id")) {
 		id = attribute->value();
 	}
@@ -343,12 +307,11 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		parseTransform();
 	}
 
-	// 2. Lấy Global Opacity
+	
 	if (xml_attribute<>* attr = Node->first_attribute("opacity")) {
 		this->opacity = atof(attr->value());
 	}
 
-	// Bước A: Đọc màu fill
 	if (xml_attribute<>* attribute = Node->first_attribute("fill")) {
 		string Tempcolor = attribute->value();
 		if (Tempcolor == "none")
@@ -357,17 +320,16 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		}
 		else
 		{
-			fill = SVGColor::fromString(Tempcolor); // Hàm này sẽ set isSet() = true
+			fill = SVGColor::fromString(Tempcolor); 
 		}
 	}
 
-	// Bước B: Đọc fill-opacity và xử lý logic đặc biệt
+	
 	if (xml_attribute<>* attribute = Node->first_attribute("fill-opacity")) {
 		this->fillOpacity = atof(attribute->value());
 		this->isFillOpSet = true;
 	}
 
-	// Bước A: Đọc màu stroke
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke")) {
 		string TempColorStroke = attribute->value();
 		if (TempColorStroke == "none")
@@ -387,7 +349,6 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		stroke.setWidth(atof(attribute->value()));
 	}
 
-	// Bước B: Đọc stroke-opacity
 	if (xml_attribute<>* attribute = Node->first_attribute("stroke-opacity")) {
 		this->strokeOpacity = atof(attribute->value());
 		this->isStrokeOpSet = true;
@@ -400,12 +361,11 @@ void SVGElement::parseAttributes(xml_node<>* Node)
 		this->stroke.setLineJoin(attr->value());
 	}
 
-	// Fix độ dày nét vẽ nếu có màu mà chưa có độ dày
+	
 	if (stroke.getColor().isSet() && stroke.getColor().getA() > 0 && stroke.getWidth() <= 0.0f) {
 		stroke.setWidth(1.0f);
 	}
 
-	// Parse Style (Inline CSS)
 	if (xml_attribute<>* attribute = Node->first_attribute("style")) {
 		string styleStr = attribute->value();
 		parseStyleString(styleStr, this->fill, this->fillOpacity, this->isFillOpSet, this->stroke, this->strokeOpacity, this->isStrokeOpSet);
@@ -431,34 +391,26 @@ void SVGElement::parseTransformAttribute(const string& transformStr) {
 	if (transformStr.empty()) return;
 	this->hasTransform = true;
 
-	// Reset matrix cũ
+	
 	transformMatrix->Reset();
 
-	// Logic parse chuỗi transform là khá dài (bạn có thể tìm thư viện hoặc tự viết).
-	// Ở đây tôi ví dụ nhanh logic translate/scale nếu bạn chưa có:
-	// Gợi ý: Hãy dùng regex hoặc string find để tách "translate(x,y)" và gọi:
-	// transformMatrix.Translate(tx, ty);
-	// transformMatrix.Scale(sx, sy);
-	// transformMatrix.Rotate(angle);
-
-	// QUAN TRỌNG: Bạn phải đảm bảo hàm render() cũng dùng chính matrix này
-	// thay vì parse lại từ đầu.
+	
 }
 
 RectF SVGElement::TransformRect(RectF rect) {
 	if (!hasTransform) return rect;
 
-	// Lấy 4 góc của hình chữ nhật
+	
 	PointF pts[4];
 	pts[0] = PointF(rect.X, rect.Y);
 	pts[1] = PointF(rect.X + rect.Width, rect.Y);
 	pts[2] = PointF(rect.X, rect.Y + rect.Height);
 	pts[3] = PointF(rect.X + rect.Width, rect.Y + rect.Height);
 
-	// Biến đổi các điểm theo matrix
+
 	transformMatrix->TransformPoints(pts, 4);
 
-	// Tìm min/max mới để tạo hình chữ nhật bao quanh mới
+	
 	float minX = pts[0].X, maxX = pts[0].X;
 	float minY = pts[0].Y, maxY = pts[0].Y;
 
