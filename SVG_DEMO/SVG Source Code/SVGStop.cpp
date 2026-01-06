@@ -1,9 +1,4 @@
-﻿//#include "stdafx.h"
-//#include "SVGStop.h"
-//
-
-
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "SVGStop.h"
 #include <sstream>
 #include <string>
